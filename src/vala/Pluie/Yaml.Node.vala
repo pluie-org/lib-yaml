@@ -1,0 +1,76 @@
+using GLib;
+using Pluie;
+
+public interface Pluie.Yaml.Node : Object
+{
+    /**
+     * universal unique identifier
+     */
+    public abstract string           uuid       { get; internal set; }
+
+    /**
+     * node type related to Yaml.NODE_TYPE
+     */
+    public abstract Yaml.NODE_TYPE   node_type  { get; internal set; }
+
+    public abstract int              indent     { get; internal set; }
+
+    /**
+     * parent node
+     */
+    public abstract Yaml.Node?       parent     { get; internal set; }
+
+    /**
+     * current node data for Yaml.NodeScalar node
+     */
+    public abstract string?          data       { get; internal set; default = null; }
+
+    /**
+     * current node name (key)
+     */
+    public abstract string?          name       { get; internal set; default = null; }
+ 
+    /**
+     * add a child node to current collection (mapping or sequence) node
+     * @param child the Yaml.Node child to add
+     */
+    public abstract bool add (Yaml.Node node);
+
+    /**
+     * stuff on changing parent node
+     * @param child  the childto add
+     */
+    protected abstract bool on_change_parent ();
+
+    /**
+     * remove a child
+     * @param child  the child to remove
+     */
+    protected abstract bool remove_child (Yaml.Node child);
+
+    /**
+     * check if node has child nodes
+     */
+    public abstract bool has_child_nodes ();
+
+    /**
+     * give the next sibling node
+     */
+    public abstract Yaml.Node? next_sibling ();
+
+    /**
+     * give the previous sibling node
+     */
+    public abstract Yaml.Node? previous_sibling ();
+
+    /**
+     * give the root parent node
+     */
+    public abstract Yaml.Node? get_root_node ();
+
+    /**
+     * get a presentation string of current Yaml.Node
+     */
+    public abstract string to_string (bool withIndent = true);
+
+}

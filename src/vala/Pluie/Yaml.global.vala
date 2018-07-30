@@ -1,0 +1,186 @@
+namespace Pluie
+{
+    namespace Yaml
+    {
+        /**
+         * haxadecimal sequence
+         */
+        const string hexa_sequence = "0123456789abcdef";
+
+        /**
+         * convert %02x string to uint8
+         * @param hex2byte string representation of hexadecimal value on 1 byte
+         */
+        uint8 hex_to_dec (string hexbyte)
+        {
+            return (uint8) (
+                Yaml.hexa_sequence.index_of(hexbyte.data[0].to_string ())*16 +
+                Yaml.hexa_sequence.index_of(hexbyte.data[1].to_string ())
+            );
+        }
+
+        /**
+         * enum MatchInfo keys of Yaml.Mode.find method related to mode FIND_MODE.SQUARE_BRACKETS of Yaml.Node
+         */
+        public enum EVT {
+            NONE,
+            STREAM_START,
+            STREAM_END,
+            VERSION_DIRECTIVE,
+            TAG_DIRECTIVE,
+            DOCUMENT_START,
+            DOCUMENT_END,
+            BLOCK_SEQUENCE_START,
+            BLOCK_MAPPING_START,
+            BLOCK_END,
+            FLOW_SEQUENCE_START,
+            FLOW_SEQUENCE_END,
+            FLOW_MAPPING_START,
+            FLOW_MAPPING_END,
+            BLOCK_ENTRY,
+            FLOW_ENTRY,
+            KEY,
+            VALUE,
+            ALIAS,
+            ANCHOR,
+            TAG,
+            SCALAR;
+
+            /**
+              *@return infos related to EVT
+              */
+            public string infos ()
+            {
+                return this.to_string().substring("PLUIE_YAML_".length);
+            }
+        }
+
+        /**
+         * enum possible find mode of Yaml.Node.mode
+         */
+        public enum FIND_MODE
+        {
+            DOT,
+            SQUARE_BRACKETS;
+
+            /**
+             *
+             */
+            public bool is_dot ()
+            {
+                return this == DOT;
+            }
+        }
+
+        /**
+         * enum MatchInfo keys of Yaml.Mode.find method related to mode FIND_MODE.SQUARE_BRACKETS of Yaml.Node
+         */
+        internal enum FIND_COLLECTION
+        {
+            PATH,
+            OPEN,
+            KEY,
+            CLOSE;
+        }
+
+        /**
+         * enum MatchInfo keys of Yaml.Node.find method related to mode FIND_MODE.DOT of Yaml.Node
+         */
+        internal enum FIND_DOT
+        {
+            PATH,
+            KEY,
+            SEQUENCE;
+        }
+
+        /**
+         * enum possible type of Yaml.Node
+         */
+        public enum NODE_TYPE
+        {
+            UNDEFINED,
+            ROOT,
+            SCALAR,
+            SINGLE_PAIR,
+            MAPPING,
+            SEQUENCE;
+
+            /**
+             * @return if current NODE_TYPE match a collection node (root|mapping|sequence)
+             */
+            public bool is_collection ()
+            {
+                return this == MAPPING || this == SEQUENCE || this == ROOT;
+            }
+
+            /**
+             * @return if current NODE_TYPE match a scalar node
+             */
+            public bool is_scallar ()
+            {
+                return this == SCALAR;
+            }
+
+            /**
+             * @return if current NODE_TYPE match a single/pair mapping node
+             */
+            public bool is_single_pair ()
+            {
+                return this == SINGLE_PAIR;
+            }
+
+            /**
+             * @return if current NODE_TYPE match a mapping node
+             */
+            public bool is_mapping ()
+            {
+                return this == MAPPING;
+            }
+
+            /**
+             * @return if current NODE_TYPE match a sequence node
+             */
+            public bool is_sequence ()
+            {
+                return this == SEQUENCE;
+            }
+
+            /**
+             * @return if current NODE_TYPE match a root node
+             */
+            public bool is_root ()
+            {
+                return this == ROOT;
+            }
+
+            /**
+             *@return infos related to NODE_TYPE
+             */
+            public string infos ()
+            {
+                return this.to_string().substring("PLUIE_YAML_NODE_TYPE_".length);
+            }
+        }
+
+        /**
+         *@return universal infos related to NODE_TYPE
+         */
+        public string uuid ()
+        {
+            var sb = new StringBuilder();
+            for (var i = 0; i < 4; i++) sb.append (Random.next_int ().to_string ("%08x"));
+            var h = sb.str;
+            var d = Yaml.hex_to_dec (h.substring (16, 2));
+            d    &= 0x3f;
+            d    |= 0x80;
+            return "%s-%s-4%s-%02x%s-%s".printf (
+                h.substring (0, 8),
+                h.substring (8, 4),
+                h.substring (13, 3),
+                d,
+                h.substring (18, 2),
+                h.substring (20)
+            );
+        }
+    }
+}
