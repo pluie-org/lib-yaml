@@ -156,23 +156,12 @@ namespace Pluie
         /**
          * enum MatchInfo keys of Yaml.Mode.find method related to mode FIND_MODE.SQUARE_BRACKETS of Yaml.Node
          */
-        internal enum FIND_COLLECTION
-        {
-            PATH,
-            OPEN,
-            KEY,
-            CLOSE;
-        }
+        internal enum FIND_COLLECTION { PATH, OPEN, KEY, CLOSE; }
 
         /**
          * enum MatchInfo keys of Yaml.Node.find method related to mode FIND_MODE.DOT of Yaml.Node
          */
-        internal enum FIND_DOT
-        {
-            PATH,
-            KEY,
-            SEQUENCE;
-        }
+        internal enum FIND_DOT        { PATH, KEY, SEQUENCE; }
 
         /**
          * enum possible type of Yaml.Node

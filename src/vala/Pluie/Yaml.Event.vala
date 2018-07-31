@@ -3,8 +3,7 @@ using Gee;
 using Pluie;
 
 /**
- * a class to read file line by line with convenient methods to rewind to specific lines
- * using {@link Io.StreamLineMark}
+ * Yaml Event class
  */
 public class Pluie.Yaml.Event
 {

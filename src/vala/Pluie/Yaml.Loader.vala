@@ -3,8 +3,7 @@ using Gee;
 using Pluie;
 
 /**
- * a tiny Yaml Parser whose purpose is not to comply with all yaml specifications but to parse yaml configuration files
- * todo improve description of what is expected
+ * a Yaml Loader class
  */
 public class Pluie.Yaml.Loader
 {
@@ -12,7 +11,10 @@ public class Pluie.Yaml.Loader
      * Scanner 
      */
     Yaml.Scanner    scanner     { public get; internal set; }
-    
+
+    /**
+     * indicate if file has been sucessfully loaded
+     */
     public bool     done        { get; internal set; }
 
     /**
@@ -22,6 +24,8 @@ public class Pluie.Yaml.Loader
 
     /**
      * @param path the path of file to parse
+     * @param displayFile display original file
+     * @param displayNode display corresponding Yaml Node Graph
      */
     public Loader (string path, bool displayFile = false, bool displayNode = false )
     {
@@ -37,7 +41,7 @@ public class Pluie.Yaml.Loader
     }
 
     /**
-     *
+     * return resulting Yaml root node
      */
     public Yaml.NodeRoot get_nodes ()
     {
@@ -45,7 +49,7 @@ public class Pluie.Yaml.Loader
     }
 
     /**
-     *
+     * display original file
      */
     public void displayFile ()
     {

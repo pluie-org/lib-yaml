@@ -4,17 +4,37 @@ using Pluie;
 extern void yaml_parse_file(string srcPath, string destPath);
 
 /**
- * a tiny Yaml Parser whose purpose is not to comply with all yaml specifications but to parse yaml configuration files
- * todo improve description of what is expected
+ * a Yaml scanner class dealing with libyaml to generate a list of Yaml.Event
  */
 public class Pluie.Yaml.Scanner
 {
+    /**
+     * Regex pattern use to find EVENT
+     */
     const string       REG_EVENT     = "^([0-9]+), ([0-9]+)(.*)$";
+    /**
+     * Regex pattern use to find EVENT VERSION
+     */
     const string       REG_VERSION   = "^, ([0-9]+), ([0-9]+)$";
+    /**
+     * Regex pattern use to find EVENT TAG
+     */
     const string       REG_TAG       = "^, \"([^\"]*)\", \"([^\"]*)\"$";
+    /**
+     * Regex pattern use to find EVENT ERROR
+     */
     const string       REG_ERROR     = "^, \"([^\"]*)\"$";
+    /**
+     * Regex pattern use to find EVENT SCALAR
+     */
     const string       REG_SCALAR    = "^, ([0-9]+), \"(.*)\"$";
+    /**
+     * Regex pattern use to find EVENT ANCHOR
+     */
     const string       REG_ANCHOR    = "^, \"([^\"]*)\"$";
+    /**
+     * Regex pattern use to find EVENT ALIAS
+     */
     const string       REG_ALIAS     = "^, \"([^\"]*)\"$";
 
     /**
@@ -43,14 +63,9 @@ public class Pluie.Yaml.Scanner
     enum               MIEVT_ERROR   { NONE, DATA }
 
     /**
-     * indicate if file has been sucessfully parsed
+     * indicate if file has been sucessfully scanned
      */
     public bool        done          { get; internal set; }
-
-    /**
-     * the mark use to rewind line throught Io.Reader
-     */
-    Io.StreamLineMark? mark;
 
     /**
      * Reader used to load content yaml file
@@ -58,12 +73,12 @@ public class Pluie.Yaml.Scanner
     Io.Reader          reader;
 
     /**
-     * Yaml Processor
+     * Yaml Processor used to process events
      */
-    Yaml.Processor     processor      { get; internal set; }
+    Yaml.Processor     processor     { get; internal set; }
 
     /**
-     * @param path the path of file to parse
+     * @param path the path of file to scan
      */
     public Scanner (string path)
     {
@@ -73,7 +88,7 @@ public class Pluie.Yaml.Scanner
     }
 
     /**
-     *
+     * return resulting Yaml root node
      */
     public Yaml.NodeRoot get_nodes ()
     {
@@ -81,13 +96,13 @@ public class Pluie.Yaml.Scanner
     }
 
     /**
-     * parse a file related to specifiyed path
-     * @param path the path to parse
+     * scan specifiyed file generated throught yaml.c
+     * @param optional file path to scan
      */
     public bool run (string? path = null)
     {
         Dbg.in (Log.METHOD, "path:'%s'".printf (path), Log.LINE, Log.FILE);
-        if (path != null) {
+        if (path != null && this.reader.path != path) {
             this.reader.load (path);
         }
         else {
@@ -123,9 +138,8 @@ public class Pluie.Yaml.Scanner
             data.set("major", mi.fetch (MIEVT_VERSION.MAJOR));
             data.set("minor", mi.fetch (MIEVT_VERSION.MINOR));
         }
-        this.processor.events.offer(new Yaml.Event(EVT.VERSION_DIRECTIVE, line, null, data));
+        this.processor.events.add(new Yaml.Event(EVT.VERSION_DIRECTIVE, line, null, data));
     }
-
 
     /**
      * register event tag
@@ -143,7 +157,7 @@ public class Pluie.Yaml.Scanner
             data.set("handle", mi.fetch (MIEVT_TAG.HANDLE));
             data.set("suffix", mi.fetch (MIEVT_TAG.SUFFIX));
         }
-        this.processor.events.offer(new Yaml.Event(EVT.TAG, line, null, data));
+        this.processor.events.add(new Yaml.Event(EVT.TAG, line, null, data));
     }
 
     /**
@@ -161,7 +175,7 @@ public class Pluie.Yaml.Scanner
             data =  new HashMap<string, string>();
             data.set("error", mi.fetch (MIEVT_ERROR.DATA));
         }
-        this.processor.events.offer(new Yaml.Event(EVT.NONE, line, null, data));
+        this.processor.events.add(new Yaml.Event(EVT.NONE, line, null, data));
     }
 
     /**
@@ -181,7 +195,7 @@ public class Pluie.Yaml.Scanner
             data  = new HashMap<string, string>();
             data.set("data", mi.fetch (MIEVT_SCALAR.DATA));
         }
-        this.processor.events.offer(new Yaml.Event(EVT.SCALAR, line, style, data));
+        this.processor.events.add(new Yaml.Event(EVT.SCALAR, line, style, data));
     }
 
     /**
@@ -199,7 +213,7 @@ public class Pluie.Yaml.Scanner
             data  = new HashMap<string, string>();
             data.set("id", mi.fetch (MIEVT_ANCHOR.ID));
         }
-        this.processor.events.offer(new Yaml.Event(EVT.ANCHOR, line, null, data));
+        this.processor.events.add(new Yaml.Event(EVT.ANCHOR, line, null, data));
     }
 
     /**
@@ -217,11 +231,11 @@ public class Pluie.Yaml.Scanner
             data  = new HashMap<string, string>();
             data.set("id", mi.fetch (MIEVT_ANCHOR.ID));
         }
-        this.processor.events.offer(new Yaml.Event(EVT.ALIAS, line, null, data));
+        this.processor.events.add(new Yaml.Event(EVT.ALIAS, line, null, data));
     }
 
     /**
-     * parse specifiyed line
+     * scan specifiyed line
      * @param data the current line
      */
     private void scan_event (string? data = null)
@@ -257,7 +271,7 @@ public class Pluie.Yaml.Scanner
                         this.register_event_error(evtdata, line);
                         break;
                     default :
-                        this.processor.events.offer(new Yaml.Event((Yaml.EVT)type, line, null, null));
+                        this.processor.events.add(new Yaml.Event((Yaml.EVT)type, line, null, null));
                         break;
                 }
             }

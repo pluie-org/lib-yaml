@@ -3,23 +3,22 @@ using Gee;
 using Pluie;
 
 /**
- * a tiny Yaml Parser whose purpose is not to comply with all yaml specifications but to parse yaml configuration files
- * todo improve description of what is expected
+ * a class dealing with a sequence of yaml events and composing the Yaml Node Graph
  */
 public class Pluie.Yaml.Processor
 {
     /**
-     * indicate if file has been sucessfully parsed
+     * indicates if processing is sucess
      */
     public bool done;
 
     /**
      * Events list
      */
-    public Gee.LinkedList<Yaml.Event>         events           { get; internal set; }
+    public Gee.ArrayList<Yaml.Event>  events           { get; internal set; }
 
     /**
-     *Anchor map
+     * Anchor map
      */
     Gee.HashMap<string, Yaml.Node>     anchors          { get; internal set; }
 
@@ -53,12 +52,12 @@ public class Pluie.Yaml.Processor
      */
     public Processor ()
     {
-        this.events  = new Gee.LinkedList<Yaml.Event>();
+        this.events  = new Gee.ArrayList<Yaml.Event>();
         this.anchors = new Gee.HashMap<string, Yaml.Node>();
     }
 
     /**
-     *
+     * display the list of events generated via yaml.c
      */
     public void read ()
     {
@@ -66,7 +65,7 @@ public class Pluie.Yaml.Processor
         EVT? prevEvent   = null;
         foreach (Yaml.Event event in this.events) {
             int len = 24 - event.evtype.infos ().length;
-            stdout.printf("    [ %s"+@" %$(len)s "+", %d, %s", event.evtype.infos (), " ", event.line, event.style != null ? event.style.to_string () : "0");
+            stdout.printf ("    [ %s"+@" %$(len)s "+", %d, %s", event.evtype.infos (), " ", event.line, event.style != null ? event.style.to_string () : "0");
             if (event.data != null && event.data.size > 0) {
                 stdout.printf (", {");
                 var it = event.data.map_iterator ();
@@ -77,13 +76,14 @@ public class Pluie.Yaml.Processor
                 }
                 stdout.printf (" }");
             }
-            stdout.printf("]\n");
+            of.echo ("]\n");
         }
     }
 
 
     /**
-     *
+     * retriew the next Yaml Event
+     * @param the iterator
      */
     private Yaml.Event? next_event (Iterator<Yaml.Event> it)
     {
@@ -95,7 +95,8 @@ public class Pluie.Yaml.Processor
     }
 
     /**
-     *
+     * retriew the next Yaml Value Event closest to Key Event
+     * @param the iterator
      */
     private Yaml.Event? get_value_key_event (Iterator<Yaml.Event> it)
     {
@@ -108,7 +109,8 @@ public class Pluie.Yaml.Processor
     }
 
     /**
-     *
+     * retriew the next Yaml Value Event
+     * @param the iterator
      */
     private Yaml.Event? get_value_event (Iterator<Yaml.Event> it)
     {
@@ -121,7 +123,7 @@ public class Pluie.Yaml.Processor
     }
 
     /**
-     *
+     * processing the events list and generate the corresponding Yaml Nodes
      */
     public bool run ()
     {
