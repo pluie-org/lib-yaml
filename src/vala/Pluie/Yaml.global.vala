@@ -47,12 +47,93 @@ namespace Pluie
             SCALAR;
 
             /**
-              *@return infos related to EVT
+              * @return infos related to EVT
               */
             public string infos ()
             {
                 return this.to_string().substring("PLUIE_YAML_".length);
             }
+
+            /**
+              * @return event is key
+              */
+            public bool is_key ()
+            {
+                return this == EVT.KEY;
+            }
+
+            /**
+              * @return event is anchor
+              */
+            public bool is_anchor ()
+            {
+                return this == EVT.ANCHOR;
+            }
+
+            /**
+              * @return event is alias
+              */
+            public bool is_alias ()
+            {
+                return this == EVT.ALIAS;
+            }
+
+            /**
+              * @return event is key
+              */
+            public bool is_value ()
+            {
+                return this == EVT.VALUE;
+            }
+
+            /**
+              * @return event is scalar
+              */
+            public bool is_scalar ()
+            {
+                return this == EVT.SCALAR;
+            }
+
+            /**
+              * @return event is mapping start event
+              */
+            public bool is_mapping_start ()
+            {
+                return this == EVT.BLOCK_MAPPING_START || this == EVT.FLOW_MAPPING_START;
+            }
+
+            /**
+              * @return event is sequence start event
+              */
+            public bool is_sequence_start ()
+            {
+                return this == EVT.BLOCK_SEQUENCE_START || this == EVT.FLOW_SEQUENCE_START;
+            }
+
+            /**
+              * @return event is sequence end event
+              */
+            public bool is_sequence_end ()
+            {
+                return this == EVT.BLOCK_END || this == EVT.FLOW_SEQUENCE_END;
+            }
+
+            /**
+              * @return event is sequence entry event
+              */
+            public bool is_entry ()
+            {
+                return this == EVT.BLOCK_ENTRY || this == EVT.FLOW_ENTRY;
+            }
+
+            /**
+              * @return event is mapping end event
+              */
+            public bool is_mapping_end ()
+            {
+                return this == EVT.BLOCK_END;
+            }
+
         }
 
         /**
@@ -116,7 +197,7 @@ namespace Pluie
             /**
              * @return if current NODE_TYPE match a scalar node
              */
-            public bool is_scallar ()
+            public bool is_scalar ()
             {
                 return this == SCALAR;
             }

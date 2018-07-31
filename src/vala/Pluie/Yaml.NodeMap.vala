@@ -57,13 +57,21 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     /**
      * display childs
      */
-    public void display_childs ()
+    public void display_childs (bool root=true)
     {
-        of.action ("display_childs map\n");
+        if (root == true) {
+            of.action ("display root node\n");
+        }
         of.echo (this.to_string ());
         if (this.map.size > 0) {
             foreach (string key in this.map.keys) {
-                of.echo (this.map.get(key).to_string ());
+                var n = this.map.get(key);
+                if (n.node_type.is_mapping ()) (n as Yaml.NodeMap).display_childs (false);
+                else if (n.node_type.is_sequence ()) (n as Yaml.NodeSequence).display_childs (false);
+                else if (n.node_type.is_single_pair ()) {
+                    of.echo (n.to_string ());
+                    of.echo ((n as Yaml.NodeSinglePair).scalar ().to_string ());
+                }
             }
         }
         else {
@@ -136,6 +144,22 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
             target = null;
         }
         return target;
+    }
+
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public override Yaml.Node clone_node (string? name = null)
+    {
+        var key = name != null ? name : this.name;
+        Yaml.Node clone = new Yaml.NodeMap (this.parent, this.indent, key);
+        foreach (string k in this.map.keys) {
+            var n = this.map.get(k).clone_node();
+            n.parent = clone;
+            clone.add(n);
+        }
+        return clone;
     }
 
 }

@@ -17,4 +17,12 @@ public class Pluie.Yaml.NodeScalar : Yaml.BaseNode
         this.data = data;
     }
 
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public override Yaml.Node clone_node (string? name = null)
+    {
+        return new Yaml.NodeScalar (this.parent, this.indent,  this.data);
+    }
 }

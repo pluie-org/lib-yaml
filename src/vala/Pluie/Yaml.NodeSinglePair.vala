@@ -31,4 +31,15 @@ public class Pluie.Yaml.NodeSinglePair : Yaml.NodeMap
     {
         return this.map["singlepair"];
     }
+
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public override Yaml.Node clone_node (string? name = null)
+    {
+        var key = name != null ? name : this.name;
+        Yaml.Node clone = new Yaml.NodeSinglePair (this.parent, this.indent, key, this.scalar ().data);
+        return clone;
+    }
 }

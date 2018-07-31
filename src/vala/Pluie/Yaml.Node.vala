@@ -49,6 +49,12 @@ public interface Pluie.Yaml.Node : Object
     protected abstract bool remove_child (Yaml.Node child);
 
     /**
+     * clone curent node
+     * @param name  the name of clone node
+     */
+    public abstract Yaml.Node clone_node (string? name = null);
+
+    /**
      * check if node has child nodes
      */
     public abstract bool has_child_nodes ();

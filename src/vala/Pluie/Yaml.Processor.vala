@@ -1,7 +1,6 @@
 using GLib;
 using Gee;
 using Pluie;
-extern void yaml_parse_file(string srcPath, string destPath);
 
 /**
  * a tiny Yaml Parser whose purpose is not to comply with all yaml specifications but to parse yaml configuration files
@@ -9,147 +8,62 @@ extern void yaml_parse_file(string srcPath, string destPath);
  */
 public class Pluie.Yaml.Processor
 {
-    const string REG_EVENT   = "^([0-9]+), ([0-9]+)(.*)$";
-    const string REG_VERSION = "^, ([0-9]+), ([0-9]+)$";
-    const string REG_TAG     = "^, \"([^\"]*)\", \"([^\"]*)\"$";
-    const string REG_ERROR   = "^, \"([^\"]*)\"$";
-    const string REG_SCALAR  = "^, ([0-9]+), \"([^\"]*)\"$";
-    const string REG_ANCHOR  = "^, \"([^\"]*)\"$";
-    const string REG_ALIAS   = "^, \"([^\"]*)\"$";
-
-    /**
-     * enum linked to used RegExp in parse_line
-     */
-    enum MIEVT
-    {
-        NONE,
-        LINE,
-        TYPE,
-        DATA
-    }
-
-    /**
-     * enum linked to used RegExp in parse_line
-     */
-    enum MIEVT_VERSION
-    {
-        NONE,
-        MAJOR,
-        MINOR
-    }
-
-    /**
-     * enum linked to used RegExp in parse_line
-     */
-    enum MIEVT_SCALAR
-    {
-        NONE,
-        STYLE,
-        DATA
-    }
-
-    /**
-     * enum linked to used RegExp in parse_line
-     */
-    enum MIEVT_TAG
-    {
-        NONE,
-        HANDLE,
-        SUFFIX
-    }
-
-    /**
-     * enum linked to used RegExp in parse_line
-     */
-    enum MIEVT_ANCHOR
-    {
-        NONE,
-        ID,
-    }
-
-    /**
-     * enum linked to used RegExp in parse_line
-     */
-    enum MIEVT_ERROR
-    {
-        NONE,
-        DATA,
-    }
-
     /**
      * indicate if file has been sucessfully parsed
      */
     public bool done;
 
     /**
-     * indicate if parsing msut stop
-     */
-    bool stop;
-
-    /**
-     * the mark use to rewind line throught Io.Reader
-     */
-    Io.StreamLineMark? mark;
-
-    /**
-     * Reader used to load content yaml file
-     */
-    Io.Reader reader;
-
-    /**
      * Events list
      */
-    Gee.LinkedList<Yaml.Event>   events           { get; internal set; }
+    public Gee.LinkedList<Yaml.Event>         events           { get; internal set; }
 
     /**
      *Anchor map
      */
-    Gee.HashMap<string, int>     anchors          { get; internal set; }
+    Gee.HashMap<string, Yaml.Node>     anchors          { get; internal set; }
 
     /**
-     * @param path the path of file to parse
+     * the root Yaml.Node
      */
-    public Processor (string path)
-    {
-        var destPath = Path.build_filename (Environment.get_tmp_dir (), Path.get_basename(path));
-        yaml_parse_file(path, destPath);
-        this.reader  = new Io.Reader (destPath);
-        this.scan ();
-    }
+    public Yaml.Node root;
 
     /**
-     * parse a file related to specifiyed path
-     * @param path the path to parse
+     * current previous Yaml.Node
      */
-    public bool scan (string? path = null)
+    Yaml.Node? prev_node;
+
+    /**
+     * current parent Yaml.Node
+     */
+    Yaml.Node? parent_node;
+
+    /**
+     * current Yaml.Node
+     */
+    Yaml.Node node;
+
+    /**
+     * previous indent
+     */
+    int prev_indent;
+
+    /**
+     *
+     */
+    public Processor ()
     {
-        Dbg.in (Log.METHOD, "path:'%s'".printf (path), Log.LINE, Log.FILE);
-        if (path != null) {
-            this.reader.load (path);
-        }
-        else {
-            this.reader.rewind(new Io.StreamLineMark(0, 0));
-        }
         this.events  = new Gee.LinkedList<Yaml.Event>();
-        this.anchors = new Gee.HashMap<string, int>();
-        this.stop    = this.done = false;
-        of.action ("Scanning events", path);
-        while (this.reader.readable) {
-            this.scan_line (this.reader.read ());
-        }
-        this.process_events ();
-
-        this.done = true;
-        Dbg.out (Log.METHOD, "done:%d".printf ((int)done), Log.LINE, Log.FILE);
-        return this.done;
+        this.anchors = new Gee.HashMap<string, Yaml.Node>();
     }
 
     /**
      *
      */
-    private void process_events ()
+    public void read ()
     {
         of.action ("Reading events");
+        EVT? prevEvent   = null;
         foreach (Yaml.Event event in this.events) {
             int len = 24 - event.evtype.infos ().length;
             stdout.printf("    [ %s"+@" %$(len)s "+", %d, %s", event.evtype.infos (), " ", event.line, event.style != null ? event.style.to_string () : "0");
@@ -167,166 +81,136 @@ public class Pluie.Yaml.Processor
         }
     }
 
-    /**
-     * set event version
-     * @param evtdata the current data event
-     * @param line the current line
-     * @throws GLib.RegexError
-     */
-    private void set_event_version(string evtdata, int line) throws GLib.RegexError
-    {
-        MatchInfo mi = null;
-        Regex    reg = new Regex (REG_VERSION);
-        HashMap<string, string>? data = null;
-        if (reg.match (evtdata, 0, out mi)) {
-            data =  new HashMap<string, string>();
-            data.set("major", mi.fetch (MIEVT_VERSION.MAJOR));
-            data.set("minor", mi.fetch (MIEVT_VERSION.MINOR));
-        }
-        this.events.offer(new Yaml.Event(EVT.VERSION_DIRECTIVE, line, null, data));
-    }
-
 
     /**
-     * set event tag
-     * @param evtdata the current data event
-     * @param line the current line
-     * @throws GLib.RegexError
+     *
      */
-    private void set_event_tag(string evtdata, int line) throws GLib.RegexError
+    private Yaml.Event? next_event (Iterator<Yaml.Event> it)
     {
-        MatchInfo mi = null;
-        Regex    reg = new Regex (REG_TAG);
-        HashMap<string, string>? data = null;
-        if (reg.match (evtdata, 0, out mi)) {
-            data  = new HashMap<string, string>();
-            data.set("handle", mi.fetch (MIEVT_TAG.HANDLE));
-            data.set("suffix", mi.fetch (MIEVT_TAG.SUFFIX));
+        Yaml.Event? evt = null;
+        if (it.has_next () && it.next ()) {
+            evt = it.get ();
         }
-        this.events.offer(new Yaml.Event(EVT.TAG, line, null, data));
+        return evt;
     }
 
     /**
-     * set event version
-     * @param evtdata the current data event
-     * @param line the current line
-     * @throws GLib.RegexError
+     *
      */
-    private void set_event_error(string evtdata, int line) throws GLib.RegexError
+    private Yaml.Event? get_value_key_event (Iterator<Yaml.Event> it)
     {
-        MatchInfo mi = null;
-        Regex    reg = new Regex (REG_ERROR);
-        HashMap<string, string>? data = null;
-        if (reg.match (evtdata, 0, out mi)) {
-            data =  new HashMap<string, string>();
-            data.set("error", mi.fetch (MIEVT_ERROR.DATA));
+        Yaml.Event? evt = null;
+        var e = it.get ();
+        if (e != null && e.evtype.is_key ()) {
+            evt = this.next_event (it);
         }
-        this.events.offer(new Yaml.Event(EVT.NONE, line, null, data));
+        return evt;
     }
 
     /**
-     * set event scalar
-     * @param evtdata the current data event
-     * @param line the current line
-     * @throws GLib.RegexError
+     *
      */
-    private void set_event_scalar(string evtdata, int line) throws GLib.RegexError
+    private Yaml.Event? get_value_event (Iterator<Yaml.Event> it)
     {
-        MatchInfo mi = null;
-        Regex    reg = new Regex (REG_SCALAR);
-        HashMap<string, string>? data = null;
-        int? style = null;
-        if (reg.match (evtdata, 0, out mi)) {
-            style = int.parse(mi.fetch (MIEVT_SCALAR.STYLE));
-            data  = new HashMap<string, string>();
-            data.set("data", mi.fetch (MIEVT_SCALAR.DATA));
+        Yaml.Event? evt = null;
+        var e = it.get ();
+        if (e != null && e.evtype.is_value ()) {
+            evt = this.next_event (it);
         }
-        this.events.offer(new Yaml.Event(EVT.SCALAR, line, style, data));
+        return evt;
     }
 
     /**
-     * set event anchor
-     * @param evtdata the current data event
-     * @param line the current line
-     * @throws GLib.RegexError
+     *
      */
-    private void set_event_anchor(string evtdata, int line) throws GLib.RegexError
+    public bool run ()
     {
-        MatchInfo mi = null;
-        Regex    reg = new Regex (REG_ANCHOR);
-        HashMap<string, string>? data = null;
-        if (reg.match (evtdata, 0, out mi)) {
-            data  = new HashMap<string, string>();
-            data.set("id", mi.fetch (MIEVT_ANCHOR.ID));
-        }
-        this.anchors.set(data.get("id"), this.events.size);
-        this.events.offer(new Yaml.Event(EVT.ANCHOR, line, null, data));
-    }
-
-    /**
-     * set event alias
-     * @param evtdata the current data event
-     * @param line the current line
-     * @throws GLib.RegexError
-     */
-    private void set_event_alias(string evtdata, int line) throws GLib.RegexError
-    {
-        MatchInfo mi = null;
-        Regex    reg = new Regex (REG_ALIAS);
-        HashMap<string, string>? data = null;
-        if (reg.match (evtdata, 0, out mi)) {
-            data  = new HashMap<string, string>();
-            data.set("id", mi.fetch (MIEVT_ANCHOR.ID));
-        }
-        this.events.offer(new Yaml.Event(EVT.ALIAS, line, null, data));
-    }
-
-    /**
-     * parse specifiyed line
-     * @param data the current line
-     */
-    private void scan_line (string? data = null)
-    {
-        Dbg.in (Log.METHOD, null, Log.LINE, Log.FILE);
-        if (data == null) {
-            this.stop = true;
-            return;
-        }
-        try {
-            MatchInfo mi = null;
-            Regex    reg = new Regex (REG_EVENT);
-            if (reg.match (data, 0, out mi)) {
-                int line    = int.parse(mi.fetch (MIEVT.LINE));
-                int type    = int.parse(mi.fetch (MIEVT.TYPE));
-                string evtdata = mi.fetch (MIEVT.DATA);
-                switch(type) {
-                    case EVT.SCALAR :
-                        this.set_event_scalar(evtdata, line);
-                        break;
-                    case EVT.ANCHOR :
-                        this.set_event_anchor(evtdata, line);
-                        break;
-                    case EVT.ALIAS :
-                        this.set_event_alias(evtdata, line);
-                        break;
-                    case EVT.TAG :
-                        this.set_event_tag(evtdata, line);
-                        break;
-                    case EVT.VERSION_DIRECTIVE : 
-                        this.set_event_version(evtdata, line);
-                        break;
-                    case EVT.NONE :
-                        this.set_event_error(evtdata, line);
-                        break;
-                    default :
-                        this.events.offer(new Yaml.Event((Yaml.EVT)type, line, null, null));
-                        break;
+        this.root        = new Yaml.NodeRoot ();
+        this.prev_node   = this.root; 
+        this.parent_node = this.root;
+        this.prev_indent = this.root.indent;
+        int indent       = this.root.indent +4;
+        EVT? prevEvent   = null;
+        var it           = this.events.iterator ();
+        var change       = false;
+        string? key      = null;
+        string? id       = null;
+        Yaml.Event? evt;
+        of.action ("Processing events");
+        for (var has_next = it.next (); has_next; has_next = it.next ()) {
+            evt = it.get ();
+            if (evt.evtype.is_mapping_end () || evt.evtype.is_sequence_end ()) {
+                indent          -= 4;
+                this.parent_node = this.prev_node.parent != this.root ? this.prev_node.parent.parent : this.root;
+                this.prev_node   = this.parent_node;
+                continue;
+            }
+            if (evt.evtype.is_entry ()) {
+                evt = this.next_event(it);
+                if (evt.evtype.is_mapping_start ()) {
+                    key       = "_%d".printf((this.parent_node as Yaml.NodeSequence).get_size());
+                    this.node = new Yaml.NodeMap (this.parent_node, indent, key);
+                    key       = null;
+                    indent   += 4;
+                    change    = true;
                 }
             }
+            if (evt.evtype.is_key () && (evt = this.get_value_key_event (it)) != null) {
+                key = evt.data["data"];
+            }
+            if (evt.evtype.is_value () && (evt = this.get_value_event (it)) != null) {
+                if (evt.evtype.is_scalar ()) {
+                    var content = evt.data["data"];
+                    if (key != null) {
+                        this.node = new Yaml.NodeSinglePair (this.parent_node, indent, key, content);
+                        change    = true;
+                    }
+                }
+                else if (evt.evtype.is_anchor ()) {
+                    id  = evt.data["id"];
+                    evt = this.next_event (it);
+                }
+                else if (evt.evtype.is_alias ()) {
+                    id = evt.data["id"];
+                    Yaml.Node? refnode = this.anchors.get(id);
+                    if (refnode != null) {
+                        this.node = refnode.clone_node (key);
+                        this.parent_node.add (this.node);
+                        this.prev_node   = this.node;
+                        this.prev_indent = this.prev_node.indent;
+                    }
+                }
+                if (evt.evtype.is_mapping_start ()) {
+                    this.node = new Yaml.NodeMap (this.parent_node, indent, key);
+                    indent   += 4;
+                    change    = true;
+                }
+                else if (evt.evtype.is_sequence_start ()) {
+                    this.node = new Yaml.NodeSequence (this.parent_node, indent, key);
+                    indent   += 4;
+                    change    = true;
+                }
+                if (id != null) {
+                    if (this.node != null) {
+                        this.anchors.set(id, this.node);
+                    }
+                    id = null;
+                }
+                key = null;
+            }
+            if (change) {
+                this.parent_node.add (this.node);
+                if (this.node.node_type.is_collection ()) {
+                    this.parent_node = this.node;
+                }
+                this.prev_node   = this.node;
+                this.prev_indent = this.prev_node.indent;
+                this.node        = null;
+                change = false;
+            }
         }
-        catch (GLib.RegexError e) {
-            Dbg.error (e.message, Log.METHOD, Log.LINE, Log.FILE);
-        }
-        Dbg.out (Log.METHOD, null, Log.LINE, Log.FILE);
+        this.done = this.root != null;
+        return done;
     }
+
 }

@@ -96,13 +96,23 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
     /**
      * display childs
      */
-    public void display_childs ()
+    public void display_childs (bool root = true)
     {
-        of.action ("display_childs sequence\n");
+        if (root) {
+            of.action ("display_childs sequence\n");
+        }
         of.echo (this.to_string ());
         if (this.list!= null && this.list.size > 0) {
             foreach (Yaml.Node child in this.list) {
-                of.echo (child.to_string ());
+                if (child.node_type.is_mapping ()) (child as Yaml.NodeMap).display_childs (false);
+                else if (child.node_type.is_sequence ()) (child as Yaml.NodeSequence).display_childs (false);
+                else if (child.node_type.is_single_pair ()) {
+                    of.echo (child.to_string ());
+                    of.echo ((child as Yaml.NodeSinglePair).scalar ().to_string ());
+                }
+                else {
+                    of.echo (child.to_string ());
+                }
             }
         }
         else {
@@ -114,7 +124,7 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
      * count childnodes
      */
     public int get_size () {
-        return this.list.size;
+        return this.list == null ? 0 : this.list.size;
     }
 
     /**
@@ -154,4 +164,23 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
         }
         return target;
     }
+
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public override Yaml.Node clone_node (string? name = null)
+    {
+        var key = name != null ? name : this.name;
+        Yaml.Node clone = new Yaml.NodeSequence (this.parent, this.indent, key);
+        if (this.list!= null && this.list.size > 0) {
+            foreach (Yaml.Node child in this.list) {
+                var n = child.clone_node();
+                n.parent = clone;
+                clone.add(n);
+            }
+        }
+        return clone;
+    }
+
 }

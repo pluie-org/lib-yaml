@@ -12,6 +12,8 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
      */
     public string                           uuid      { get; internal set; }
 
+    public string                           anchor    { get; internal set; }
+
     /**
      * find mode related to Yaml.FIND_MODE, default is Yaml.FIND_MODE.SQUARE_BRACKETS
      */
@@ -73,6 +75,23 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
         this.node_type = type;
         this.indent    = indent;
         this.uuid      = Yaml.uuid ();
+    }
+
+    /**
+     *
+     */
+    protected virtual void set_anchor_id (string id)
+    {
+        this.anchor = id;
+    }
+
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public virtual Yaml.Node clone_node (string? name = null)
+    {
+        return new BaseNode.standard (this.parent, this.indent);
     }
 
     /**
@@ -172,17 +191,17 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     public string to_string (bool withIndent = true)
     {
         
-        return "%s%s%s%s%s%s%s%s".printf (
+        return "%s%s%s%s%s%s%s".printf (
             this.node_type.is_root () ? "" : of.s_indent ((int8) (withIndent ? this.indent : 0)),
             of.c (ECHO.OPTION).s ("<"),
             of.c (ECHO.OPTION_SEP).s (this.node_type.infos ()),
             this.name != null ? " %s".printf (this.name)
-                              : (this.node_type.is_scallar () ? " %s".printf (this.data) : ""),
+                              : (this.node_type.is_scalar () ? " %s".printf (this.data) : ""),
             "[%x]".printf (this.ref_count),
             this.parent == null ? "" : this.parent.name+"|"+this.indent.to_string(),
 //~             " (%d) ".printf (this.indent),
-            of.c (ECHO.OPTION).s (">"),
-            of.c (ECHO.DATE).s (" %s".printf(this.uuid))
+            of.c (ECHO.OPTION).s (">")/*,
+            of.c (ECHO.DATE).s (" %s".printf(this.uuid))*/
         );
     }
 
