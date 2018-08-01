@@ -188,20 +188,28 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     /**
      * get a presentation string of current Yaml.Node
      */
-    public string to_string (bool withIndent = true)
+    public string to_string (bool indentFormat = true, bool withParent = false, bool withUuid = false, bool withIndent = false, bool withRefCount = false)
     {
         
-        return "%s%s%s%s%s%s%s".printf (
-            this.node_type.is_root () ? "" : of.s_indent ((int8) (withIndent ? this.indent : 0)),
-            of.c (ECHO.OPTION).s ("<"),
+        return "%s%s%s%s%s%s%s%s".printf (
+            this.node_type.is_root () ? "" : of.s_indent ((int8) (indentFormat ? this.indent : 0)),
+            of.c (ECHO.OPTION).s ("["),
             of.c (ECHO.OPTION_SEP).s (this.node_type.infos ()),
-            this.name != null ? " %s".printf (this.name)
-                              : (this.node_type.is_scalar () ? " %s".printf (this.data) : ""),
-            "[%x]".printf (this.ref_count),
-            this.parent == null ? "" : this.parent.name+"|"+this.indent.to_string(),
-//~             " (%d) ".printf (this.indent),
-            of.c (ECHO.OPTION).s (">")/*,
-            of.c (ECHO.DATE).s (" %s".printf(this.uuid))*/
+            this.name != null && !this.node_type.is_scalar ()
+                ?  of.c (ECHO.TIME).s (" %s".printf (this.name))
+                : (
+                    this.node_type.is_scalar ()
+                        ? of.c(ECHO.DATE).s (" %s".printf (this.data))
+                        : ""
+            ),
+            withRefCount ? of.c (ECHO.COMMAND).s ("[%x]".printf (this.ref_count)) : "",
+            !withParent || this.parent == null
+                ? ""
+                : of.c (ECHO.SECTION).s (" "+this.parent.name)+(
+                    withIndent ? of.c (ECHO.NUM).s (" "+this.indent.to_string()) : ""
+                ),
+            withUuid ? of.c (ECHO.COMMENT).s (" %s".printf(this.uuid[0:8]+"...")) : "",
+            of.c (ECHO.OPTION).s ("]")
         );
     }
 

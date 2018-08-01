@@ -10,7 +10,7 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Parser", Pluie.Yaml.VERSION, "a-sansara");
-
+    Pluie.Yaml.Scanner.DEBUG = true;
     var loader = new Yaml.Loader (path, true, true);
     if ((done = loader.done)) {
         Yaml.NodeRoot root = loader.get_nodes ();

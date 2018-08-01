@@ -8,6 +8,7 @@ extern void yaml_parse_file(string srcPath, string destPath);
  */
 public class Pluie.Yaml.Scanner
 {
+    public static bool DEBUG         = false;
     /**
      * Regex pattern use to find EVENT
      */
@@ -96,6 +97,14 @@ public class Pluie.Yaml.Scanner
     }
 
     /**
+     * return error Yaml Event
+     */
+    public Yaml.Event? get_error_event ()
+    {
+        return this.processor.error_event;
+    }
+
+    /**
      * scan specifiyed file generated throught yaml.c
      * @param optional file path to scan
      */
@@ -110,14 +119,14 @@ public class Pluie.Yaml.Scanner
         }
         this.processor = new Yaml.Processor ();
         this.done      = false;
-        of.action ("Scanning events", path);
+        if (Pluie.Yaml.Scanner.DEBUG) of.action ("Scanning events", path);
         while (this.reader.readable) {
             this.scan_event (this.reader.read ());
         }
         this.done = true;
-        of.state (this.done);
+        if (Pluie.Yaml.Scanner.DEBUG) of.state (this.done);
         this.done = this.done && this.processor.run ();
-        of.state (this.done);
+        if (Pluie.Yaml.Scanner.DEBUG) of.state (this.done);
         Dbg.out (Log.METHOD, "done:%d".printf ((int)done), Log.LINE, Log.FILE);
         return this.done;
     }

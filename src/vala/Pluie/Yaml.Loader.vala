@@ -38,6 +38,11 @@ public class Pluie.Yaml.Loader
             this.get_nodes ().display_childs ();
             of.state(true);
         }
+        if (!this.done) {
+            var evt = this.scanner.get_error_event ();
+            of.error ("line %d (%s)".printf (evt.line, evt.data["error"]));
+            this.displayFile (evt.line);
+        }
     }
 
     /**
@@ -51,17 +56,43 @@ public class Pluie.Yaml.Loader
     /**
      * display original file
      */
-    public void displayFile ()
+    public void displayFile (int errorLine = 0)
     {
-        of.action ("Reading file", this.reader.path);
+        of.action (errorLine == 0 ? "Reading file" : "Invalid Yaml File", this.reader.path);
         of.echo ();
+        this.reader.rewind(new Io.StreamLineMark(0, 0));
+        int     line = 0;
+        string? data = null;;
         while (this.reader.readable) {
-            of.echo ("%s %s".printf (
-                of.c (ECHO.DATE   ).s ("%03d |".printf (this.reader.line)), 
-                of.c (ECHO.OPTION_SEP).s (this.reader.read ()))
-            ); 
+            line = this.reader.line + 1;
+            data = this.reader.read ();
+            if (errorLine > 0 && line > 0) {
+                if (line < errorLine - 7) continue;
+                else if (line == errorLine - 7) {
+                    of.echo ("%s%s%s".printf (
+                        of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line-1)),
+                        of.c (ECHO.DATE).s ("| "),
+                        of.c (ECHO.COMMAND).s ("... ")
+                    ));
+                }
+            }
+            of.echo ("%s%s%s".printf (
+                of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line)),
+                of.c (ECHO.DATE).s ("| "),
+                errorLine > 0 && line == errorLine
+                    ? of.c (ECHO.FAIL).s (data)
+                    : of.c (ECHO.COMMAND).s (data)
+            ), errorLine == 0 || line < errorLine);
+            if (errorLine > 0 &&  line == errorLine) {
+                int len = of.term_width - data.length - 13;
+                stdout.printf (of.c (ECHO.FAIL).s (@" %$(len)s ".printf (" ")));
+                of.echo (Color.off (), true);
+            }
+            if (errorLine > 0 && line > errorLine) {
+                break;
+            }
         }
-        of.echo ("EOF");
-        of.state (true);
+        of.echo (errorLine == 0 ? "EOF" : "");
+        of.state (errorLine == 0);
     }
 }

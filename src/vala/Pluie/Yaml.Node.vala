@@ -77,6 +77,6 @@ public interface Pluie.Yaml.Node : Object
     /**
      * get a presentation string of current Yaml.Node
      */
-    public abstract string to_string (bool withIndent = true);
+    public abstract string to_string (bool indentFormat = true, bool withParent = false, bool withUuid = true, bool withIndent = false, bool withRefCount = true);
 
 }

@@ -10,7 +10,7 @@ public class Pluie.Yaml.Processor
     /**
      * indicates if processing is sucess
      */
-    public bool done;
+    public bool                       done;
 
     /**
      * Events list
@@ -20,32 +20,37 @@ public class Pluie.Yaml.Processor
     /**
      * Anchor map
      */
-    Gee.HashMap<string, Yaml.Node>     anchors          { get; internal set; }
+    Gee.HashMap<string, Yaml.Node>    anchors          { get; internal set; }
+
+    /**
+     * Error event
+     */
+    public Yaml.Event?                error_event      { get; internal set; }
 
     /**
      * the root Yaml.Node
      */
-    public Yaml.Node root;
+    public Yaml.Node                  root;
 
     /**
      * current previous Yaml.Node
      */
-    Yaml.Node? prev_node;
+    Yaml.Node?                        prev_node;
 
     /**
      * current parent Yaml.Node
      */
-    Yaml.Node? parent_node;
+    Yaml.Node?                        parent_node;
 
     /**
      * current Yaml.Node
      */
-    Yaml.Node node;
+    Yaml.Node                         node;
 
     /**
      * previous indent
      */
-    int prev_indent;
+    int                               prev_indent;
 
     /**
      *
@@ -138,9 +143,13 @@ public class Pluie.Yaml.Processor
         string? key      = null;
         string? id       = null;
         Yaml.Event? evt;
-        of.action ("Processing events");
+        if (Pluie.Yaml.Scanner.DEBUG) of.action ("Processing events");
         for (var has_next = it.next (); has_next; has_next = it.next ()) {
             evt = it.get ();
+            if (evt.evtype.is_error ()) {
+                error_event = evt;
+                break;
+            }
             if (evt.evtype.is_mapping_end () || evt.evtype.is_sequence_end ()) {
                 indent          -= 4;
                 this.parent_node = this.prev_node.parent != this.root ? this.prev_node.parent.parent : this.root;
@@ -211,7 +220,7 @@ public class Pluie.Yaml.Processor
                 change = false;
             }
         }
-        this.done = this.root != null;
+        this.done = error_event == null && this.root != null;
         return done;
     }
 

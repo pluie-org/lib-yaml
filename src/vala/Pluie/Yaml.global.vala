@@ -134,6 +134,14 @@ namespace Pluie
                 return this == EVT.BLOCK_END;
             }
 
+            /**
+              * @return event is error event
+              */
+            public bool is_error ()
+            {
+                return this == EVT.NONE;
+            }
+
         }
 
         /**
