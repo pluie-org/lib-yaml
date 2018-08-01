@@ -28,7 +28,7 @@ configure_file(
   configuration: conf
 )
 
-sources       = [
+sources = [
     'build/install.vala',
     'src/vala/Pluie/Io.Reader.vala',
     'src/vala/Pluie/Io.StreamLineMark.vala',

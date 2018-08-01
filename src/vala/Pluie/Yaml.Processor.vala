@@ -67,7 +67,6 @@ public class Pluie.Yaml.Processor
     public void read ()
     {
         of.action ("Reading events");
-        EVT? prevEvent   = null;
         foreach (Yaml.Event event in this.events) {
             int len = 24 - event.evtype.infos ().length;
             stdout.printf ("    [ %s"+@" %$(len)s "+", %d, %s", event.evtype.infos (), " ", event.line, event.style != null ? event.style.to_string () : "0");
@@ -81,7 +80,7 @@ public class Pluie.Yaml.Processor
                 }
                 stdout.printf (" }");
             }
-            of.echo ("]\n");
+            of.echo ("]");
         }
     }
 
@@ -132,16 +131,17 @@ public class Pluie.Yaml.Processor
      */
     public bool run ()
     {
-        this.root        = new Yaml.NodeRoot ();
-        this.prev_node   = this.root; 
-        this.parent_node = this.root;
-        this.prev_indent = this.root.indent;
-        int indent       = this.root.indent +4;
-        EVT? prevEvent   = null;
-        var it           = this.events.iterator ();
-        var change       = false;
-        string? key      = null;
-        string? id       = null;
+//~         if (Pluie.Yaml.Scanner.DEBUG) this.read ();
+        this.root         = new Yaml.NodeRoot ();
+        this.prev_node    = this.root; 
+        this.parent_node  = this.root;
+        this.prev_indent  = this.root.indent;
+        int indent        = this.root.indent +4;
+        var it            = this.events.iterator ();
+        var change        = false;
+        string? key       = null;
+        string? id        = null;
+        bool beginFlowSeq = false;
         Yaml.Event? evt;
         if (Pluie.Yaml.Scanner.DEBUG) of.action ("Processing events");
         for (var has_next = it.next (); has_next; has_next = it.next ()) {
@@ -165,6 +165,17 @@ public class Pluie.Yaml.Processor
                     indent   += 4;
                     change    = true;
                 }
+                else if (evt.evtype.is_scalar ()) {
+                    var content = evt.data["data"];
+                    this.node   = new Yaml.NodeScalar (this.parent_node, indent, content);
+                    change      = true;
+                }
+            }
+            if (beginFlowSeq && evt.evtype.is_scalar ()) {
+                var content  = evt.data["data"];
+                this.node    = new Yaml.NodeScalar (this.parent_node, indent, content);
+                change       = true;
+                beginFlowSeq = false;
             }
             if (evt.evtype.is_key () && (evt = this.get_value_key_event (it)) != null) {
                 key = evt.data["data"];
@@ -197,9 +208,10 @@ public class Pluie.Yaml.Processor
                     change    = true;
                 }
                 else if (evt.evtype.is_sequence_start ()) {
-                    this.node = new Yaml.NodeSequence (this.parent_node, indent, key);
-                    indent   += 4;
-                    change    = true;
+                    this.node    = new Yaml.NodeSequence (this.parent_node, indent, key);
+                    indent      += 4;
+                    change       = true;
+                    beginFlowSeq = true;
                 }
                 if (id != null) {
                     if (this.node != null) {
