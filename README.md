@@ -4,6 +4,8 @@
 As json is now a valid subset of yaml, you can use this lib to load json files too.  
 
 The purpose of this project is to make vala able to load and deal with yaml configuration files.  
+So, currently the lib deal only with one yaml document, but an @import clause (nodemap) is plan in order to load a subset of yaml files in the main yaml document.  
+
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
 
 ## License
@@ -48,6 +50,18 @@ docker run --rm -it pluie/libyaml
 ```
 
 ## Usage
+
+### config
+
+```
+
+    var config = new Yaml.Config (path);
+    var node   = config.get ("ship-to.address.city{0}");
+    if (node != null) {
+        of.echo (node.data)
+    }
+
+```
 
 ### loader 
 
@@ -102,5 +116,7 @@ see samples files in ./samples directory
 
 ### todo
 
-* dumper
+* import clause
 * fix nodes traversing
+* dumper
+
