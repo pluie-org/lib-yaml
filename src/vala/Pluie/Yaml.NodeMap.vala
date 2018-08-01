@@ -89,7 +89,7 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     public void display_childs (bool root=true)
     {
         if (root == true) {
-            of.action ("display root node\n");
+            of.action ("display childs\n");
         }
         of.echo (this.to_string ());
         if (this.map.size > 0) {

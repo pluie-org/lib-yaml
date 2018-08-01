@@ -111,12 +111,13 @@ public class Pluie.Yaml.Finder : Object
         string search       = this.find_path (path);
         bool match          = false;
         Yaml.Node? node = context == null ? this.context : context;
-        Regex reg           = /(\[|\{)([^\]]*)(\]|\})/;
+        Regex reg           = /(\[|\{)([^\]\}]*)(\]|\})/;
         MatchInfo mi;
         try {
-            of.echo ("find node %s".printf (path));
+//~             of.echo ("find node %s".printf (path));
+//~             of.echo ("search %s".printf (search));
             for (reg.match (search, 0, out mi) ; mi.matches () ; mi.next ()) {
-                of.echo ("%s%s%s".printf (mi.fetch (1), mi.fetch (2), mi.fetch (3)));
+//~                 of.echo ("=> %s%s%s".printf (mi.fetch (1), mi.fetch (2), mi.fetch (3)));
                 if (this.is_collection_path (mi)) {
                     if (!match) match = true;
                     if (this.is_collection_path (mi, true)) {
@@ -124,11 +125,18 @@ public class Pluie.Yaml.Finder : Object
                     }
                     else {
                         int index = int.parse (mi.fetch (FIND_COLLECTION.KEY));
-                        var n     = node as Yaml.NodeSequence;
-                        if (index < n.list.size && index >= 0) {
-                            node = n.list.get (index);
+                        if (index == 0 && node.node_type.is_single_pair ()) {
+                            var n = node as Yaml.NodeSinglePair;
+                            node  = n.scalar ();
                         }
-                        else node = null;
+                        // assume sequence
+                        else {
+                            var n     = node as Yaml.NodeSequence;
+                            if (index < n.list.size && index >= 0) {
+                                node = n.list.get (index);
+                            }
+                            else node = null;
+                        }
                     }
                     if (node == null) break;
                 }

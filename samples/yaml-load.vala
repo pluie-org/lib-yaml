@@ -38,7 +38,7 @@ int main (string[] args)
     var path     = "resources/test.yml";
     var done     = false;
 
-    of.title ("Pluie Yaml Parser", Pluie.Yaml.VERSION, "a-sansara");
+    of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
     Pluie.Yaml.Scanner.DEBUG = true;
     var loader = new Yaml.Loader (path, true, true);
     if ((done = loader.done)) {
