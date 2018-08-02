@@ -159,7 +159,7 @@ public class Pluie.Yaml.Processor
      */
     public bool run ()
     {
-//~         if (Pluie.Yaml.Scanner.DEBUG) this.read ();
+        if (Pluie.Yaml.Scanner.DEBUG) this.read ();
         this.root         = new Yaml.NodeRoot ();
         this.prev_node    = this.root; 
         this.parent_node  = this.root;

@@ -115,6 +115,18 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     }
 
     /**
+     *
+     */
+    public string? val ()
+    {
+        string v = null;
+        if (this.node_type.is_single_pair ()) {
+            v = (this as Yaml.NodeSinglePair).scalar ().data;
+        }
+        return v;
+    }
+
+    /**
      * clone current node
      * @param   the name of clone
      */

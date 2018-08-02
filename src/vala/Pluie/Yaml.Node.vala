@@ -66,6 +66,12 @@ public interface Pluie.Yaml.Node : Object
     public abstract bool add (Yaml.Node node);
 
     /**
+     * add a child node to current collection (mapping or sequence) node
+     * @param child the Yaml.Node child to add
+     */
+    public abstract string? val ();
+
+    /**
      * stuff on changing parent node
      * @param child  the childto add
      */

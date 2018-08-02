@@ -1,0 +1,26 @@
+
+project:
+    name  : blabla
+    env   : local
+    debug : 1
+
+# |  use special key word '^imports' to import other yaml config files in 
+# |  current yaml document
+# |  imports must be uniq and a direct child of root node
+# |  imported files are injected as mapping nodes at top document level
+# |  so you cannot use keys that already exists in the document
+^imports :
+    # you can redefine default import path with the special key '^path'
+    # if you do not use it, the default path value will be the current directory
+    # redefined path values are relative to the current directory (if a relative path 
+    # is provided)
+    ^path : ./config
+    # you can also define any other var by prefixing key with ~
+    ^dir  : subdir
+    # and use it enclosed by ^
+    # here final test path will be "./config/subdir/test.yml"
+    test  : ^dir^/test.yml 
+    # here final db path will be "./config/db.yml"
+    db    :  db.yml
+
+bilbo : tato

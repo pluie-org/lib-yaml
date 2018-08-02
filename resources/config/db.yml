@@ -1,0 +1,15 @@
+bo :
+    driver   : mysql
+    host     : db.local.dkr.pluie.org
+    dbname   : local_bo_sub
+    user     : dev
+    password : mysql
+    charset  : utf8
+
+therapy :
+    driver   : mysql
+    host     : db.local.dkr.pluie.org
+    dbname   : local_therapy
+    user     : dev
+    password : mysql
+    charset  : utf8
