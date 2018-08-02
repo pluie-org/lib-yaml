@@ -46,7 +46,35 @@ int main (string[] args)
         var finder = new Yaml.Finder(root);
         Yaml.Node? node = null;
 
-        var spath = "[product]{0}[description]";
+        var spath = "bill-to.family";
+        of.action ("Find node", spath);
+        if ((node = finder.find(spath)) != null) {
+            of.echo (node.to_string (false));
+            of.action ("get scalar value", spath);
+            of.echo ((node as Yaml.NodeSinglePair).scalar ().data);
+
+            of.action ("get parent node");
+            of.echo (node.parent.to_string ());
+            
+            of.action ("get address node");
+            if ((node = (node.parent as Yaml.NodeMap).map["address"])!= null) {
+                of.echo (node.to_string (false));
+                (node as Yaml.NodeMap).display_childs ();
+                
+                of.action ("Loop throught childs", node.name);
+                foreach (var child in (node as Yaml.NodeMap).map.values) {
+                    of.echo (child.to_string (false));
+                }
+            }
+            of.state (node != null);
+        }
+        else of.state (node != null);
+
+        of.action ("Set find mode", "SQUARE_BRACKETS");
+        Yaml.BaseNode.mode = Yaml.FIND_MODE.SQUARE_BRACKETS;
+        of.state (true);
+
+        spath = "[product]{0}[description]";
         // equivalent in DOT MODE
         // spath = "product{0}.description";
         of.action ("Find node", spath);
@@ -80,33 +108,6 @@ int main (string[] args)
         }
         else of.state (node != null);
 
-        of.action ("Set find mode", "DOT");
-        Yaml.BaseNode.mode = Yaml.FIND_MODE.DOT;
-        of.state (true);
-
-        spath = "bill-to.family";
-        of.action ("Find node", spath);
-        if ((node = finder.find(spath)) != null) {
-            of.echo (node.to_string (false));
-            of.action ("get scalar value", spath);
-            of.echo ((node as Yaml.NodeSinglePair).scalar ().data);
-
-            of.action ("get parent node");
-            of.echo (node.parent.to_string ());
-            
-            of.action ("get address node");
-            if ((node = (node.parent as Yaml.NodeMap).map["address"])!= null) {
-                of.echo (node.to_string (false));
-                (node as Yaml.NodeMap).display_childs ();
-                
-                of.action ("Loop throught childs", node.name);
-                foreach (var child in (node as Yaml.NodeMap).map.values) {
-                    of.echo (child.to_string (false));
-                }
-            }
-            of.state (node != null);
-        }
-        else of.state (node != null);
     }
 
     of.rs (done);

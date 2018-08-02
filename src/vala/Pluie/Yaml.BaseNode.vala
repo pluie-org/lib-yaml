@@ -46,7 +46,7 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     /**
      * find mode related to Yaml.FIND_MODE, default is Yaml.FIND_MODE.SQUARE_BRACKETS
      */
-    public static Yaml.FIND_MODE            mode      { get; set; default = Yaml.FIND_MODE.SQUARE_BRACKETS; }
+    public static Yaml.FIND_MODE            mode      { get; set; default = Yaml.FIND_MODE.DOT; }
 
     /**
      * node type related to Yaml.NODE_TYPE
@@ -54,9 +54,9 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     public Yaml.NODE_TYPE                   node_type { get; internal set; }
 
     /**
-     * current representation indent
+     * current representation level
      */
-    public int                              indent     { get; internal set; }
+    public int                              level     { get; internal set; }
 
     /**
      * parent node
@@ -76,33 +76,31 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     /**
      * default Yaml.Node constructor
      * @param parent the parent node
-     * @param indent the current indentation in node representation string
      * @param type the NODE_TYPE of Yaml.Node to create
      */
-    public BaseNode (Yaml.Node? parent = null, int indent = 0, NODE_TYPE type = NODE_TYPE.UNDEFINED)
+    public BaseNode (Yaml.Node? parent = null, NODE_TYPE type = NODE_TYPE.UNDEFINED)
     {
-        this.standard (parent, indent, type);
+        this.standard (parent, type);
     }
 
     /**
      * constructor for root Yaml.Node
      */
     public BaseNode.root () {
-        this.standard (null, -4, NODE_TYPE.ROOT);
+        this.standard (null, NODE_TYPE.ROOT);
         this.name   = "PluieYamlRootNode";
     }
 
     /**
      * constructor for standard Yaml.Node
      * @param parent the parent node
-     * @param indent the current indentation in node representation string
      * @param type the NODE_TYPE of Yaml.Node to create
      */
-    internal BaseNode.standard (Yaml.Node? parent = null, int indent = 0, NODE_TYPE type = NODE_TYPE.UNDEFINED)
+    internal BaseNode.standard (Yaml.Node? parent = null, NODE_TYPE type = NODE_TYPE.UNDEFINED)
     {
         this.parent    = parent;
         this.node_type = type;
-        this.indent    = indent;
+        this.level     = parent!=null ? parent.level + 1 : 0;
         this.uuid      = Yaml.uuid ();
     }
 
@@ -132,7 +130,7 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
      */
     public virtual Yaml.Node clone_node (string? name = null)
     {
-        return new BaseNode.standard (this.parent, this.indent);
+        return new BaseNode.standard (this.parent);
     }
 
     /**
@@ -227,29 +225,53 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     }
 
     /**
+     *
+     */
+    public virtual void update_level()
+    {
+        this.level = this.parent != null ? this.parent.level + 1 : 0;
+        switch (this.node_type) {
+            case NODE_TYPE.SINGLE_PAIR :
+                (this as Yaml.NodeSinglePair).scalar ().update_level ();
+                break;
+            case NODE_TYPE.ROOT    :
+            case NODE_TYPE.MAPPING :
+                foreach (var child in (this as Yaml.NodeMap).map.values) {
+                    child.update_level ();
+                }
+                break;
+            case NODE_TYPE.SEQUENCE :
+                foreach (var child in (this as Yaml.NodeSequence).list) {
+                    child.update_level ();
+                }
+                break;
+        }
+    }
+
+    /**
      * get a presentation string of current Yaml.Node
      */
-    public string to_string (bool indentFormat = true, bool withParent = false, bool withUuid = false, bool withIndent = false, bool withRefCount = false)
+    public string to_string (bool indentFormat = true, bool withParent = false, bool withUuid = false, bool withLevel = false, bool withRefCount = false)
     {
-        
         return "%s%s%s%s%s%s%s%s".printf (
-            this.node_type.is_root () ? "" : of.s_indent ((int8) (indentFormat ? this.indent : 0)),
+            this.node_type.is_root () ? "" : of.s_indent ((int8) (indentFormat ? (this.level-1)*4 : 0)),
             of.c (ECHO.OPTION).s ("["),
-            of.c (ECHO.OPTION_SEP).s (this.node_type.infos ()),
             this.name != null && !this.node_type.is_scalar ()
-                ?  of.c (ECHO.TIME).s (" %s".printf (this.name))
+                ?  of.c (ECHO.TIME).s ("%s".printf (this.name))
                 : (
                     this.node_type.is_scalar ()
-                        ? of.c(ECHO.DATE).s (" %s".printf (this.data))
+                        ? of.c(ECHO.DATE).s ("%s".printf (this.data))
                         : ""
             ),
-            withRefCount ? of.c (ECHO.COMMAND).s ("[%x]".printf (this.ref_count)) : "",
+            withRefCount ? of.c (ECHO.COMMAND).s ("[%lu]".printf (this.ref_count)) : "",
             !withParent || this.parent == null
                 ? ""
                 : of.c (ECHO.SECTION).s (" "+this.parent.name)+(
-                    withIndent ? of.c (ECHO.NUM).s (" "+this.indent.to_string()) : ""
+                    withLevel ? of.c (ECHO.NUM).s (" %d".printf (this.level)) : " "
                 ),
+            of.c (ECHO.OPTION_SEP).s (" %s".printf(this.node_type.infos ())),
             withUuid ? of.c (ECHO.COMMENT).s (" %s".printf(this.uuid[0:8]+"...")) : "",
+//~             of.c (ECHO.NUM).s ("%d".printf (this.level)),
             of.c (ECHO.OPTION).s ("]")
         );
     }

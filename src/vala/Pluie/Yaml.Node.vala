@@ -42,7 +42,7 @@ public interface Pluie.Yaml.Node : Object
      */
     public abstract Yaml.NODE_TYPE   node_type  { get; internal set; }
 
-    public abstract int              indent     { get; internal set; }
+    public abstract int              level      { get; internal set; }
 
     /**
      * parent node
@@ -110,8 +110,14 @@ public interface Pluie.Yaml.Node : Object
     public abstract Yaml.Node? get_root_node ();
 
     /**
+     * update node level and all childs level
+     */
+    public abstract void update_level ();
+
+
+    /**
      * get a presentation string of current Yaml.Node
      */
-    public abstract string to_string (bool indentFormat = true, bool withParent = false, bool withUuid = true, bool withIndent = false, bool withRefCount = true);
+    public abstract string to_string (bool indentFormat = true, bool withParent = false, bool withUuid = false, bool withIndent = true, bool withRefCount = false);
 
 }

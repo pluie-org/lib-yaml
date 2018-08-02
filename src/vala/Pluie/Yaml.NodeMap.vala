@@ -44,12 +44,11 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     /**
      * construct a mapping node
      * @param parent the parent node
-     * @param indent the current indentation in node representation string
      * @param name the current name (key) of mapping node
      */
-    public NodeMap (Yaml.Node? parent = null, int indent = 0, string? name = null)
+    public NodeMap (Yaml.Node? parent = null, string? name = null)
     {
-        base (parent, indent, NODE_TYPE.MAPPING);
+        base (parent, NODE_TYPE.MAPPING);
         this.map  = new HashMap<string, Yaml.Node> ();
         this.name = name;
     }
@@ -74,7 +73,7 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     public override bool add (Yaml.Node node)
     {
         node.on_change_parent ();
-        node.indent = this.indent + 4;
+        node.level = this.level + 1;
         node.parent = this;
         if (this.map == null) {
             this.map = new HashMap<string, Yaml.Node> ();
@@ -182,7 +181,7 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     public override Yaml.Node clone_node (string? name = null)
     {
         var key = name != null ? name : this.name;
-        Yaml.Node clone = new Yaml.NodeMap (this.parent, this.indent, key);
+        Yaml.Node clone = new Yaml.NodeMap (this.parent, key);
         foreach (string k in this.map.keys) {
             var n = this.map.get(k).clone_node();
             n.parent = clone;
@@ -190,5 +189,4 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
         }
         return clone;
     }
-
 }

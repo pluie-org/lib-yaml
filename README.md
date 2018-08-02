@@ -4,8 +4,10 @@
 As json is now a valid subset of yaml, you can use this lib to load json files too.  
 
 The purpose of this project is to make vala able to load and deal with yaml configuration files.  
-So, currently the lib deal only with one yaml document, but an @import clause (nodemap) is plan in order to load a subset of yaml files in the main yaml document.  
+So, currently the lib deal only with one yaml document, but you can use a special `^imports` clause (nodemap)  
+to load a subset of yaml files in the main yaml document.
 
+the lib does not manage yet tag directives and tag values.  
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
 
 ## License
@@ -51,9 +53,11 @@ docker run --rm -it pluie/libyaml
 
 ## Usage
 
+-------------------
+
 ### config
 
-```
+```vala
 
     var config = new Yaml.Config (path);
     var node   = config.get ("ship-to.address.city{0}");
@@ -62,10 +66,39 @@ docker run --rm -it pluie/libyaml
     }
 
 ```
+-------------------
+
+### config with ^imports clause
+
+```yml
+# |  use special key word '^imports' to import other yaml config files in 
+# |  current yaml document
+# |  '^imports' must be uniq and a direct child of root node
+# |  imported files are injected as mapping nodes at top document level
+# |  so you cannot use keys that already exists in the document
+^imports :
+    # you can redefine default import path with the special key '^path'
+    # if you do not use it, the default path value will be the current directory
+    # redefined path values are relative to the current directory (if a relative path 
+    # is provided)
+    ^path : ./config
+    # you can also define any other var by prefixing key with ^
+    ^dir  : subdir
+    # and use it enclosed by ^
+    # here final test path will be "./config/subdir/test.yml"
+    test  : ^dir^/test.yml 
+    # here final db path will be "./config/db.yml"
+    db    : db.yml
+```
+
+-------------------
 
 ### loader 
 
-```
+load a single document.   
+`^imports` clause is out of effects here.
+
+```vala
     var path   = "./config/main.yml";
     // uncomment to enable debug
     // Pluie.Yaml.Scanner.DEBUG = true;
@@ -75,48 +108,57 @@ docker run --rm -it pluie/libyaml
         root.display_childs ();
     }
 ```
+-------------------
 
 ### finder
 
 **lib-yaml** provide a `Yaml.Finder` to easily retriew a particular yaml node.  
 Search path definition has two mode.  
-The default mode is `Yaml.FIND_MODE.SQUARE_BRACKETS`  
-- node's key name must be enclosed in square brackets  
-- sequence entry must be enclosed in curly brace  
-
-ex : `[grandfather][father][son]{2}[age]`
-
-The Other mode is Yaml.FIND_MODE.DOT  
+The default mode is `Yaml.FIND_MODE.DOT`  
 - child mapping node are separated by dot
 - sequence entry must be enclosed in curly brace
 
 ex : `grandfather.father.son{2}.age`
 
+The Other mode is Yaml.FIND_MODE.SQUARE_BRACKETS  
+- node's key name must be enclosed in square brackets  
+- sequence entry must be enclosed in curly brace  
+
+ex : `[grandfather][father][son]{2}[age]`
+
 with singlepair node, you can retriew corresponding scalar node with {0}
 
-```
-/*
-# ex yaml file :
+ex yaml file :
+
+```yml
 product:
     - sku         : BL394D
       quantity    : 4
       description : Basketball
-*/
+```
+
+vala code :
+
+```vala
     ...
     Yaml.NodeRoot root = loader.get_nodes ();
     Yaml.Node?    node = null;
-    if ((node = finder.find("product{0}.description{0}")) != null) {
-        var val = node.data;
+    if ((node = finder.find ("product{0}.description")) != null) {
+        var val = node.val ();
     }
 ```
+-------------------
 
 ### more samples
 
 see samples files in ./samples directory
 
+-------------------
+
 ### todo
 
-* import clause
+* ~~imports clause~~
 * fix nodes traversing
 * dumper
+* manage tag directives & tag
 

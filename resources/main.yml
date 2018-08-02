@@ -1,4 +1,3 @@
-
 project:
     name  : blabla
     env   : local
@@ -15,12 +14,12 @@ project:
     # redefined path values are relative to the current directory (if a relative path 
     # is provided)
     ^path : ./config
-    # you can also define any other var by prefixing key with ~
+    # you can also define any other var by prefixing key with ^
     ^dir  : subdir
     # and use it enclosed by ^
     # here final test path will be "./config/subdir/test.yml"
     test  : ^dir^/test.yml 
     # here final db path will be "./config/db.yml"
-    db    :  db.yml
+    db    : db.yml
 
 bilbo : tato

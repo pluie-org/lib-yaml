@@ -36,6 +36,7 @@ lib="pluie-yaml-0.3"
 cok="\033[1;38;5;37m"
 cko="\033[1;38;5;204m"
 off="\033[m"
+resume=
 # --------------------------------------------------------
 function build.title()
 {
@@ -49,7 +50,11 @@ function build.title()
         fi
         s="$cko<"
     fi
-    echo -e "\n   $s $c1[$c2$1$c1] $state$off"
+    if [ ! -z $3 ]; then
+        echo -e " |- $c1[$c2$1$c1] $state$off"
+    else
+        echo -e "\n   $s $c1[$c2$1$c1] $state$off"
+    fi
 }
 # --------------------------------------------------------
 function build.lib()
@@ -72,7 +77,10 @@ function build.samples()
             build.sample "$file"
         fi
     done
-    echo
+    echo -e "\n RESUME : "
+    for t in $resume; do
+        build.title "${t:1}" ${t:0:1} 1
+    done
 }
 # --------------------------------------------------------
 function build.sample()
@@ -84,7 +92,9 @@ function build.sample()
     build.title "$f SAMPLE BUILD"
     echo -e "\n$cmd"
     $cmd
-    build.title "$f SAMPLE BUILD" $?
+    local done=$?
+    resume="$resume$done$f "
+    build.title "$f SAMPLE BUILD" $done
 }
 # --------------------------------------------------------
 function build.main()

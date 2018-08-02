@@ -39,8 +39,8 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-
-    var config = new Yaml.Config (path);
+    Pluie.Yaml.Scanner.DEBUG = false;
+    var config = new Yaml.Config (path, true);
     var spath  = "bo.host{0}";
     var node   = config.get (spath);
     if ((done = node != null)) {

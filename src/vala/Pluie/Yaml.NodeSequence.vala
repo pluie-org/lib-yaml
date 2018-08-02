@@ -44,12 +44,11 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
     /**
      * construct a sequence node
      * @param parent the parent node
-     * @param indent the current indentation in node representation string
      * @param name the current name (key) of sequence node
      */
-    public NodeSequence (Yaml.Node? parent = null, int indent = 0, string? name = null)
+    public NodeSequence (Yaml.Node? parent = null, string? name = null)
     {
-        base (parent, indent, NODE_TYPE.SEQUENCE);
+        base (parent, NODE_TYPE.SEQUENCE);
         this.name = name;
     }
 
@@ -76,7 +75,7 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
             this.list = new ArrayList<Yaml.Node> ();
         }
         node.on_change_parent ();
-        node.indent = this.indent + 4;
+        node.level = this.level + 1;
         node.parent = this;
         return this.list.add (node);
     }
@@ -88,7 +87,7 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
      */
     public Yaml.Node  add_scalar (string? data = null)
     {
-        Yaml.Node scalar = new Yaml.NodeScalar (this, this.indent+4, data); 
+        Yaml.Node scalar = new Yaml.NodeScalar (this, data); 
         this.add (scalar);
         return scalar;
     }
@@ -201,7 +200,7 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
     public override Yaml.Node clone_node (string? name = null)
     {
         var key = name != null ? name : this.name;
-        Yaml.Node clone = new Yaml.NodeSequence (this.parent, this.indent, key);
+        Yaml.Node clone = new Yaml.NodeSequence (this.parent, key);
         if (this.list!= null && this.list.size > 0) {
             foreach (Yaml.Node child in this.list) {
                 var n = child.clone_node();

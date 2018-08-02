@@ -77,9 +77,9 @@ public class Pluie.Yaml.Processor
     Yaml.Node                         node;
 
     /**
-     * previous indent
+     * previous level
      */
-    int                               prev_indent;
+    int                               prev_level;
 
     /**
      *
@@ -163,8 +163,8 @@ public class Pluie.Yaml.Processor
         this.root         = new Yaml.NodeRoot ();
         this.prev_node    = this.root; 
         this.parent_node  = this.root;
-        this.prev_indent  = this.root.indent;
-        int indent        = this.root.indent +4;
+        this.prev_level   = this.root.level;
+        int level         = this.root.level + 1;
         var it            = this.events.iterator ();
         var change        = false;
         string? key       = null;
@@ -179,8 +179,10 @@ public class Pluie.Yaml.Processor
                 break;
             }
             if (evt.evtype.is_mapping_end () || evt.evtype.is_sequence_end ()) {
-                indent          -= 4;
-                this.parent_node = this.prev_node.parent != this.root ? this.prev_node.parent.parent : this.root;
+                level           -= 4;
+                this.parent_node = this.prev_node.parent != null && this.prev_node.parent != this.root 
+                    ? this.prev_node.parent.parent 
+                    : this.root;
                 this.prev_node   = this.parent_node;
                 continue;
             }
@@ -188,20 +190,20 @@ public class Pluie.Yaml.Processor
                 evt = this.next_event(it);
                 if (evt.evtype.is_mapping_start ()) {
                     key       = "_%d".printf((this.parent_node as Yaml.NodeSequence).get_size());
-                    this.node = new Yaml.NodeMap (this.parent_node, indent, key);
+                    this.node = new Yaml.NodeMap (this.parent_node, key);
                     key       = null;
-                    indent   += 4;
+                    level    += 1;
                     change    = true;
                 }
                 else if (evt.evtype.is_scalar ()) {
                     var content = evt.data["data"];
-                    this.node   = new Yaml.NodeScalar (this.parent_node, indent, content);
+                    this.node   = new Yaml.NodeScalar (this.parent_node, content);
                     change      = true;
                 }
             }
             if (beginFlowSeq && evt.evtype.is_scalar ()) {
                 var content  = evt.data["data"];
-                this.node    = new Yaml.NodeScalar (this.parent_node, indent, content);
+                this.node    = new Yaml.NodeScalar (this.parent_node, content);
                 change       = true;
                 beginFlowSeq = false;
             }
@@ -212,7 +214,7 @@ public class Pluie.Yaml.Processor
                 if (evt.evtype.is_scalar ()) {
                     var content = evt.data["data"];
                     if (key != null) {
-                        this.node = new Yaml.NodeSinglePair (this.parent_node, indent, key, content);
+                        this.node = new Yaml.NodeSinglePair (this.parent_node, key, content);
                         change    = true;
                     }
                 }
@@ -226,18 +228,18 @@ public class Pluie.Yaml.Processor
                     if (refnode != null) {
                         this.node = refnode.clone_node (key);
                         this.parent_node.add (this.node);
-                        this.prev_node   = this.node;
-                        this.prev_indent = this.prev_node.indent;
+                        this.prev_node  = this.node;
+                        this.prev_level = this.prev_node.level;
                     }
                 }
                 if (evt.evtype.is_mapping_start ()) {
-                    this.node = new Yaml.NodeMap (this.parent_node, indent, key);
-                    indent   += 4;
+                    this.node = new Yaml.NodeMap (this.parent_node, key);
+                    level    += 1;
                     change    = true;
                 }
                 else if (evt.evtype.is_sequence_start ()) {
-                    this.node    = new Yaml.NodeSequence (this.parent_node, indent, key);
-                    indent      += 4;
+                    this.node    = new Yaml.NodeSequence (this.parent_node, key);
+                    level       += 1;
                     change       = true;
                     beginFlowSeq = true;
                 }
@@ -255,7 +257,7 @@ public class Pluie.Yaml.Processor
                     this.parent_node = this.node;
                 }
                 this.prev_node   = this.node;
-                this.prev_indent = this.prev_node.indent;
+                this.prev_level  = this.prev_node.level;
                 this.node        = null;
                 change = false;
             }

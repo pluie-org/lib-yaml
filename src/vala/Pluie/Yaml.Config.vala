@@ -32,14 +32,17 @@ public class Pluie.Yaml.Config
     /**
      * construct a Yaml Config for specifiyed path
      */
-    public Config (string? path = null, Yaml.FIND_MODE mode = Yaml.FIND_MODE.DOT)
+    public Config (string? path = null, bool displayFile = false, Yaml.FIND_MODE mode = Yaml.FIND_MODE.DOT)
     {
         Yaml.BaseNode.mode = mode;
         this.path          = path;
         if (this.path != null) {
-            this.loader = new Yaml.Loader (this.path, false, false);
-            this.finder = new Yaml.Finder(this.loader.get_nodes ());
-            this.get_imports ();
+            this.loader = new Yaml.Loader (this.path, displayFile, false);
+            Yaml.NodeRoot? root = this.loader.get_nodes ();
+            if (root != null) {
+                this.finder = new Yaml.Finder(root);
+                this.get_imports ();
+            }
         }
     }
 
@@ -55,6 +58,9 @@ public class Pluie.Yaml.Config
         return node;
     }
 
+    /**
+     *
+     */
     public Yaml.NodeRoot root_node ()
     {
         return this.finder.context as Yaml.NodeRoot;
@@ -66,28 +72,30 @@ public class Pluie.Yaml.Config
     public void get_imports ()
     {
         var node = this.get("^imports") as Yaml.NodeMap;
-        var root = node.parent as Yaml.NodeRoot;
         if (node != null) {
-            this.get_imports_var(node);
-            var dir = this.strip_path(Path.get_dirname (this.path));
-            if (this.varmap.has_key ("path")) {
-                var p = this.strip_path(this.varmap["path"]);
-                if (p != null) {
-                    dir = Path.is_absolute(p) ? p : Path.build_filename(dir, p);
+            var root = node.parent as Yaml.NodeRoot;
+            if (root != null && root.node_type.is_root ()) {
+                this.get_imports_var(node);
+                var dir = this.strip_path(Path.get_dirname (this.path));
+                if (this.varmap.has_key ("path")) {
+                    var p = this.strip_path(this.varmap["path"]);
+                    if (p != null) {
+                        dir = Path.is_absolute(p) ? p : Path.build_filename(dir, p);
+                    }
                 }
-            }
-            this.update_var (node, dir);
-            foreach(var entry in this.paths.entries) {
-                var config = new Yaml.Config(entry.value);
-                Yaml.NodeMap sub = config.loader.get_nodes ();
-                Yaml.NodeMap n   = new Yaml.NodeMap (root, 0, entry.key);
-                
-                foreach(var subnode in sub.map.values) {
-                    subnode.parent = null;
-                    
-                    n.add(subnode);
+                this.update_var (node, dir);
+
+                foreach(var entry in this.paths.entries) {
+                    var config = new Yaml.Config(entry.value);
+                    Yaml.NodeMap sub = config.loader.get_nodes ();
+                    Yaml.NodeMap n   = new Yaml.NodeMap (root, entry.key);
+                    foreach(var subnode in sub.map.values) {
+                        subnode.parent = null;
+                        n.add(subnode);
+                    }
+                    root.add (n);
                 }
-                root.add (n);
+                root.update_level();
             }
         }
     }

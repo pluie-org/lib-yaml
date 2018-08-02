@@ -43,10 +43,8 @@ public class Pluie.Yaml.Finder : Object
     public Yaml.Node? context     { get; internal set; }
 
     /**
-     * default Yaml.Node constructor
-     * @param parent the parent node
-     * @param indent the current indentation in node representation string
-     * @param type the NODE_TYPE of Yaml.Node to create
+     * default Yaml.Finder constructor
+     * @param default Yaml.Node context
      */
     public Finder (Yaml.Node context)
     {

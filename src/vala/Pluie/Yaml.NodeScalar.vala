@@ -37,12 +37,11 @@ public class Pluie.Yaml.NodeScalar : Yaml.BaseNode
     /**
      * construct a scalar node
      * @param parent the parent node
-     * @param indent the current indentation in node representation string
      * @param data the current scalar data
      */
-    public NodeScalar (Yaml.Node? parent = null, int indent = 0, string? data = null)
+    public NodeScalar (Yaml.Node? parent = null, string? data = null)
     {
-        base (parent, indent, NODE_TYPE.SCALAR);
+        base (parent, NODE_TYPE.SCALAR);
         this.data = data;
     }
 
@@ -52,6 +51,6 @@ public class Pluie.Yaml.NodeScalar : Yaml.BaseNode
      */
     public override Yaml.Node clone_node (string? name = null)
     {
-        return new Yaml.NodeScalar (this.parent, this.indent,  this.data);
+        return new Yaml.NodeScalar (this.parent, this.data);
     }
 }

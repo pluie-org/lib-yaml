@@ -64,8 +64,11 @@ public class Pluie.Yaml.Loader
         }
         this.scanner = new Yaml.Scanner (path);
         if ((this.done = this.scanner.run()) && displayNode) {
-            this.get_nodes ().display_childs ();
-            of.state(true);
+            var n = this.get_nodes ();
+            if (n != null) {
+                n.display_childs ();
+            }
+            of.state(n != null);
         }
         if (!this.done) {
             var evt = this.scanner.get_error_event ();
@@ -91,7 +94,7 @@ public class Pluie.Yaml.Loader
         of.echo ();
         this.reader.rewind(new Io.StreamLineMark(0, 0));
         int     line = 0;
-        string? data = null;;
+        string? data = null;
         while (this.reader.readable) {
             line = this.reader.line + 1;
             data = this.reader.read ();
@@ -105,13 +108,16 @@ public class Pluie.Yaml.Loader
                     ));
                 }
             }
-            of.echo ("%s%s%s".printf (
-                of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line)),
-                of.c (ECHO.DATE).s ("| "),
-                errorLine > 0 && line == errorLine
-                    ? of.c (ECHO.FAIL).s (data)
-                    : of.c (ECHO.COMMAND).s (data)
-            ), errorLine == 0 || line < errorLine);
+            if (data !=null) {
+                ECHO color = data.strip()[0] != '#' ? ECHO.COMMAND : ECHO.COMMENT;
+                of.echo ("%s%s%s".printf (
+                    of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line)),
+                    of.c (ECHO.DATE).s ("| "),
+                    errorLine > 0 && line == errorLine
+                        ? of.c (ECHO.FAIL).s (data)
+                        : of.c (color).s (data)
+                ), errorLine == 0 || line < errorLine);
+            }
             if (errorLine > 0 &&  line == errorLine) {
                 int len = of.term_width - data.length - 13;
                 stdout.printf (of.c (ECHO.FAIL).s (@" %$(len)s ".printf (" ")));
