@@ -35,13 +35,13 @@ int main (string[] args)
 {
     Echo.init(false);
 
-    var path     = "resources/test.yml";
+    var path     = "resources/config/db.yml";
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
 
     var config = new Yaml.Config (path);
-    var spath  = "ship-to.address.city{0}";
+    var spath  = "bo.host{0}";
     var node   = config.get (spath);
     if ((done = node != null)) {
         of.action ("retriew node from Yaml.Config", spath);

@@ -42,7 +42,7 @@ int main (string[] args)
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
 
-    Pluie.Yaml.Scanner.DEBUG = true;
+    Pluie.Yaml.Scanner.DEBUG = false;
     var config = new Yaml.Config (path);
     var spath  = "^imports";
     var node   = config.get (spath);
@@ -52,8 +52,15 @@ int main (string[] args)
             of.echo ((node as Yaml.NodeMap).map["^path"].to_string (false));
         }
         of.echo (node.to_string (false));
+        spath = "therapy.dbname{0}";
+        of.action ("retriew imported node from Yaml.Config", spath);
+        var inode = config.get (spath);
+        if ((done = node != null)) {
+            of.echo (inode.to_string (false));
+        }
     }
-
+    var root = config.root_node ();
+    root.display_childs ();
     of.rs (done);
     of.echo ();
 

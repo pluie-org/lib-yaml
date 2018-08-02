@@ -7,12 +7,12 @@ public class Pluie.Yaml.Config
     /**
      * current path
      */
-    public string?              path     { get; internal set; default = null; }
+    public string?               path    { get; internal set; default = null; }
 
     /**
      * Yaml Loader
      */
-    public Yaml.Loader          loader   { internal get; internal set; }
+    public Yaml.Loader           loader  { internal get; internal set; }
 
     /**
      * Yaml Finder
@@ -37,7 +37,7 @@ public class Pluie.Yaml.Config
         Yaml.BaseNode.mode = mode;
         this.path          = path;
         if (this.path != null) {
-            this.loader = new Yaml.Loader (this.path, true, true);
+            this.loader = new Yaml.Loader (this.path, false, false);
             this.finder = new Yaml.Finder(this.loader.get_nodes ());
             this.get_imports ();
         }
@@ -55,12 +55,18 @@ public class Pluie.Yaml.Config
         return node;
     }
 
+    public Yaml.NodeRoot root_node ()
+    {
+        return this.finder.context as Yaml.NodeRoot;
+    }
+
     /**
      * find node matching specifiyed keyPath
      */
     public void get_imports ()
     {
         var node = this.get("^imports") as Yaml.NodeMap;
+        var root = node.parent as Yaml.NodeRoot;
         if (node != null) {
             this.get_imports_var(node);
             var dir = this.strip_path(Path.get_dirname (this.path));
@@ -70,8 +76,19 @@ public class Pluie.Yaml.Config
                     dir = Path.is_absolute(p) ? p : Path.build_filename(dir, p);
                 }
             }
-            of.keyval ("import path", dir);
             this.update_var (node, dir);
+            foreach(var entry in this.paths.entries) {
+                var config = new Yaml.Config(entry.value);
+                Yaml.NodeMap sub = config.loader.get_nodes ();
+                Yaml.NodeMap n   = new Yaml.NodeMap (root, 0, entry.key);
+                
+                foreach(var subnode in sub.map.values) {
+                    subnode.parent = null;
+                    
+                    n.add(subnode);
+                }
+                root.add (n);
+            }
         }
     }
 
@@ -84,29 +101,19 @@ public class Pluie.Yaml.Config
         string? file = null;
         foreach (var entry in node.map.entries) {
             if (entry.key[0] != IMPORTS_SPE) {
-                message (entry.key);
                 var val = entry.value.val ();
-                message ("%s = %s", entry.key, val);
                 if (!Path.is_absolute (val)) {
                     val = Path.build_filename(path, val);
-                    message ("new relative %s", val);
                 }
-                message (" == update var == ");
+                // update var
                 foreach (var v in this.varmap.entries) {
                     if (v.key != "path") {
-                        message ("-- var %s", v.key);
                         entry.value.data = val.replace ("^%s^".printf (v.key), v.value);
-                        node.map[entry.key] = entry.value;
-                        of.echo ("%s : %s".printf (entry.key, node.map[entry.key].val () ));
-                        
+                        this.paths[entry.key] = entry.value.data;
                         of.keyval (entry.key, entry.value.data);
-//~                         this.paths[entry.key] = entry.value.data;
                     }
                 }
             }
-        }
-        foreach (var entry in this.paths.entries) {
-            of.keyval (entry.key, entry.value);
         }
     }
 
@@ -122,14 +129,11 @@ public class Pluie.Yaml.Config
                 this.varmap.set (entry.key.substring (1), entry.value.val ());
             }
         }
-        of.echo ("");
-        foreach (var entry in this.varmap.entries) {
-            of.keyval (entry.key, entry.value);
-        }
-        of.echo ("");
-        of.echo ("");
     }
 
+    /**
+     *
+     */
     private string? strip_path(string? path)
     {
         string? s = path;

@@ -40,7 +40,7 @@ public class Pluie.Yaml.Finder : Object
     /**
      * Context node
      */
-    private Yaml.Node? context     { get; internal set; }
+    public Yaml.Node? context     { get; internal set; }
 
     /**
      * default Yaml.Node constructor
