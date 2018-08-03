@@ -35,8 +35,6 @@ int main (string[] args)
 {
     Echo.init(false);
 
-    var pwd  = Environment.get_variable ("PWD");
-//~     var path = Path.build_filename (pwd, "resources/main.yml");
     var path = "./resources/main.yml";
     var done = false;
 
@@ -58,10 +56,6 @@ int main (string[] args)
     root.display_childs ();
     of.rs (done);
     of.echo ();
-
-    
-    of.echo (pwd);
-
 
     return (int) done;
 

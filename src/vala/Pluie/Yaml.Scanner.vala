@@ -120,7 +120,7 @@ public class Pluie.Yaml.Scanner
     /**
      * return resulting Yaml root node
      */
-    public Yaml.NodeRoot get_nodes ()
+    public Yaml.NodeRoot? get_nodes ()
     {
         return (this.processor.root as Yaml.NodeRoot);
     }
@@ -134,18 +134,26 @@ public class Pluie.Yaml.Scanner
     }
 
     /**
-     * scan specifiyed file generated throught yaml.c
-     * @param optional file path to scan
+     *
      */
-    public bool run (string? path = null)
+    public void before_run (string? path)
     {
-        Dbg.in (Log.METHOD, "path:'%s'".printf (path), Log.LINE, Log.FILE);
         if (path != null && this.reader.path != path) {
             this.reader.load (path);
         }
         else {
             this.reader.rewind(new Io.StreamLineMark(0, 0));
         }
+    }
+
+    /**
+     * scan specifiyed file generated throught yaml.c
+     * @param optional file path to scan
+     */
+    public bool run (string? path = null)
+    {
+        Dbg.in (Log.METHOD, "path:'%s'".printf (path), Log.LINE, Log.FILE);
+        this.before_run (path);
         this.processor = new Yaml.Processor ();
         this.done      = false;
         if (Pluie.Yaml.Scanner.DEBUG) of.action ("Scanning events", path);

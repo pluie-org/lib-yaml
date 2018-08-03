@@ -42,6 +42,26 @@ public class Pluie.Yaml.Processor
     public bool                       done;
 
     /**
+     * indicates if new node has been created
+     */
+    bool                              change;
+
+    /**
+     * indicates if begon a flow sequence
+     */
+    bool                              beginFlowSeq;
+
+    /**
+     * current anchor id
+     */
+    string?                           idAnchor;
+
+    /**
+     * current key
+     */
+    string?                           ckey;
+
+    /**
      * Events list
      */
     public Gee.ArrayList<Yaml.Event>  events           { get; internal set; }
@@ -50,6 +70,11 @@ public class Pluie.Yaml.Processor
      * Anchor map
      */
     Gee.HashMap<string, Yaml.Node>    anchors          { get; internal set; }
+
+    /**
+     * Error event
+     */
+    Yaml.Event?                       event            { get; internal set; }
 
     /**
      * Error event
@@ -77,9 +102,9 @@ public class Pluie.Yaml.Processor
     Yaml.Node                         node;
 
     /**
-     * previous level
+     * Yaml.Event Iterator
      */
-    int                               prev_level;
+    Gee.Iterator<Yaml.Event>          iterator;
 
     /**
      *
@@ -115,43 +140,55 @@ public class Pluie.Yaml.Processor
 
     /**
      * retriew the next Yaml Event
-     * @param the iterator
      */
-    private Yaml.Event? next_event (Iterator<Yaml.Event> it)
+    private Yaml.Event? next_event ()
     {
         Yaml.Event? evt = null;
-        if (it.has_next () && it.next ()) {
-            evt = it.get ();
+        if (this.iterator.has_next () && this.iterator.next ()) {
+            evt = this.iterator.get ();
         }
         return evt;
     }
 
     /**
      * retriew the next Yaml Value Event closest to Key Event
-     * @param the iterator
      */
-    private Yaml.Event? get_value_key_event (Iterator<Yaml.Event> it)
+    private Yaml.Event? get_value_key_event ()
     {
         Yaml.Event? evt = null;
-        var e = it.get ();
+        var e = this.iterator.get ();
         if (e != null && e.evtype.is_key ()) {
-            evt = this.next_event (it);
+            evt = this.next_event ();
         }
         return evt;
     }
 
     /**
      * retriew the next Yaml Value Event
-     * @param the iterator
      */
-    private Yaml.Event? get_value_event (Iterator<Yaml.Event> it)
+    private Yaml.Event? get_value_event ()
     {
         Yaml.Event? evt = null;
-        var e = it.get ();
+        var e = this.iterator.get ();
         if (e != null && e.evtype.is_value ()) {
-            evt = this.next_event (it);
+            evt = this.next_event ();
         }
         return evt;
+    }
+
+    /**
+     *
+     */
+    public void reset ()
+    {
+        this.root         = new Yaml.NodeRoot ();
+        this.prev_node    = this.root; 
+        this.parent_node  = this.root;
+        this.iterator     = this.events.iterator ();
+        this.change       = false;
+        this.ckey         = null;
+        this.idAnchor     = null;
+        this.beginFlowSeq = false;
     }
 
     /**
@@ -159,111 +196,206 @@ public class Pluie.Yaml.Processor
      */
     public bool run ()
     {
-        if (Pluie.Yaml.Scanner.DEBUG) this.read ();
-        this.root         = new Yaml.NodeRoot ();
-        this.prev_node    = this.root; 
-        this.parent_node  = this.root;
-        this.prev_level   = this.root.level;
-        int level         = this.root.level + 1;
-        var it            = this.events.iterator ();
-        var change        = false;
-        string? key       = null;
-        string? id        = null;
-        bool beginFlowSeq = false;
-        Yaml.Event? evt;
-        if (Pluie.Yaml.Scanner.DEBUG) of.action ("Processing events");
-        for (var has_next = it.next (); has_next; has_next = it.next ()) {
-            evt = it.get ();
-            if (evt.evtype.is_error ()) {
-                error_event = evt;
+        if (Yaml.Scanner.DEBUG) {
+            this.read ();
+            of.action ("Processing events");
+        }
+        this.reset ();
+        for (var has_next = this.iterator.next (); has_next; has_next = this.iterator.next ()) {
+            this.event = this.iterator.get ();
+            if (this.event.evtype.is_error ()) {
+                this.on_error ();
                 break;
             }
-            if (evt.evtype.is_mapping_end () || evt.evtype.is_sequence_end ()) {
-                level           -= 4;
-                this.parent_node = this.prev_node.parent != null && this.prev_node.parent != this.root 
-                    ? this.prev_node.parent.parent 
-                    : this.root;
-                this.prev_node   = this.parent_node;
+            if (this.event.evtype.is_mapping_end () || this.event.evtype.is_sequence_end ()) {
+                this.on_block_end ();
                 continue;
             }
-            if (evt.evtype.is_entry ()) {
-                evt = this.next_event(it);
-                if (evt.evtype.is_mapping_start ()) {
-                    key       = "_%d".printf((this.parent_node as Yaml.NodeSequence).get_size());
-                    this.node = new Yaml.NodeMap (this.parent_node, key);
-                    key       = null;
-                    level    += 1;
-                    change    = true;
-                }
-                else if (evt.evtype.is_scalar ()) {
-                    var content = evt.data["data"];
-                    this.node   = new Yaml.NodeScalar (this.parent_node, content);
-                    change      = true;
-                }
+            if (this.event.evtype.is_entry ()) {
+                this.on_entry ();
             }
-            if (beginFlowSeq && evt.evtype.is_scalar ()) {
-                var content  = evt.data["data"];
-                this.node    = new Yaml.NodeScalar (this.parent_node, content);
-                change       = true;
-                beginFlowSeq = false;
+            if (this.beginFlowSeq && this.event.evtype.is_scalar ()) {
+                this.on_scalar (true);
+                this.beginFlowSeq = false;
             }
-            if (evt.evtype.is_key () && (evt = this.get_value_key_event (it)) != null) {
-                key = evt.data["data"];
+            if (this.event.evtype.is_key () && (this.event = this.get_value_key_event ()) != null) {
+                this.on_key ();
             }
-            if (evt.evtype.is_value () && (evt = this.get_value_event (it)) != null) {
-                if (evt.evtype.is_scalar ()) {
-                    var content = evt.data["data"];
-                    if (key != null) {
-                        this.node = new Yaml.NodeSinglePair (this.parent_node, key, content);
-                        change    = true;
-                    }
+            if (this.event.evtype.is_value () && (this.event = this.get_value_event ()) != null) {
+                this.on_value ();
+                if (this.event.evtype.is_mapping_start ()) {
+                    this.on_mapping_start ();
                 }
-                else if (evt.evtype.is_anchor ()) {
-                    id  = evt.data["id"];
-                    evt = this.next_event (it);
+                else if (this.event.evtype.is_sequence_start ()) {
+                    this.on_sequence_start ();
                 }
-                else if (evt.evtype.is_alias ()) {
-                    id = evt.data["id"];
-                    Yaml.Node? refnode = this.anchors.get(id);
-                    if (refnode != null) {
-                        this.node = refnode.clone_node (key);
-                        this.parent_node.add (this.node);
-                        this.prev_node  = this.node;
-                        this.prev_level = this.prev_node.level;
-                    }
-                }
-                if (evt.evtype.is_mapping_start ()) {
-                    this.node = new Yaml.NodeMap (this.parent_node, key);
-                    level    += 1;
-                    change    = true;
-                }
-                else if (evt.evtype.is_sequence_start ()) {
-                    this.node    = new Yaml.NodeSequence (this.parent_node, key);
-                    level       += 1;
-                    change       = true;
-                    beginFlowSeq = true;
-                }
-                if (id != null) {
-                    if (this.node != null) {
-                        this.anchors.set(id, this.node);
-                    }
-                    id = null;
-                }
-                key = null;
+                this.add_anchor_if_needed ();
+                this.ckey = null;
             }
-            if (change) {
-                this.parent_node.add (this.node);
-                if (this.node.node_type.is_collection ()) {
-                    this.parent_node = this.node;
-                }
-                this.prev_node   = this.node;
-                this.prev_level  = this.prev_node.level;
-                this.node        = null;
-                change = false;
-            }
+            this.on_update ();
         }
         this.done = error_event == null && this.root != null;
         return done;
+    }
+
+    /**
+     *
+     */
+    private void on_error ()
+    {
+        this.error_event = this.event;
+    }
+
+    /**
+     *
+     */
+    private void on_block_end ()
+    {
+        this.parent_node = this.prev_node.parent != null && this.prev_node.parent != this.root 
+            ? this.prev_node.parent.parent 
+            : this.root;
+        this.prev_node   = this.parent_node;
+    }
+
+    /**
+     *
+     */
+    private void on_entry ()
+    {
+        this.event = this.next_event();
+        if (this.event.evtype.is_mapping_start ()) {
+            this.on_mapping_start (true);
+        }
+        else if (this.event.evtype.is_scalar ()) {
+            this.on_scalar (true);
+        }
+    }
+
+    /**
+     *
+     */
+    private void on_key ()
+    {
+        this.ckey = this.event.data["data"];
+    }
+
+    /**
+     *
+     */
+    private void on_value ()
+    {
+        if (this.event.evtype.is_scalar ()) {
+            this.on_scalar ();
+        }
+        else if (this.event.evtype.is_anchor ()) {
+            this.on_anchor ();
+        }
+        else if (this.event.evtype.is_alias ()) {
+            this.on_alias ();
+        }
+    }
+
+    /**
+     *
+     */
+    private void on_scalar (bool entry = false)
+    {
+        if (!entry) {
+            if (this.ckey != null) {
+                this.node   = new Yaml.NodeSinglePair (this.parent_node, this.ckey, this.event.data["data"]);
+                this.change = true;
+            }
+        }
+        else {
+            this.node   = new Yaml.NodeScalar (this.parent_node, this.event.data["data"]);
+            this.change = true;
+        }
+    }
+
+    /**
+     *
+     */
+    private void on_anchor ()
+    {
+        this.idAnchor = this.event.data["id"];
+        this.event    = this.next_event ();
+    }
+
+    /**
+     *
+     */
+    private void on_alias ()
+    {
+        this.idAnchor      = this.event.data["id"];
+        Yaml.Node? refnode = this.anchors.get(this.idAnchor);
+        if (refnode != null) {
+            this.node = refnode.clone_node (this.ckey);
+            this.parent_node.add (this.node);
+            this.prev_node = this.node;
+        }
+    }
+
+    /**
+     *
+     */
+    private void on_sequence_start ()
+    {
+        this.node         = new Yaml.NodeSequence (this.parent_node, this.ckey);
+        this.change       = true;
+        this.beginFlowSeq = true;
+    }
+
+    /**
+     *
+     */
+    private void on_mapping_start (bool entry = false)
+    {
+        if (entry) {
+            this.create_mapping (entry);
+            this.ckey   = null;
+        }
+        else this.create_mapping ();
+    }
+
+    /**
+     *
+     */
+    private void create_mapping (bool entry = false)
+    {
+        if (entry) {
+            this.ckey = "_%d".printf((this.parent_node as Yaml.NodeSequence).get_size());
+        }
+        this.node   = new Yaml.NodeMap (this.parent_node, this.ckey);
+        this.change = true;
+    }
+
+    /**
+     *
+     */
+    private void add_anchor_if_needed ()
+    {
+        if (this.idAnchor != null) {
+            if (this.node != null) {
+                this.anchors.set(this.idAnchor, this.node);
+            }
+            this.idAnchor = null;
+        }
+    }
+
+    /**
+     *
+     */
+    private void on_update ()
+    {
+        if (this.change) {
+            this.parent_node.add (this.node);
+            if (this.node.node_type.is_collection ()) {
+                this.parent_node = this.node;
+            }
+            this.prev_node = this.node;
+            this.node      = null;
+            this.change    = false;
+        }
     }
 
 }

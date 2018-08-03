@@ -59,18 +59,17 @@ public class Pluie.Yaml.Loader
     public Loader (string path, bool displayFile = false, bool displayNode = false )
     {
         this.reader  = new Io.Reader (path);
-        if (displayFile) {
-            this.displayFile ();
-        }
         this.scanner = new Yaml.Scanner (path);
-        if ((this.done = this.scanner.run()) && displayNode) {
-            var n = this.get_nodes ();
-            if (n != null) {
-                n.display_childs ();
+        if (displayFile) this.displayFile ();
+
+        if ((this.done = this.scanner.run())) {
+            if (displayNode) {
+                var n = this.get_nodes ();
+                if (n != null) n.display_childs ();
+                of.state(n != null);
             }
-            of.state(n != null);
         }
-        if (!this.done) {
+        else {
             var evt = this.scanner.get_error_event ();
             of.error ("line %d (%s)".printf (evt.line, evt.data["error"]));
             this.displayFile (evt.line);
@@ -80,9 +79,28 @@ public class Pluie.Yaml.Loader
     /**
      * return resulting Yaml root node
      */
-    public Yaml.NodeRoot get_nodes ()
+    public Yaml.NodeRoot? get_nodes ()
     {
         return this.scanner.get_nodes ();
+    }
+
+    /**
+     * bypass_ellipse
+     */
+    private bool bypass_ellipse (int errorLine, int line)
+    {
+        bool bypass = false;
+        if (errorLine > 0 && line > 0) {
+            if (line < errorLine - 7) bypass = true;
+            else if (line == errorLine - 7 && line > 1) {
+                of.echo ("%s%s%s".printf (
+                    of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line-1)),
+                    of.c (ECHO.DATE).s ("| "),
+                    of.c (ECHO.COMMAND).s ("... ")
+                ));
+            }
+        }
+        return bypass;
     }
 
     /**
@@ -93,39 +111,29 @@ public class Pluie.Yaml.Loader
         of.action (errorLine == 0 ? "Reading file" : "Invalid Yaml File", this.reader.path);
         of.echo ();
         this.reader.rewind(new Io.StreamLineMark(0, 0));
-        int     line = 0;
-        string? data = null;
+        int     line   = 0;
+        string? data   = null;
+        bool    err    = false;
+        bool    before = false;
         while (this.reader.readable) {
-            line = this.reader.line + 1;
-            data = this.reader.read ();
-            if (errorLine > 0 && line > 0) {
-                if (line < errorLine - 7) continue;
-                else if (line == errorLine - 7) {
-                    of.echo ("%s%s%s".printf (
-                        of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line-1)),
-                        of.c (ECHO.DATE).s ("| "),
-                        of.c (ECHO.COMMAND).s ("... ")
-                    ));
-                }
-            }
-            if (data !=null) {
-                ECHO color = data.strip()[0] != '#' ? ECHO.COMMAND : ECHO.COMMENT;
-                of.echo ("%s%s%s".printf (
-                    of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line)),
-                    of.c (ECHO.DATE).s ("| "),
-                    errorLine > 0 && line == errorLine
-                        ? of.c (ECHO.FAIL).s (data)
-                        : of.c (color).s (data)
-                ), errorLine == 0 || line < errorLine);
-            }
-            if (errorLine > 0 &&  line == errorLine) {
+            line   = this.reader.line + 1;
+            data   = this.reader.read ();
+            err    = errorLine > 0 && line == errorLine;
+            before = errorLine == 0 || line < errorLine;
+            if (this.bypass_ellipse (errorLine, line)) continue;
+            ECHO color = data!=null && data.strip()[0] != '#' ? ECHO.COMMAND : ECHO.COMMENT;
+            of.echo ("%s%s%s".printf (
+                of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line)),
+                of.c (ECHO.DATE).s ("| "),
+                err ? of.c (ECHO.FAIL).s (data)
+                    : of.c (color).s (data)
+            ), before);
+            if (err) {
                 int len = of.term_width - data.length - 13;
                 stdout.printf (of.c (ECHO.FAIL).s (@" %$(len)s ".printf (" ")));
                 of.echo (Color.off (), true);
             }
-            if (errorLine > 0 && line > errorLine) {
-                break;
-            }
+            else if (!before) break;
         }
         of.echo (errorLine == 0 ? "EOF" : "");
         of.state (errorLine == 0);

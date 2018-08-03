@@ -114,7 +114,6 @@ public interface Pluie.Yaml.Node : Object
      */
     public abstract void update_level ();
 
-
     /**
      * get a presentation string of current Yaml.Node
      */
