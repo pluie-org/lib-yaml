@@ -85,25 +85,6 @@ public class Pluie.Yaml.Loader
     }
 
     /**
-     * bypass_ellipse
-     */
-    private bool bypass_ellipse (int errorLine, int line)
-    {
-        bool bypass = false;
-        if (errorLine > 0 && line > 0) {
-            if (line < errorLine - 7) bypass = true;
-            else if (line == errorLine - 7 && line > 1) {
-                of.echo ("%s%s%s".printf (
-                    of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line-1)),
-                    of.c (ECHO.DATE).s ("| "),
-                    of.c (ECHO.COMMAND).s ("... ")
-                ));
-            }
-        }
-        return bypass;
-    }
-
-    /**
      * display original file
      */
     public void displayFile (int errorLine = 0)
@@ -138,4 +119,24 @@ public class Pluie.Yaml.Loader
         of.echo (errorLine == 0 ? "EOF" : "");
         of.state (errorLine == 0);
     }
+
+    /**
+     * bypass_ellipse
+     */
+    private bool bypass_ellipse (int errorLine, int line)
+    {
+        bool bypass = false;
+        if (errorLine > 0 && line > 0) {
+            if (line < errorLine - 7) bypass = true;
+            else if (line == errorLine - 7 && line > 1) {
+                of.echo ("%s%s%s".printf (
+                    of.c (ECHO.MICROTIME   ).s (" %03d ".printf (line-1)),
+                    of.c (ECHO.DATE).s ("| "),
+                    of.c (ECHO.COMMAND).s ("... ")
+                ));
+            }
+        }
+        return bypass;
+    }
+
 }

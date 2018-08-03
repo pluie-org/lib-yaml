@@ -30,7 +30,7 @@
 using GLib;
 using Pluie;
 
-public interface Pluie.Yaml.Node : Object
+public interface Pluie.Yaml.Node : Object, Yaml.NodeCollection
 {
     /**
      * universal unique identifier
@@ -58,6 +58,12 @@ public interface Pluie.Yaml.Node : Object
      * current node name (key)
      */
     public abstract string?          name       { get; internal set; default = null; }
+
+    /**
+     * test if specifiyed node is current node
+     * @param child the Yaml.Node node to test
+     */
+    public abstract bool same_node (Yaml.Node? node);
  
     /**
      * add a child node to current collection (mapping or sequence) node
@@ -93,6 +99,16 @@ public interface Pluie.Yaml.Node : Object
      * check if node has child nodes
      */
     public abstract bool has_child_nodes ();
+
+    /**
+     * check if first chikd
+     */
+    public abstract bool is_first_child ();
+
+    /**
+     * check if last chikd
+     */
+    public abstract bool is_last_child ();
 
     /**
      * give the next sibling node

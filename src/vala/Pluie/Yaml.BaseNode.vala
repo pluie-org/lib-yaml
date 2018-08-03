@@ -34,29 +34,32 @@ using Pluie;
 /**
  * parent class representing a Yaml Node whenether was his type
  */
-public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
+public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node, Pluie.Yaml.NodeCollection
 {
     /**
      * universal unique identifier
      */
-    public string                           uuid      { get; internal set; }
+    public string                           uuid       { get; internal set; }
 
-    public string                           anchor    { get; internal set; }
+    /**
+     * anchor
+     */
+    public string                           anchor     { get; internal set; }
 
     /**
      * find mode related to Yaml.FIND_MODE, default is Yaml.FIND_MODE.SQUARE_BRACKETS
      */
-    public static Yaml.FIND_MODE            mode      { get; set; default = Yaml.FIND_MODE.DOT; }
+    public static Yaml.FIND_MODE            mode       { get; set; default = Yaml.FIND_MODE.DOT; }
 
     /**
      * node type related to Yaml.NODE_TYPE
      */
-    public Yaml.NODE_TYPE                   node_type { get; internal set; }
+    public Yaml.NODE_TYPE                   node_type  { get; internal set; }
 
     /**
      * current representation level
      */
-    public int                              level     { get; internal set; }
+    public int                              level      { get; internal set; }
 
     /**
      * parent node
@@ -103,6 +106,16 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
         this.level     = parent!=null ? parent.level + 1 : 0;
         this.uuid      = Yaml.uuid ();
     }
+
+    /**
+     * test if specifiyed node is current node
+     * @param child the Yaml.Node node to test
+     */
+    public virtual bool same_node (Yaml.Node? node)
+    {
+        return node != null && node.uuid != this.uuid;
+    }
+ 
 
     /**
      *
@@ -166,6 +179,38 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     }
 
     /**
+     *
+     */
+    public bool is_last (Yaml.Node child) {
+        return true;
+    }
+
+    /**
+     *
+     */
+    public bool is_first (Yaml.Node child) {
+        return true;
+    }
+
+    /**
+     *
+     */
+    public virtual Yaml.Node? first_child ()
+    {
+        Yaml.Node? child = (this as Yaml.NodeCollection).first_child ();
+        return child;
+    }
+
+    /**
+     *
+     */
+    public virtual Yaml.Node? last_child ()
+    {
+        Yaml.Node? child = (this as Yaml.NodeCollection).last_child ();
+        return child;
+    }
+
+    /**
      * give the next sibling node
      */
     public virtual Yaml.Node? next_sibling ()
@@ -173,6 +218,7 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
         Yaml.Node? sibling = null;
         if (this.parent != null) {
             sibling = (this.parent as Yaml.NodeCollection).child_next_sibling (this);
+            if (sibling == this) sibling = null;
         }
         return sibling;
     }
@@ -204,11 +250,52 @@ public class Pluie.Yaml.BaseNode : Object, Pluie.Yaml.Node
     }
 
     /**
+     * retriew the previous sibling of specifiyed child node
+     * @param   child
+     */
+    public virtual Yaml.Node? child_previous_sibling (Yaml.Node child)
+    {
+        return null;
+    }
+
+    /**
+     * retriew the next sibling of specifiyed child node
+     * @param   child
+     */
+    public virtual Yaml.Node? child_next_sibling (Yaml.Node child)
+    {
+        return null;
+    }
+
+    /**
+     *
+     */
+    public virtual int get_size () {
+        return this.node_type.is_collection () ? (this as Yaml.NodeCollection).get_size () : 0;
+    }
+
+    /**
      * check if node has child nodes
      */
     public virtual bool has_child_nodes ()
     {
         return this.node_type.is_collection () && (this as Yaml.NodeCollection).get_size () > 0;
+    }
+
+    /**
+     * check if first chikd
+     */
+    public virtual bool is_first_child ()
+    {
+        return false;
+    }
+
+    /**
+     * check if last chikd
+     */
+    public virtual bool is_last_child ()
+    {
+        return false;
     }
 
     /**

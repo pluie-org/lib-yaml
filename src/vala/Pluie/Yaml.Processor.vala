@@ -139,59 +139,6 @@ public class Pluie.Yaml.Processor
     }
 
     /**
-     * retriew the next Yaml Event
-     */
-    private Yaml.Event? next_event ()
-    {
-        Yaml.Event? evt = null;
-        if (this.iterator.has_next () && this.iterator.next ()) {
-            evt = this.iterator.get ();
-        }
-        return evt;
-    }
-
-    /**
-     * retriew the next Yaml Value Event closest to Key Event
-     */
-    private Yaml.Event? get_value_key_event ()
-    {
-        Yaml.Event? evt = null;
-        var e = this.iterator.get ();
-        if (e != null && e.evtype.is_key ()) {
-            evt = this.next_event ();
-        }
-        return evt;
-    }
-
-    /**
-     * retriew the next Yaml Value Event
-     */
-    private Yaml.Event? get_value_event ()
-    {
-        Yaml.Event? evt = null;
-        var e = this.iterator.get ();
-        if (e != null && e.evtype.is_value ()) {
-            evt = this.next_event ();
-        }
-        return evt;
-    }
-
-    /**
-     *
-     */
-    public void reset ()
-    {
-        this.root         = new Yaml.NodeRoot ();
-        this.prev_node    = this.root; 
-        this.parent_node  = this.root;
-        this.iterator     = this.events.iterator ();
-        this.change       = false;
-        this.ckey         = null;
-        this.idAnchor     = null;
-        this.beginFlowSeq = false;
-    }
-
-    /**
      * processing the events list and generate the corresponding Yaml Nodes
      */
     public bool run ()
@@ -236,6 +183,59 @@ public class Pluie.Yaml.Processor
         }
         this.done = error_event == null && this.root != null;
         return done;
+    }
+
+    /**
+     *
+     */
+    private void reset ()
+    {
+        this.root         = new Yaml.NodeRoot ();
+        this.prev_node    = this.root; 
+        this.parent_node  = this.root;
+        this.iterator     = this.events.iterator ();
+        this.change       = false;
+        this.ckey         = null;
+        this.idAnchor     = null;
+        this.beginFlowSeq = false;
+    }
+
+    /**
+     * retriew the next Yaml Event
+     */
+    private Yaml.Event? next_event ()
+    {
+        Yaml.Event? evt = null;
+        if (this.iterator.has_next () && this.iterator.next ()) {
+            evt = this.iterator.get ();
+        }
+        return evt;
+    }
+
+    /**
+     * retriew the next Yaml Value Event closest to Key Event
+     */
+    private Yaml.Event? get_value_key_event ()
+    {
+        Yaml.Event? evt = null;
+        var e = this.iterator.get ();
+        if (e != null && e.evtype.is_key ()) {
+            evt = this.next_event ();
+        }
+        return evt;
+    }
+
+    /**
+     * retriew the next Yaml Value Event
+     */
+    private Yaml.Event? get_value_event ()
+    {
+        Yaml.Event? evt = null;
+        var e = this.iterator.get ();
+        if (e != null && e.evtype.is_value ()) {
+            evt = this.next_event ();
+        }
+        return evt;
     }
 
     /**

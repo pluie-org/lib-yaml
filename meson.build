@@ -62,7 +62,6 @@ sources = [
     'src/vala/Pluie/Io.StreamLineMark.vala',
     'src/vala/Pluie/Yaml.global.vala',
     'src/vala/Pluie/Yaml.Config.vala',
-    'src/vala/Pluie/Yaml.Document.vala',
     'src/vala/Pluie/Yaml.Event.vala',
     'src/vala/Pluie/Yaml.Loader.vala',
     'src/vala/Pluie/Yaml.Finder.vala',

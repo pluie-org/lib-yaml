@@ -49,6 +49,28 @@ public interface Pluie.Yaml.NodeCollection
     public abstract Yaml.Node? child_next_sibling (Yaml.Node child);
 
     /**
+     * retriew the previous sibling of specifiyed child node
+     * @param   child
+     */
+    public abstract Yaml.Node? first_child ();
+
+    /**
+     * retriew the next sibling of specifiyed child node
+     * @param   child
+     */
+    public abstract Yaml.Node? last_child ();
+
+    /**
+     * check if first chikd
+     */
+    public abstract bool is_first (Yaml.Node child);
+
+    /**
+     * check if last chikd
+     */
+    public abstract bool is_last (Yaml.Node child);
+
+    /**
      * count childnodes
      */
     public abstract int get_size ();

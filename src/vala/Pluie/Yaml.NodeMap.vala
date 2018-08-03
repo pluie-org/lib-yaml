@@ -39,7 +39,9 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     /**
      * map collection for Yaml.NodeMap node
      */
-    public HashMap<string, Yaml.Node>       map        { get; internal set; }
+    public Gee.HashMap<string, Yaml.Node>       map        { get; internal set; }
+
+    private Gee.ArrayList<string>               keys       { get; internal set; }
 
     /**
      * construct a mapping node
@@ -50,6 +52,7 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     {
         base (parent, NODE_TYPE.MAPPING);
         this.map  = new HashMap<string, Yaml.Node> ();
+        this.keys = new ArrayList<string> ();
         this.name = name;
     }
 
@@ -75,6 +78,13 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
         node.on_change_parent ();
         node.level = this.level + 1;
         node.parent = this;
+        if (this.keys == null) {
+            this.keys = new ArrayList<string> ();
+        }
+        if (this.keys.contains(node.name)) {
+            this.keys.remove(node.name);
+        }
+        this.keys.add(node.name);
         if (this.map == null) {
             this.map = new HashMap<string, Yaml.Node> ();
         }
@@ -91,8 +101,8 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
             of.action ("display childs\n");
         }
         of.echo (this.to_string ());
-        if (this.map.size > 0) {
-            foreach (string key in this.map.keys) {
+        if (this.keys != null && this.keys.size > 0) {
+            foreach (string key in this.keys) {
                 var n = this.map.get(key);
                 if (n.node_type.is_mapping ()) (n as Yaml.NodeMap).display_childs (false);
                 else if (n.node_type.is_sequence ()) (n as Yaml.NodeSequence).display_childs (false);
@@ -111,7 +121,7 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
      * count childnodes
      */
     public int get_size () {
-        return this.map.size;
+        return this.keys.size;
     }
 
     /**
@@ -130,48 +140,73 @@ public class Pluie.Yaml.NodeMap : Yaml.BaseNode, Yaml.NodeCollection
     }
 
     /**
+     *
+     */
+    public bool is_last (Yaml.Node child) {
+        return this.keys.last() == child.name;
+    }
+
+    /**
+     *
+     */
+    public bool is_first (Yaml.Node child) {
+        return this.keys.first() == child.name;
+    }
+
+    /**
+     *
+     */
+    private string? next_key (string skey)
+    {
+        string? mkey = this.keys.last() != skey ? this.keys.get (this.keys.index_of (skey)+1) : null;
+        return mkey;
+    }
+
+    /**
+     *
+     */
+    private string? previous_key (string skey)
+    {
+        string? mkey = this.keys.first() != skey ? this.keys.get (this.keys.index_of (skey)-1) : null;
+        return mkey;
+    } 
+
+    /**
      * retriew the next sibling of specifiyed child node
      * @param   child
      */
     public virtual Yaml.Node? child_next_sibling (Yaml.Node child)
     {
-        Yaml.Node? target = null;
-        bool match = false;
-        if (this.map.size > 0) {
-            foreach (string key in this.map.keys) {
-                if (child.name == key) {
-                    match = true;
-                    continue;
-                }
-                if (match) {
-                    target = this.map.get(key);
-                }
-            }
-        }
+        var key    = this.next_key (child.name);
+        var target = key != null ? this.map[key] : null;
         return target;
     }
 
     /**
-     * retriew the previous sibling of specifiyed child node
+     * retriew the next sibling of specifiyed child node
      * @param   child
      */
     public virtual Yaml.Node? child_previous_sibling (Yaml.Node child)
     {
-        Yaml.Node? target = null;
-        bool match = false;
-        if (this.map.size > 0) {
-            foreach (string key in this.map.keys) {
-                if (child.name == key) {
-                    match = true;
-                    break;
-                }
-                target = this.map.get(key);
-            }
-        }
-        if (!match) {
-            target = null;
-        }
+        var key    = this.previous_key (child.name);
+        var target = key != null ? this.map[key] : null;
         return target;
+    }
+
+    /**
+     *
+     */
+    public override Yaml.Node? first_child ()
+    {
+        return this.map[this.keys.first()];
+    }
+
+    /**
+     *
+     */
+    public override Yaml.Node? last_child ()
+    {
+        return this.map[this.keys.last()];
     }
 
     /**

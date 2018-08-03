@@ -103,10 +103,39 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
     }
 
     /**
+     *
+     */
+    public new bool is_last (Yaml.Node child) {
+        return child.same_node(this.last_child());
+    }
+
+    /**
+     *
+     */
+    public new bool is_first (Yaml.Node child) {
+        return child.same_node(this.first_child());
+    }
+
+    /**
+     * count childnodes
+     */
+    public new int get_size () {
+        return this.list == null ? 0 : this.list.size;
+    }
+
+    /**
+     * check if current node contains the specifiyed child node
+     * @param child
+     */
+    public override bool contains (Yaml.Node child) {
+        return this.list.contains (child);
+    }
+
+    /**
      * retriew the first child node
      * @return the first child node
      */
-    public Yaml.Node first ()
+    public override Yaml.Node? first_child ()
     {
         return this.list.first ();
     }
@@ -116,7 +145,7 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
      * retriew the last child node
      * @return the last child node
      */
-    public Yaml.Node last ()
+    public override Yaml.Node? last_child ()
     {
         return this.list.last ();
     }
@@ -148,20 +177,7 @@ public class Pluie.Yaml.NodeSequence : Yaml.BaseNode, Yaml.NodeCollection
         }
     }
 
-    /**
-     * count childnodes
-     */
-    public int get_size () {
-        return this.list == null ? 0 : this.list.size;
-    }
 
-    /**
-     * check if current node contains the specifiyed child node
-     * @param child
-     */
-    public override bool contains (Yaml.Node child) {
-        return this.list.contains (child);
-    }
 
     /**
      * retriew the next sibling of specifiyed child node

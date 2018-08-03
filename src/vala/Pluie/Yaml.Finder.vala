@@ -52,46 +52,6 @@ public class Pluie.Yaml.Finder : Object
     }
 
     /**
-     * get a path definition depending of current Node.mode
-     * if path definition is Yaml.FIND_MODE.DOT the path is convert to a 
-     * Yaml.FIND_MODE.SQUARE_BRACKETS path definition
-     * @path the path definition
-     * @return the find path definition according to current Node.mode
-     */
-    private string find_path (string path)
-    {
-        MatchInfo? mi = null;
-        string search = "";
-        if (BaseNode.mode.is_dot ()) {
-            var stk = /([^.]*)\./.split (path);
-            foreach (var s in stk) {
-                if (s.strip() != "") {
-                    if (/([^\{]+)(\{[0-9]+\})/.match (s, 0, out mi)) {
-                        search = search + "[%s]%s".printf (mi.fetch (1), mi.fetch (2));
-                    }
-                    else {
-                        search = search + "[%s]".printf (s);
-                    }
-                }
-            }
-        }
-        else {
-            search = path;
-        } 
-        return search;
-    }
-
-    /**
-     * indicates if specifiyed MatchInfo is related to a mapping node only or a collection node
-     * @param mi 
-     */
-    private bool is_collection_path (MatchInfo mi, bool mappingOnly = false)
-    {
-        return (mi.fetch (FIND_COLLECTION.OPEN) == "[" && mi.fetch (FIND_COLLECTION.CLOSE) == "]") || (!mappingOnly &&
-               (mi.fetch (FIND_COLLECTION.OPEN) == "{" && mi.fetch (FIND_COLLECTION.CLOSE) == "}"));
-    }
-
-    /**
      * find a specific child Yaml.Node corresponding to path definition
      * path definition has two mode.
      * default mode is Yaml.FIND_MODE.SQUARE_BRACKETS
@@ -146,4 +106,45 @@ public class Pluie.Yaml.Finder : Object
         if (!match) node = null;
         return node;
     }
+
+    /**
+     * get a path definition depending of current Node.mode
+     * if path definition is Yaml.FIND_MODE.DOT the path is convert to a 
+     * Yaml.FIND_MODE.SQUARE_BRACKETS path definition
+     * @path the path definition
+     * @return the find path definition according to current Node.mode
+     */
+    private string find_path (string path)
+    {
+        MatchInfo? mi = null;
+        string search = "";
+        if (BaseNode.mode.is_dot ()) {
+            var stk = /([^.]*)\./.split (path);
+            foreach (var s in stk) {
+                if (s.strip() != "") {
+                    if (/([^\{]+)(\{[0-9]+\})/.match (s, 0, out mi)) {
+                        search = search + "[%s]%s".printf (mi.fetch (1), mi.fetch (2));
+                    }
+                    else {
+                        search = search + "[%s]".printf (s);
+                    }
+                }
+            }
+        }
+        else {
+            search = path;
+        } 
+        return search;
+    }
+
+    /**
+     * indicates if specifiyed MatchInfo is related to a mapping node only or a collection node
+     * @param mi 
+     */
+    private bool is_collection_path (MatchInfo mi, bool mappingOnly = false)
+    {
+        return (mi.fetch (FIND_COLLECTION.OPEN) == "[" && mi.fetch (FIND_COLLECTION.CLOSE) == "]") || (!mappingOnly &&
+               (mi.fetch (FIND_COLLECTION.OPEN) == "{" && mi.fetch (FIND_COLLECTION.CLOSE) == "}"));
+    }
+
 }

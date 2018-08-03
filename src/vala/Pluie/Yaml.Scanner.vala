@@ -134,19 +134,6 @@ public class Pluie.Yaml.Scanner
     }
 
     /**
-     *
-     */
-    public void before_run (string? path)
-    {
-        if (path != null && this.reader.path != path) {
-            this.reader.load (path);
-        }
-        else {
-            this.reader.rewind(new Io.StreamLineMark(0, 0));
-        }
-    }
-
-    /**
      * scan specifiyed file generated throught yaml.c
      * @param optional file path to scan
      */
@@ -166,6 +153,19 @@ public class Pluie.Yaml.Scanner
         if (Pluie.Yaml.Scanner.DEBUG) of.state (this.done);
         Dbg.out (Log.METHOD, "done:%d".printf ((int)done), Log.LINE, Log.FILE);
         return this.done;
+    }
+
+    /**
+     *
+     */
+    private void before_run (string? path)
+    {
+        if (path != null && this.reader.path != path) {
+            this.reader.load (path);
+        }
+        else {
+            this.reader.rewind(new Io.StreamLineMark(0, 0));
+        }
     }
 
     /**
