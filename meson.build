@@ -1,7 +1,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
-#  @version   : 0.3
+#  @version   : 0.4
 #  @date      : 2018
 #  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
 #  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -39,7 +39,7 @@ dep_yaml      = cc.find_library('yaml', required : true)
 
 #~ add_global_link_arguments('-lyaml', language : 'c')
 
-version       = '0.3'
+version       = '0.4'
 bindir        = join_paths(get_option('prefix'), get_option('bindir'))
 datadir       = join_paths(get_option('prefix'), get_option('datadir'), 'pluie')
 libdir        = join_paths(get_option('prefix'), get_option('libdir'), 'pkgconfig')
@@ -61,20 +61,19 @@ sources = [
     'src/vala/Pluie/Io.Reader.vala',
     'src/vala/Pluie/Io.StreamLineMark.vala',
     'src/vala/Pluie/Yaml.global.vala',
+    'src/vala/Pluie/Yaml.AbstractChild.vala',
+    'src/vala/Pluie/Yaml.AbstractNode.vala',
+    'src/vala/Pluie/Yaml.Collection.vala',
     'src/vala/Pluie/Yaml.Config.vala',
     'src/vala/Pluie/Yaml.Event.vala',
-    'src/vala/Pluie/Yaml.Loader.vala',
     'src/vala/Pluie/Yaml.Finder.vala',
-    'src/vala/Pluie/Yaml.Scanner.vala',
-    'src/vala/Pluie/Yaml.Processor.vala',
-    'src/vala/Pluie/Yaml.BaseNode.vala',
+    'src/vala/Pluie/Yaml.Loader.vala',
+    'src/vala/Pluie/Yaml.Mapping.vala',
     'src/vala/Pluie/Yaml.Node.vala',
-    'src/vala/Pluie/Yaml.NodeCollection.vala',
-    'src/vala/Pluie/Yaml.NodeMap.vala',
-    'src/vala/Pluie/Yaml.NodeRoot.vala',
-    'src/vala/Pluie/Yaml.NodeScalar.vala',
-    'src/vala/Pluie/Yaml.NodeSequence.vala',
-    'src/vala/Pluie/Yaml.NodeSinglePair.vala',
+    'src/vala/Pluie/Yaml.Scalar.vala',
+    'src/vala/Pluie/Yaml.Scanner.vala',
+    'src/vala/Pluie/Yaml.Sequence.vala',
+    'src/vala/Pluie/Yaml.Processor.vala',
     'src/c/yaml.c'
 ]
 

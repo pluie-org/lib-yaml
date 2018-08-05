@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -66,31 +66,34 @@ public class Pluie.Yaml.Finder : Object
      */
     public Yaml.Node? find (string path, Yaml.Node? context = null)
     {
-        string search       = this.find_path (path);
-        bool match          = false;
+        string search         = this.find_path (path);
+        bool match            = false;
         Yaml.Node? node = context == null ? this.context : context;
-        Regex reg           = /(\[|\{)([^\]\}]*)(\]|\})/;
+        Yaml.Mapping?    m    = null;
+        Regex reg             = /(\[|\{)([^\]\}]*)(\]|\})/;
         MatchInfo mi;
         try {
-//~             of.echo ("find node %s".printf (path));
-//~             of.echo ("search %s".printf (search));
+            //of.echo ("find node %s".printf (path));
+            // of.echo ("search %s".printf (search));
             for (reg.match (search, 0, out mi) ; mi.matches () ; mi.next ()) {
-//~                 of.echo ("=> %s%s%s".printf (mi.fetch (1), mi.fetch (2), mi.fetch (3)));
+                // of.echo ("=> %s%s%s".printf (mi.fetch (1), mi.fetch (2), mi.fetch (3)));
                 if (this.is_collection_path (mi)) {
                     if (!match) match = true;
                     if (this.is_collection_path (mi, true)) {
-                        node = (node as Yaml.NodeMap).map[mi.fetch (FIND_COLLECTION.KEY)];
+                        var n = node as Yaml.Mapping;
+                        if (n !=null && !n.empty ()) {
+                            node = n.item (mi.fetch (FIND_COLLECTION.KEY));
+                        }
                     }
                     else {
                         int index = int.parse (mi.fetch (FIND_COLLECTION.KEY));
-                        if (index == 0 && node.node_type.is_single_pair ()) {
-                            var n = node as Yaml.NodeSinglePair;
-                            node  = n.scalar ();
+                        if (index == 0 && !node.empty() && node.first().ntype.is_scalar ()) {
+                            node  = node.first ();
                         }
                         // assume sequence
                         else {
-                            var n     = node as Yaml.NodeSequence;
-                            if (index < n.list.size && index >= 0) {
+                            var n     = node as Yaml.Sequence;
+                            if (n != null && !n.empty () && index >= 0 && index < n.count ()) {
                                 node = n.list.get (index);
                             }
                             else node = null;
@@ -118,7 +121,7 @@ public class Pluie.Yaml.Finder : Object
     {
         MatchInfo? mi = null;
         string search = "";
-        if (BaseNode.mode.is_dot ()) {
+        if (Yaml.MODE.is_dot ()) {
             var stk = /([^.]*)\./.split (path);
             foreach (var s in stk) {
                 if (s.strip() != "") {

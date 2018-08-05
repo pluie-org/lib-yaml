@@ -42,7 +42,7 @@ int main (string[] args)
 //~     Pluie.Yaml.Scanner.DEBUG = false;
     var loader = new Yaml.Loader (path, true);
     if ((done = loader.done)) {
-        Yaml.NodeRoot root = loader.get_nodes ();
+        Yaml.Node root = loader.get_nodes ();
         var finder = new Yaml.Finder(root);
         Yaml.Node? node = null;
 
@@ -51,18 +51,18 @@ int main (string[] args)
         if ((node = finder.find(spath)) != null) {
             of.echo (node.to_string (false));
             of.action ("get scalar value", spath);
-            of.echo ((node as Yaml.NodeSinglePair).scalar ().data);
+            of.echo (node.first ().data);
 
             of.action ("get parent node");
             of.echo (node.parent.to_string ());
             
             of.action ("get address node");
-            if ((node = (node.parent as Yaml.NodeMap).map["address"])!= null) {
+            if ((node = (node.parent as Yaml.Mapping).item ("address"))!= null) {
                 of.echo (node.to_string (false));
-                (node as Yaml.NodeMap).display_childs ();
+                node.display_childs ();
                 
                 of.action ("Loop throught childs", node.name);
-                foreach (var child in (node as Yaml.NodeMap).map.values) {
+                foreach (var child in node.list) {
                     of.echo (child.to_string (false));
                 }
             }
@@ -71,7 +71,7 @@ int main (string[] args)
         else of.state (node != null);
 
         of.action ("Set find mode", "SQUARE_BRACKETS");
-        Yaml.BaseNode.mode = Yaml.FIND_MODE.SQUARE_BRACKETS;
+        Yaml.MODE = Yaml.FIND_MODE.SQUARE_BRACKETS;
         of.state (true);
 
         spath = "[product]{0}[description]";

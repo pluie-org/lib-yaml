@@ -42,7 +42,8 @@ int main (string[] args)
     Pluie.Yaml.Scanner.DEBUG = false;
     var loader = new Yaml.Loader (path, true, true);
     if ((done = loader.done)) {
-        Yaml.NodeRoot root = loader.get_nodes ();
+        var root = loader.get_nodes ();
+        done = root != null;
     }
 
     of.rs (done);

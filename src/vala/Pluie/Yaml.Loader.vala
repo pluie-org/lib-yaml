@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -79,7 +79,7 @@ public class Pluie.Yaml.Loader
     /**
      * return resulting Yaml root node
      */
-    public Yaml.NodeRoot? get_nodes ()
+    public Yaml.Node? get_nodes ()
     {
         return this.scanner.get_nodes ();
     }

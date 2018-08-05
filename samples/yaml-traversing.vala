@@ -41,7 +41,6 @@ int main (string[] args)
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
     Pluie.Yaml.Scanner.DEBUG = false;
     var config = new Yaml.Config (path, true);
-    var spath  = "bo.host{0}";
     var node   = config.root_node ();
     if ((done = node != null)) {
         node.display_childs ();
@@ -50,12 +49,12 @@ int main (string[] args)
         var child = config.get("product");
         of.echo (child.to_string (false));
         of.action("retriew sequence last child node", child.name);
-        var nchild = child.last_child ();
+        var nchild = child.last ();
         if (nchild != null) {
             of.echo (nchild.to_string ());
         }
         of.action("retriew sequence first child node", child.name);
-        nchild = child.first_child ();
+        nchild = child.first ();
         if (nchild != null) {
             of.echo (nchild.to_string ());
             of.action("retriew sequence next sibling node", nchild.name);
@@ -76,24 +75,28 @@ int main (string[] args)
         child = config.get("ship-to");
         of.echo (child.to_string (false));
         of.action("retriew mapping last child node", child.name);
-        nchild = child.last_child ();
+        nchild = child.last ();
         if (nchild != null) {
             of.echo (nchild.to_string ());
         }
         of.action("retriew mapping first child node", child.name);
-        nchild = child.first_child ();
+        nchild = child.first ();
         if (nchild != null) {
             of.echo (nchild.to_string ());
         }
         of.action("loop throught mapping next sibling", child.name);
-        while (!child.is_last_child()) {
+        while (child!=null && !child.is_last()) {
             child = child.next_sibling ();
-            of.echo (child.to_string (false));
+            if (child != null) {
+                of.echo (child.to_string (false));
+            }
         }
         of.action("loop throught mapping previous sibling", child.name);
-        while (!child.is_first_child()) {
+        while (!child.is_first()) {
             child = child.previous_sibling ();
-            of.echo (child.to_string (false));
+            if (child != null) {
+                of.echo (child.to_string (false));
+            }
         }
 
 
@@ -101,7 +104,7 @@ int main (string[] args)
         
         of.action ("current node is ", child.name);
         of.echo ("switch node : next_sibling ().next_sibling ().first_child ()");
-        child = child.next_sibling ().next_sibling ().first_child ();
+        child = child.next_sibling ().next_sibling ().first ();
 
         of.action ("current node is ", child.name);
         of.echo ("use finder to retriew parent node");
@@ -112,7 +115,7 @@ int main (string[] args)
         }
         of.action ("current node is ", child.name);
         of.echo ("switch node : parent.next_sibling ().next_sibling ().first_child ().first_child ()");
-        child = child.parent.next_sibling ().next_sibling ().first_child ().first_child ();
+        child = child.parent.next_sibling ().next_sibling ().first ().first ();
         of.action ("current node is ", child.name);
         of.echo ("use finder to retriew parent node");
         n = config.get ("product{0}");

@@ -42,6 +42,8 @@ int main (string[] args)
     Pluie.Yaml.Scanner.DEBUG = false;
     var config = new Yaml.Config (path, true);
     var spath  = "bo.host{0}";
+    var root   = config.root_node ();
+    root.display_childs ();
     var node   = config.get (spath);
     if ((done = node != null)) {
         of.action ("retriew node from Yaml.Config", spath);

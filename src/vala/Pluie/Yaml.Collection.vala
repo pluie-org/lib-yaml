@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -27,30 +27,68 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
+using GLib;
+using Gee;
 using Pluie;
 
 /**
- * a class representing a scalar node
+ * interface representing a collection node
  */
-public class Pluie.Yaml.NodeScalar : Yaml.BaseNode
+public interface Pluie.Yaml.Collection
 {
     /**
-     * construct a scalar node
-     * @param parent the parent node
-     * @param data the current scalar data
+     * retriew the child at index
+     * @param   child
      */
-    public NodeScalar (Yaml.Node? parent = null, string? data = null)
-    {
-        base (parent, NODE_TYPE.SCALAR);
-        this.data = data;
-    }
+    public abstract Yaml.Node? item (int index);
 
     /**
-     * clone current node
-     * @param   the name of clone
+     * check if contains specifyed child node
+     * @param   child
      */
-    public override Yaml.Node clone_node (string? name = null)
-    {
-        return new Yaml.NodeScalar (this.parent, this.data);
-    }
+    public abstract bool contains (Yaml.Node child);
+
+    /**
+     * count children
+     * @param   child
+     */
+    public abstract int count ();
+
+    /**
+     * check if empty
+     * @param   child
+     */
+    public abstract bool empty ();
+
+    /**
+     * check if empty
+     * @param   child
+     */
+    public abstract Gee.Iterator<Yaml.Node> iterator ();
+
+
+    /**
+     * retriew the first child
+     * @param   child
+     */
+    public abstract Yaml.Node? first ();
+
+    /**
+     * retriew the last child
+     * @param   child
+     */
+    public abstract Yaml.Node? last ();
+
+    /**
+     * retriew the next sibling of specifiyed child node
+     * @param   child
+     */
+    public abstract Yaml.Node? child_next_sibling (Yaml.Node child);
+
+    /**
+     * retriew the previous sibling of specifiyed child node
+     * @param   child
+     */
+    public abstract Yaml.Node? child_previous_sibling (Yaml.Node child);
+
 }

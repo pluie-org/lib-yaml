@@ -1,3 +1,32 @@
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
+ *  @version   : 0.4
+ *  @date      : 2018
+ *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
+ *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
+ *  @copyright : pluie.org   <http://www.pluie.org/>
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ *  This file is part of lib-yaml.
+ *  
+ *  lib-yaml is free software (free as in speech) : you can redistribute it
+ *  and/or modify it under the terms of the GNU General Public License as
+ *  published by the Free Software Foundation, either version 3 of the License,
+ *  or (at your option) any later version.
+ *  
+ *  lib-yaml is distributed in the hope that it will be useful, but WITHOUT
+ *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ *  more details.
+ *  
+ *  You should have received a copy of the GNU General Public License
+ *  along with lib-yaml.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+
 /**
  * a class to manage Yaml configuration files
  */
@@ -36,19 +65,19 @@ public class Pluie.Yaml.Config
     /**
      * imports paths
      */
-    Gee.HashMap<string, string>  paths          { get; internal set; }
+    Gee.HashMap<string, string> paths           { get; internal set; }
 
     /**
      * construct a Yaml Config for specifiyed path
      */
     public Config (string? path = null, bool displayFile = false, Yaml.FIND_MODE mode = Yaml.FIND_MODE.DOT)
     {
-        Yaml.BaseNode.mode = mode;
+        Yaml.MODE          = mode;
         this.path          = path;
         this.displayFile   = displayFile;
         if (this.path != null) {
             this.loader = new Yaml.Loader (this.path, displayFile, false);
-            Yaml.NodeRoot? root = this.loader.get_nodes ();
+            Yaml.Node? root = this.loader.get_nodes ();
             if (root != null) {
                 this.finder = new Yaml.Finder(root);
                 this.get_imports ();
@@ -71,9 +100,9 @@ public class Pluie.Yaml.Config
     /**
      *
      */
-    public Yaml.NodeRoot root_node ()
+    public Yaml.Node root_node ()
     {
-        return this.finder.context as Yaml.NodeRoot;
+        return this.finder.context;
     }
 
     /**
@@ -81,10 +110,10 @@ public class Pluie.Yaml.Config
      */
     public void get_imports ()
     {
-        var node = this.get("^imports") as Yaml.NodeMap;
+        var node = this.get("^imports");
         if (node != null) {
-            var root = node.parent as Yaml.NodeRoot;
-            if (root != null && root.node_type.is_root ()) {
+            var root = node.parent;
+            if (root != null && root.ntype.is_root ()) {
                 this.get_imports_var(node);
                 var dir = this.strip_path(Path.get_dirname (this.path));
                 if (this.varmap.has_key ("path")) {
@@ -102,38 +131,38 @@ public class Pluie.Yaml.Config
     /**
      *
      */
-    private void import_files (Yaml.NodeRoot root)
+    private void import_files (Yaml.Node root)
     {
-        Yaml.NodeMap? sub  = null;
-        Yaml.NodeMap? n    = null;
+        Yaml.Node? sub  = null;
+        Yaml.Node? n    = null;
         Yaml.Config?  conf = null;
         foreach(var entry in this.paths.entries) {
             conf = new Yaml.Config(entry.value, this.displayFile);
             sub  = conf.loader.get_nodes ();
-             n   = new Yaml.NodeMap (root, entry.key);
-            foreach(var subnode in sub.map.values) {
+            n    = new Yaml.Mapping (root, entry.key);
+            foreach(var subnode in sub.list) {
                 subnode.parent = null;
                 n.add(subnode);
             }
-            root.add (n);
+//~             root.add (n);
         }
-        root.update_level();
+//~         root.update_level();
     }
 
     /**
      *
      */
-    private void update_var (Yaml.NodeMap node, string path)
+    private void update_var (Yaml.Node node, string path)
     {
         this.varmap.set ("path", path);
         string? file = null;
-        foreach (var entry in node.map.entries) {
-            if (entry.key[0] != IMPORTS_SPE) {
-                var val = entry.value.val ();
+        foreach (var child in node.list) {
+            if (child.name[0] != IMPORTS_SPE) {
+                var val = child.first().data;
                 if (!Path.is_absolute (val)) {
                     val = Path.build_filename(path, val);
                 }
-                this.resolve_var (entry.key, val);
+                this.resolve_var (child.name, val);
             }
         }
     }
@@ -154,13 +183,13 @@ public class Pluie.Yaml.Config
     /**
      *
      */
-    private void get_imports_var (Yaml.NodeMap node)
+    private void get_imports_var (Yaml.Node node)
     {
         this.varmap = new Gee.HashMap<string, string> ();
         this.paths  = new Gee.HashMap<string, string> ();
-        foreach (var entry in node.map.entries) {
-            if (entry.key[0] == IMPORTS_SPE) {
-                this.varmap.set (entry.key.substring (1), entry.value.val ());
+        foreach (var child in node.list) {
+            if (child.name[0] == IMPORTS_SPE) {
+                this.varmap.set (child.name.substring (1), child.first().data);
             }
         }
     }

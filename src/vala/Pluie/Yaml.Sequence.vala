@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -27,47 +27,24 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
+using GLib;
 using Pluie;
+using Gee;
 
 /**
- * a class representing a single/pair mapping node
+ * a class representing a mapping node
  */
-public class Pluie.Yaml.NodeSinglePair : Yaml.NodeMap
+public class Pluie.Yaml.Sequence : Yaml.Node
 {
+
     /**
-     * construct a single/pair mapping node
+     * default Yaml.Node constructor
      * @param parent the parent node
-     * @param name the current name (key) of sequence node
-     * @param data the current scalar data
+     * @param type the NODE_TYPE of Yaml.Node to create
      */
-    public NodeSinglePair (Yaml.Node? parent = null, string? name = null, string? data = null)
+    public Sequence (Yaml.Node? parent = null, string? name = null)
     {
-        this.standard (parent, NODE_TYPE.SINGLE_PAIR);
-        this.name = name;
-        if (data != null) {
-            var scalar = new Yaml.NodeScalar (this, data);
-            scalar.name = "singlepair";
-            this.add (scalar);
-        }
-    }
-
-    /**
-     * get child scalar node
-     * @return the scalar node
-     */
-    public Yaml.Node? scalar ()
-    {
-        return this.map["singlepair"];
-    }
-
-    /**
-     * clone current node
-     * @param   the name of clone
-     */
-    public override Yaml.Node clone_node (string? name = null)
-    {
-        var key = name != null ? name : this.name;
-        Yaml.Node clone = new Yaml.NodeSinglePair (this.parent, key, this.scalar ().data);
-        return clone;
+        base (parent, NODE_TYPE.SEQUENCE, name);
+        this.list = new ArrayList<Yaml.Node> ();
     }
 }

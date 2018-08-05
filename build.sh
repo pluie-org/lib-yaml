@@ -30,7 +30,7 @@
 
 # --------------------------------------------------------
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-lib="pluie-yaml-0.3"
+lib="pluie-yaml-0.4"
  c1="\033[1;38;5;215m"
  c2="\033[1;38;5;97m"
 cok="\033[1;38;5;37m"
@@ -51,7 +51,7 @@ function build.title()
         s="$cko<"
     fi
     if [ ! -z $3 ]; then
-        echo -e " |- $c1[$c2$1$c1] $state$off"
+        echo -e " |- $state $c1$1 $off"
     else
         echo -e "\n   $s $c1[$c2$1$c1] $state$off"
     fi
@@ -81,6 +81,7 @@ function build.samples()
     for t in $resume; do
         build.title "${t:1}" ${t:0:1} 1
     done
+    echo -e " binary files are located in ./bin ($DIR)"
 }
 # --------------------------------------------------------
 function build.sample()

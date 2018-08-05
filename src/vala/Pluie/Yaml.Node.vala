@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -28,111 +28,273 @@
  */
 
 using GLib;
-using Pluie;
+using Gee;
 
-public interface Pluie.Yaml.Node : Object, Yaml.NodeCollection
+/**
+ * a class representing a mapping node
+ */
+public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 {
     /**
-     * universal unique identifier
+     * sequence collection for Yaml.NodeSequence node
      */
-    public abstract string           uuid       { get; internal set; }
+    public ArrayList<Yaml.Node>   list        { get; internal set; }
+
+    bool                                container   { get; internal set; default = true; }
 
     /**
-     * node type related to Yaml.NODE_TYPE
+     * default Yaml.Node constructor
+     * @param parent the parent node
+     * @param type the NODE_TYPE of Yaml.Node to create
      */
-    public abstract Yaml.NODE_TYPE   node_type  { get; internal set; }
-
-    public abstract int              level      { get; internal set; }
-
-    /**
-     * parent node
-     */
-    public abstract Yaml.Node?       parent     { get; internal set; }
-
-    /**
-     * current node data for Yaml.NodeScalar node
-     */
-    public abstract string?          data       { get; internal set; default = null; }
-
-    /**
-     * current node name (key)
-     */
-    public abstract string?          name       { get; internal set; default = null; }
-
-    /**
-     * test if specifiyed node is current node
-     * @param child the Yaml.Node node to test
-     */
-    public abstract bool same_node (Yaml.Node? node);
- 
-    /**
-     * add a child node to current collection (mapping or sequence) node
-     * @param child the Yaml.Node child to add
-     */
-    public abstract bool add (Yaml.Node node);
+    public Node (Yaml.Node? parent = null, Yaml.NODE_TYPE type = Yaml.NODE_TYPE.UNDEFINED, string? name = null)
+    {
+        
+        base (parent, type, name);
+        this.list = new ArrayList<Yaml.Node> ();
+    }
 
     /**
      * add a child node to current collection (mapping or sequence) node
      * @param child the Yaml.Node child to add
      */
-    public abstract string? val ();
+    public virtual bool add (Yaml.AbstractChild node)
+    {
+        bool done = false;
+        try {
+            var child = node as Yaml.Node;
+            if (this.container && child != null) {
+                child.on_change_parent (false);
+                child.level  = this.level + 1;
+                child.parent = this;
+                this.before_add (child);
+                if ((done = this.list.add (child))) {
+                    this.on_added (child);
+                }
+            }
+        }
+        catch (Yaml.AddNodeError e) {
+            of.warn (e.message);
+        }
+        return done;
+    }
 
     /**
-     * stuff on changing parent node
-     * @param child  the childto add
+     * add a child node to current collection (mapping or sequence) node
+     * @param child the Yaml.Node child to add
      */
-    protected abstract bool on_change_parent ();
+    protected virtual void before_add (Yaml.Node child) throws Yaml.AddNodeError
+    {
+
+    }
+
+    /**
+     * add a child node to current collection (mapping or sequence) node
+     * @param child the Yaml.Node child to add
+     */
+    protected virtual void on_added (Yaml.Node child)
+    {
+        this.update_level ();
+    }
 
     /**
      * remove a child
      * @param child  the child to remove
      */
-    protected abstract bool remove_child (Yaml.Node child);
+    public bool remove_child (Yaml.Node child, bool levelUpdate = true)
+    {
+        bool done = false;
+        if (this.container && !this.empty() && this.list.contains (child)) {
+            if ((done = this.list.remove (child))) {
+                this.on_removed (child, levelUpdate);
+            }
+        }
+        return done;
+    }
 
     /**
-     * clone curent node
-     * @param name  the name of clone node
+     * add a child node to current collection (mapping or sequence) node
+     * @param child the Yaml.Node child to add
      */
-    public abstract Yaml.Node clone_node (string? name = null);
+    protected virtual void on_removed (Yaml.Node child, bool levelUpdate = true)
+    {
+        if (levelUpdate) {
+            child.level = 0;
+            child.update_level ();
+        }
+    }
 
     /**
-     * check if node has child nodes
+     * retriew a child node throught specifiyed index
+     * @param index index of searched child
+     * @return the child node
      */
-    public abstract bool has_child_nodes ();
+    public virtual Yaml.Node? item (int index)
+    {
+        return this.list.get (index);
+    }
 
     /**
-     * check if first chikd
+     * check if current node contains the specifiyed child node
+     * @param child
      */
-    public abstract bool is_first_child ();
+    public bool contains (Yaml.Node child) {
+        return !this.empty () && this.list.contains (child);
+    }
 
     /**
-     * check if last chikd
+     * count childnodes
      */
-    public abstract bool is_last_child ();
+    public int count () {
+        return !this.empty () ? this.list.size : 0;
+    }
 
     /**
-     * give the next sibling node
+     * check if empty
      */
-    public abstract Yaml.Node? next_sibling ();
+    public bool empty () {
+        return this.list == null || this.list.size == 0;
+    }
 
     /**
-     * give the previous sibling node
+     * get an iterator
      */
-    public abstract Yaml.Node? previous_sibling ();
+    public Gee.Iterator<Yaml.Node> iterator () {
+        return this.list.iterator ();
+    }
 
     /**
-     * give the root parent node
+     * retriew the first child node
+     * @return the first child node
      */
-    public abstract Yaml.Node? get_root_node ();
+    public virtual Yaml.Node? first ()
+    {
+        return this.list.first ();
+    }
 
     /**
-     * update node level and all childs level
+     * retriew the last child node
+     * @return the last child node
      */
-    public abstract void update_level ();
+    public Yaml.Node? last ()
+    {
+        return this.list.last ();
+    }
+
+    /**
+     *
+     */
+    private Yaml.Node? child_sibling (Yaml.Node child, bool forward)
+    {
+        Yaml.Node? node = null;
+        if (!this.empty () && this.list.contains (child)) {
+            int index = this.list.index_of (child) + (forward ? 1 : -1);
+            if (index >= 0 && index < this.count ()) {
+                node = this.list.get(index);
+            }
+        }
+        return node;
+    }
+
+    /**
+     *
+     */
+    public Yaml.Node? child_next_sibling (Yaml.Node child)
+    {
+        return this.child_sibling (child, true);
+    }
+
+    /**
+     *
+     */
+    public Yaml.Node? child_previous_sibling (Yaml.Node child)
+    {
+        return this.child_sibling (child, false);
+    }
+
+    /*
+     *
+     */
+    public virtual void update_level()
+    {
+        this.level = this.parent != null ? this.parent.level + 1 : 0;
+        if (!this.empty ()) {
+            foreach (var child in this.list) {
+                if (child != null) child.update_level ();
+            }
+        }
+    }
+
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public virtual Yaml.Node clone_node (string? name = null)
+    {
+        var key = name != null ? name : this.name;
+        Yaml.Node clone = this.get_cloned_instance (key);
+        if (!this.empty()) {
+            foreach (Yaml.Node child in this.list) {
+                clone.add(child.clone_node(null));
+            }
+        }
+        return clone;
+    }
+
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public virtual Yaml.Node get_cloned_instance (string? name = null)
+    {
+        return new Yaml.Node (null, this.ntype, name);
+    }
+
+
+    /**
+     * display childs
+     */
+    public void display_childs (bool withTitle = true)
+    {
+        if (withTitle) {
+            of.action ("display_childs", this.name);
+        }
+        of.echo (this.to_string ());
+        if (!this.empty ()) {
+            foreach (Yaml.Node child in this.list) {
+                child.display_childs (false);
+            }
+        }
+    }
 
     /**
      * get a presentation string of current Yaml.Node
      */
-    public abstract string to_string (bool indentFormat = true, bool withParent = false, bool withUuid = false, bool withIndent = true, bool withRefCount = false);
-
+    public string to_string (bool withIndent = Yaml.DBG_SHOW_INDENT, bool withParent = Yaml.DBG_SHOW_PARENT, bool withUuid = Yaml.DBG_SHOW_UUID, bool withLevel = Yaml.DBG_SHOW_LEVEL, bool withCount = Yaml.DBG_SHOW_COUNT, bool withRefCount = Yaml.DBG_SHOW_REF)
+    {
+        return "%s%s%s%s%s%s%s%s%s".printf (
+            this.level == 0 ? "" : of.s_indent ((int8) (withIndent ? (this.level-1)*4 : 0)),
+            of.c (ECHO.OPTION).s ("["),
+            this.name != null && !this.ntype.is_scalar ()
+                ?  of.c (ECHO.TIME).s ("%s".printf (this.name))
+                : (
+                    this.ntype.is_scalar ()
+                        ? of.c(ECHO.DATE).s ("%s".printf (this.data))
+                        : ""
+            ),
+            withRefCount ? of.c (ECHO.COMMAND).s ("[%lu]".printf (this.ref_count)) : "",
+            !withParent || this.parent == null
+                ? ""
+                : of.c (ECHO.SECTION).s (" "+this.parent.name)+(
+                    withLevel ? of.c (ECHO.NUM).s (" %d".printf (this.level)) : " "
+                ),
+            of.c (ECHO.OPTION_SEP).s (" %s".printf(
+                !this.ntype.is_mapping () || this.count () >= 1 && !this.first().ntype.is_scalar () ? this.ntype.infos () : NODE_TYPE.SINGLE_PAIR.infos ()
+            )),
+            withCount ? of.c (ECHO.MICROTIME).s (" %d".printf(this.count ())) : "",
+            withUuid  ? of.c (ECHO.COMMENT).s (" %s".printf(this.uuid[0:8]+"...")) : "",
+//~             of.c (ECHO.NUM).s ("%d".printf (this.level)),
+            of.c (ECHO.OPTION).s ("]")
+        );
+    }
 }

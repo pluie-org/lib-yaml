@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -31,6 +31,23 @@ namespace Pluie
 {
     namespace Yaml
     {
+        public static bool DBG_SHOW_INDENT = true;
+        public static bool DBG_SHOW_PARENT = true;
+        public static bool DBG_SHOW_UUID   = true;
+        public static bool DBG_SHOW_LEVEL  = true;
+        public static bool DBG_SHOW_REF    = true;
+        public static bool DBG_SHOW_COUNT  = true;
+
+        /**
+         * ParseError 
+         */
+        public errordomain AddNodeError
+        {
+            MAPPING_CONTAINS_CHILD,
+            MAPPING_IS_SINGLE_PAIR,
+            MAPPING_NOT_SINGLE_PAIR
+        }
+
         /**
          * haxadecimal sequence
          */
@@ -189,6 +206,8 @@ namespace Pluie
                 return this == DOT;
             }
         }
+
+        public static FIND_MODE MODE = FIND_MODE.DOT;
 
         /**
          * enum MatchInfo keys of Yaml.Mode.find method related to mode FIND_MODE.SQUARE_BRACKETS of Yaml.Node

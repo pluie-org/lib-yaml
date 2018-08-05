@@ -31,7 +31,7 @@ sudo ninja install -C build
 ## Compilation
 
 ```
-valac --pkg gee-0.8 --pkg pluie-echo-0.2 --pkg pluie-yaml-0.3 main.vala
+valac --pkg gee-0.8 --pkg pluie-echo-0.2 --pkg pluie-yaml-0.4 main.vala
 ```
 
 see https://git.pluie.org/pluie/libpluie-echo in order to install pluie-echo-0.2 pkg
@@ -40,7 +40,7 @@ you can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile s
 
 ## Api / Documentation
 
-https://pluie.org/pluie-yaml-0.3/index.htm  
+https://pluie.org/pluie-yaml-0.4/index.htm  
 (comming soon)
 
 ## Docker
@@ -66,6 +66,8 @@ docker run --rm -it pluie/libyaml
     }
 
 ```
+see Finder below to get precision about config.get parameter
+
 -------------------
 
 ### config with ^imports clause
@@ -104,7 +106,7 @@ load a single document.
     // Pluie.Yaml.Scanner.DEBUG = true;
     var loader = new Yaml.Loader (path /* , displayFile, displayNode */);
     if ((done = loader.done)) {
-        Yaml.NodeRoot root = loader.get_nodes ();
+        Yaml.Node root = loader.get_nodes ();
         root.display_childs ();
     }
 ```
@@ -141,12 +143,61 @@ vala code :
 
 ```vala
     ...
-    Yaml.NodeRoot root = loader.get_nodes ();
-    Yaml.Node?    node = null;
-    if ((node = finder.find ("product{0}.description")) != null) {
-        var val = node.val ();
+    var loader = new Yaml.Loader (path, true);
+    if ((done = loader.done)) {
+        Yaml.Node root = loader.get_nodes ();
+        var finder = new Yaml.Finder(root);
+        Yaml.Node? node = null;
+        if ((node = finder.find ("product{0}.description")) != null) {
+            var val = node.val ();
+        }
+        ...
     }
 ```
+
+### Traversing
+
+#### via iterator
+
+```
+    var config = new Yaml.Config (path);
+    var root   = config.root_node ();
+    Iterator<Yaml.Node> it = root.iterator ();
+    Yaml.Node? child = null;
+    for (var has_next = it.next (); has_next; has_next = it.next ()) {
+        child = it.get ();
+        of.echo (child.to_string ());
+    }
+```
+
+#### other
+
+```
+        if (!node.empty ()) {
+            Yaml.Node child = node.first();
+            of.action("loop throught mapping next sibling", child.name);
+            while (child!=null && !child.is_last()) {
+                // do stuff
+                of.echo (child.to_string ());
+
+                child = child.next_sibling ();
+            }
+        }
+```
+
+```
+        if (node.count () > 0) {
+            child = node.last();
+            of.action("loop throught mapping previous sibling", child.name);
+            while (child!=null && !child.is_first()) {
+                // do stuff
+                of.echo (child.to_string ());
+                
+                child = child.previous_sibling ();
+            }
+        }
+```
+
 -------------------
 
 ### more samples
@@ -158,7 +209,7 @@ see samples files in ./samples directory
 ### todo
 
 * ~~imports clause~~
-* fix nodes traversing
+* ~~fix nodes traversing~~
+* ~~rewrite nodes classes~~
 * dumper
 * manage tag directives & tag
-

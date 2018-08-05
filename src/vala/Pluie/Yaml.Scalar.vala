@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -27,22 +27,37 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
+using GLib;
 using Pluie;
+using Gee;
 
 /**
- * a class representing a single/pair mapping node
+ * a class representing a mapping node
  */
-public class Pluie.Yaml.NodeRoot : Yaml.NodeMap
+public class Pluie.Yaml.Scalar : Yaml.Node
 {
+
+    bool    container   { get; internal set; default = false; }
+
     /**
-     * construct a single/pair mapping node
+     * default Yaml.Node constructor
      * @param parent the parent node
-     * @param name the current name (key) of sequence node
-     * @param data the current scalar data
+     * @param type the NODE_TYPE of Yaml.Node to create
      */
-    public NodeRoot (Yaml.Node? parent = null, string? name = null, string? data = null)
+    public Scalar (Yaml.Node ? parent = null, string? data = null)
     {
-        this.standard (null, NODE_TYPE.ROOT);
-        this.name = "PluieYamlRootNode";
+        base (parent, NODE_TYPE.SCALAR);
+        this.data = data;
     }
+
+    /**
+     * clone current node
+     * @param   the name of clone
+     */
+    public override Yaml.Node clone_node (string? name = null)
+    {
+        Yaml.Scalar clone = new Yaml.Scalar (null, this.data);
+        return clone;
+    }
+
 }

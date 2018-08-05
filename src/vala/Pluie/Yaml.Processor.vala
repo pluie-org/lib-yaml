@@ -1,7 +1,7 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.3
+ *  @version   : 0.4
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -190,7 +190,8 @@ public class Pluie.Yaml.Processor
      */
     private void reset ()
     {
-        this.root         = new Yaml.NodeRoot ();
+        this.root         = new Yaml.Mapping (null, "PluieYamlRoot");
+        this.root.ntype   = Yaml.NODE_TYPE.ROOT;
         this.prev_node    = this.root; 
         this.parent_node  = this.root;
         this.iterator     = this.events.iterator ();
@@ -302,12 +303,12 @@ public class Pluie.Yaml.Processor
     {
         if (!entry) {
             if (this.ckey != null) {
-                this.node   = new Yaml.NodeSinglePair (this.parent_node, this.ckey, this.event.data["data"]);
+                this.node   = new Yaml.Mapping.with_scalar (this.parent_node, this.ckey, this.event.data["data"]);
                 this.change = true;
             }
         }
         else {
-            this.node   = new Yaml.NodeScalar (this.parent_node, this.event.data["data"]);
+            this.node   = new Yaml.Scalar (this.parent_node, this.event.data["data"]);
             this.change = true;
         }
     }
@@ -340,7 +341,7 @@ public class Pluie.Yaml.Processor
      */
     private void on_sequence_start ()
     {
-        this.node         = new Yaml.NodeSequence (this.parent_node, this.ckey);
+        this.node         = new Yaml.Sequence (this.parent_node, this.ckey);
         this.change       = true;
         this.beginFlowSeq = true;
     }
@@ -363,9 +364,9 @@ public class Pluie.Yaml.Processor
     private void create_mapping (bool entry = false)
     {
         if (entry) {
-            this.ckey = "_%d".printf((this.parent_node as Yaml.NodeSequence).get_size());
+            this.ckey = "_%d".printf(this.parent_node.count());
         }
-        this.node   = new Yaml.NodeMap (this.parent_node, this.ckey);
+        this.node   = new Yaml.Mapping (this.parent_node, this.ckey);
         this.change = true;
     }
 
@@ -388,9 +389,11 @@ public class Pluie.Yaml.Processor
     private void on_update ()
     {
         if (this.change) {
-            this.parent_node.add (this.node);
-            if (this.node.node_type.is_collection ()) {
+            if (this.node.ntype.is_collection () && (this.node.empty() || (!this.node.first().ntype.is_scalar ()))) {
                 this.parent_node = this.node;
+            }
+            else {
+                this.parent_node = this.node.parent;
             }
             this.prev_node = this.node;
             this.node      = null;
