@@ -32,7 +32,7 @@ using Gee;
 using Pluie;
 
 /**
- *
+ * abstract class representing a node
  */
 public abstract class Pluie.Yaml.AbstractNode : Object
 {
@@ -58,8 +58,8 @@ public abstract class Pluie.Yaml.AbstractNode : Object
 
     /**
      * default Yaml.Node constructor
-     * @param parent the parent node
      * @param type the NODE_TYPE of Yaml.Node to create
+     * @param name the node name
      */
     public AbstractNode (Yaml.NODE_TYPE type = Yaml.NODE_TYPE.UNDEFINED, string? name = null)
     {
@@ -67,9 +67,9 @@ public abstract class Pluie.Yaml.AbstractNode : Object
     }
 
     /**
-     * constructor for standard Yaml.Node
-     * @param parent the parent node
      * @param type the NODE_TYPE of Yaml.Node to create
+     * @param name the node name
+     * @param data the node data
      */
     public AbstractNode.with_name (Yaml.NODE_TYPE type = Yaml.NODE_TYPE.UNDEFINED, string? name = null, string? data = null)
     {
@@ -81,7 +81,7 @@ public abstract class Pluie.Yaml.AbstractNode : Object
 
     /**
      * test if specifiyed node is current node
-     * @param child the Yaml.Node node to test
+     * @param node the Yaml.Node node to test
      */
     public virtual bool same_node (Yaml.AbstractNode? node)
     {

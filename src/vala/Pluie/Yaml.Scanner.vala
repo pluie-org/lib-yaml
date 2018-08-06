@@ -135,7 +135,7 @@ public class Pluie.Yaml.Scanner
 
     /**
      * scan specifiyed file generated throught yaml.c
-     * @param optional file path to scan
+     * @param path optional file path to scan
      */
     public bool run (string? path = null)
     {
