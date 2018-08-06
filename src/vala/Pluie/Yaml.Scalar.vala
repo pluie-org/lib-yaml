@@ -32,7 +32,7 @@ using Pluie;
 using Gee;
 
 /**
- * a class representing a mapping node
+ * a class representing a Scalar node
  */
 public class Pluie.Yaml.Scalar : Yaml.Node
 {
@@ -42,7 +42,7 @@ public class Pluie.Yaml.Scalar : Yaml.Node
     /**
      * default Yaml.Node constructor
      * @param parent the parent node
-     * @param type the NODE_TYPE of Yaml.Node to create
+     * @param data the Scalar value
      */
     public Scalar (Yaml.Node ? parent = null, string? data = null)
     {
@@ -52,7 +52,7 @@ public class Pluie.Yaml.Scalar : Yaml.Node
 
     /**
      * clone current node
-     * @param   the name of clone
+     * @param name the overrinding name
      */
     public override Yaml.Node clone_node (string? name = null)
     {

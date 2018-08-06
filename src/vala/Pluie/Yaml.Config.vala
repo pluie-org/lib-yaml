@@ -108,7 +108,7 @@ public class Pluie.Yaml.Config
     /**
      * find node matching specifiyed keyPath
      */
-    public void get_imports ()
+    protected void get_imports ()
     {
         var node = this.get("^imports");
         if (node != null) {
@@ -137,6 +137,7 @@ public class Pluie.Yaml.Config
         Yaml.Node? n    = null;
         Yaml.Config?  conf = null;
         foreach(var entry in this.paths.entries) {
+            of.keyval(entry.key, entry.value);
             conf = new Yaml.Config(entry.value, this.displayFile);
             sub  = conf.loader.get_nodes ();
             n    = new Yaml.Mapping (root, entry.key);
@@ -155,13 +156,13 @@ public class Pluie.Yaml.Config
     private void update_var (Yaml.Node node, string path)
     {
         this.varmap.set ("path", path);
-        string? file = null;
         foreach (var child in node.list) {
             if (child.name[0] != IMPORTS_SPE) {
                 var val = child.first().data;
                 if (!Path.is_absolute (val)) {
                     val = Path.build_filename(path, val);
                 }
+                this.paths[(string)child.name] = val;
                 this.resolve_var (child.name, val);
             }
         }

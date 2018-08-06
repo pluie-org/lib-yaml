@@ -97,6 +97,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     /**
      * add a child node to current collection (mapping or sequence) node
      * @param child the Yaml.Node child to add
+     * @param levelUpdate flag indicating if update level is needed
      */
     protected override void on_removed (Yaml.Node child, bool levelUpdate = true)
     {
@@ -108,7 +109,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
 
     /**
      * retriew a child node throught specifiyed index
-     * @param index index of searched child
+     * @param name name of searched child
      * @return the child node
      */
     public new Yaml.Node? item (string name)
@@ -125,7 +126,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
 
     /**
      * clone current node
-     * @param   the name of clone
+     * @param name the overrinding name
      */
     public override Yaml.Node clone_node (string? name = null)
     {

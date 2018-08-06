@@ -10,6 +10,8 @@ to load a subset of yaml files in the main yaml document.
 the lib does not manage yet tag directives and tag values.  
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
 
+![pluie-yaml](https://www.meta-tech.academy/img/pluie-yaml-imports2.png)
+
 ## License
 
 GNU GPL v3
@@ -41,7 +43,6 @@ you can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile s
 ## Api / Documentation
 
 https://pluie.org/pluie-yaml-0.4/index.htm  
-(comming soon)
 
 ## Docker
 
@@ -159,7 +160,7 @@ vala code :
 
 #### via iterator
 
-```
+```vala
     var config = new Yaml.Config (path);
     var root   = config.root_node ();
     Iterator<Yaml.Node> it = root.iterator ();
@@ -172,7 +173,7 @@ vala code :
 
 #### other
 
-```
+```vala
         if (!node.empty ()) {
             Yaml.Node child = node.first();
             of.action("loop throught mapping next sibling", child.name);
@@ -185,7 +186,7 @@ vala code :
         }
 ```
 
-```
+```vala
         if (node.count () > 0) {
             child = node.last();
             of.action("loop throught mapping previous sibling", child.name);
@@ -211,5 +212,7 @@ see samples files in ./samples directory
 * ~~imports clause~~
 * ~~fix nodes traversing~~
 * ~~rewrite nodes classes~~
+* ~~put doc online~~
+* improve doc
 * dumper
 * manage tag directives & tag

@@ -31,12 +31,12 @@ using GLib;
 using Gee;
 
 /**
- * a class representing a mapping node
+ * a class representing a node
  */
 public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 {
     /**
-     * sequence collection for Yaml.NodeSequence node
+     * Yaml.Node collection
      */
     public ArrayList<Yaml.Node>   list        { get; internal set; }
 
@@ -46,6 +46,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
      * default Yaml.Node constructor
      * @param parent the parent node
      * @param type the NODE_TYPE of Yaml.Node to create
+     * @param name the node name
      */
     public Node (Yaml.Node? parent = null, Yaml.NODE_TYPE type = Yaml.NODE_TYPE.UNDEFINED, string? name = null)
     {
@@ -56,7 +57,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 
     /**
      * add a child node to current collection (mapping or sequence) node
-     * @param child the Yaml.Node child to add
+     * @param node the Yaml.Node child to add
      */
     public virtual bool add (Yaml.AbstractChild node)
     {
@@ -136,7 +137,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 
     /**
      * check if current node contains the specifiyed child node
-     * @param child
+     * @param   child the child to check 
      */
     public bool contains (Yaml.Node child) {
         return !this.empty () && this.list.contains (child);
@@ -145,7 +146,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     /**
      * count childnodes
      */
-    public int count () {
+    public override int count () {
         return !this.empty () ? this.list.size : 0;
     }
 
@@ -227,7 +228,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 
     /**
      * clone current node
-     * @param   the name of clone
+     * @param name the name of clone
      */
     public virtual Yaml.Node clone_node (string? name = null)
     {
@@ -243,7 +244,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 
     /**
      * clone current node
-     * @param   the name of clone
+     * @param name the name of clone
      */
     public virtual Yaml.Node get_cloned_instance (string? name = null)
     {
@@ -270,7 +271,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     /**
      * get a presentation string of current Yaml.Node
      */
-    public string to_string (bool withIndent = Yaml.DBG_SHOW_INDENT, bool withParent = Yaml.DBG_SHOW_PARENT, bool withUuid = Yaml.DBG_SHOW_UUID, bool withLevel = Yaml.DBG_SHOW_LEVEL, bool withCount = Yaml.DBG_SHOW_COUNT, bool withRefCount = Yaml.DBG_SHOW_REF)
+    public override string to_string (bool withIndent = Yaml.DBG_SHOW_INDENT, bool withParent = Yaml.DBG_SHOW_PARENT, bool withUuid = Yaml.DBG_SHOW_UUID, bool withLevel = Yaml.DBG_SHOW_LEVEL, bool withCount = Yaml.DBG_SHOW_COUNT, bool withRefCount = Yaml.DBG_SHOW_REF)
     {
         return "%s%s%s%s%s%s%s%s%s".printf (
             this.level == 0 ? "" : of.s_indent ((int8) (withIndent ? (this.level-1)*4 : 0)),

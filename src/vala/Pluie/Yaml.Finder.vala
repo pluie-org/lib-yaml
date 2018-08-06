@@ -32,7 +32,7 @@ using Gee;
 using Pluie;
 
 /**
- * parent class representing a Yaml Node whenether was his type
+ * Finder class used to easily retriew Yaml.Node
  */
 public class Pluie.Yaml.Finder : Object
 {
@@ -44,7 +44,7 @@ public class Pluie.Yaml.Finder : Object
 
     /**
      * default Yaml.Finder constructor
-     * @param default Yaml.Node context
+     * @param context default Yaml.Node context
      */
     public Finder (Yaml.Node context)
     {
@@ -54,22 +54,24 @@ public class Pluie.Yaml.Finder : Object
     /**
      * find a specific child Yaml.Node corresponding to path definition
      * path definition has two mode.
-     * default mode is Yaml.FIND_MODE.SQUARE_BRACKETS
-     * node's key name must be enclosed in square brackets
-     * sequence entry must be enclosed in curly brace
-     * ex : [grandfather][father][son]{2}
+     * default mode is Yaml.FIND_MODE.DOT
+     * - child mapping node are separated by dot :
+     * - sequence entry must be enclosed in curly brace
+     * ex : grandfather.father.son{2}.age
      * 
-     * other mode is Yaml.FIND_MODE.DOT
-     * child mapping node are separated by dot :
-     * ex : grandfather.father.son{2}
+     * other mode is Yaml.FIND_MODE.DOTSQUARE_BRACKETS
+     * - node's key name must be enclosed in square brackets
+     * - sequence entry must be enclosed in curly brace
+     * ex : [grandfather][father][son]{2}[age]
+     *
      * @param path the definition to retriew the child node
+     * @param context the Yaml.Node context to operate
      */
     public Yaml.Node? find (string path, Yaml.Node? context = null)
     {
         string search         = this.find_path (path);
         bool match            = false;
         Yaml.Node? node = context == null ? this.context : context;
-        Yaml.Mapping?    m    = null;
         Regex reg             = /(\[|\{)([^\]\}]*)(\]|\})/;
         MatchInfo mi;
         try {
@@ -114,7 +116,7 @@ public class Pluie.Yaml.Finder : Object
      * get a path definition depending of current Node.mode
      * if path definition is Yaml.FIND_MODE.DOT the path is convert to a 
      * Yaml.FIND_MODE.SQUARE_BRACKETS path definition
-     * @path the path definition
+     * @param path the path definition
      * @return the find path definition according to current Node.mode
      */
     private string find_path (string path)
@@ -142,7 +144,8 @@ public class Pluie.Yaml.Finder : Object
 
     /**
      * indicates if specifiyed MatchInfo is related to a mapping node only or a collection node
-     * @param mi 
+     * @param mi used MathInfo
+     * @param mappingOnly  flag indicates if mappu only
      */
     private bool is_collection_path (MatchInfo mi, bool mappingOnly = false)
     {

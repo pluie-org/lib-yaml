@@ -32,7 +32,7 @@ using Pluie;
 using Gee;
 
 /**
- * a class representing a mapping node
+ * abstract class representing a child node
  */
 public abstract class Pluie.Yaml.AbstractChild : Yaml.AbstractNode
 {
@@ -107,7 +107,7 @@ public abstract class Pluie.Yaml.AbstractChild : Yaml.AbstractNode
 
     /**
      * stuff on changing parent node
-     * @param child  the childto add
+     * @param levelUpdate flag indicating if update level is needed
      */
     protected virtual bool on_change_parent (bool levelUpdate = true)
     {

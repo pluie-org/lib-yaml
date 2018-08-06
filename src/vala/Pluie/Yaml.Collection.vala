@@ -38,56 +38,51 @@ public interface Pluie.Yaml.Collection
 {
     /**
      * retriew the child at index
-     * @param   child
+     * @param   index index of seached child
      */
     public abstract Yaml.Node? item (int index);
 
     /**
      * check if contains specifyed child node
-     * @param   child
+     * @param   child the child to check 
      */
     public abstract bool contains (Yaml.Node child);
 
     /**
      * count children
-     * @param   child
      */
     public abstract int count ();
 
     /**
      * check if empty
-     * @param   child
      */
     public abstract bool empty ();
 
     /**
-     * check if empty
-     * @param   child
+     * get a Yaml.Node Iterator
      */
     public abstract Gee.Iterator<Yaml.Node> iterator ();
 
 
     /**
      * retriew the first child
-     * @param   child
      */
     public abstract Yaml.Node? first ();
 
     /**
      * retriew the last child
-     * @param   child
      */
     public abstract Yaml.Node? last ();
 
     /**
      * retriew the next sibling of specifiyed child node
-     * @param   child
+     * @param   child the the reference child node
      */
     public abstract Yaml.Node? child_next_sibling (Yaml.Node child);
 
     /**
      * retriew the previous sibling of specifiyed child node
-     * @param   child
+     * @param   child the the reference child node
      */
     public abstract Yaml.Node? child_previous_sibling (Yaml.Node child);
 

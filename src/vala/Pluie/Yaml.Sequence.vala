@@ -32,7 +32,7 @@ using Pluie;
 using Gee;
 
 /**
- * a class representing a mapping node
+ * a class representing a sequence node
  */
 public class Pluie.Yaml.Sequence : Yaml.Node
 {
@@ -40,7 +40,7 @@ public class Pluie.Yaml.Sequence : Yaml.Node
     /**
      * default Yaml.Node constructor
      * @param parent the parent node
-     * @param type the NODE_TYPE of Yaml.Node to create
+     * @param name the node name
      */
     public Sequence (Yaml.Node? parent = null, string? name = null)
     {

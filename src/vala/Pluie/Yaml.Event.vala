@@ -55,7 +55,10 @@ public class Pluie.Yaml.Event
 
     /**
      * construct a Event
-     * @param path the path to load
+     * @param evtype the Yaml.EVT event
+     * @param line original yaml line of related event
+     * @param style original yaml style
+     * @param data data related to event
      */
     public Event (Yaml.EVT evtype, int line=0, int? style=null, Gee.HashMap<string, string>? data=null)
     {
