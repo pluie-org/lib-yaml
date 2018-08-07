@@ -35,7 +35,7 @@ int main (string[] args)
 {
     Echo.init(false);
 
-    var path     = "resources/test.json";
+    var path     = Yaml.DATA_PATH + "/test.json";
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");

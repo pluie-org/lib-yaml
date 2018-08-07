@@ -31,7 +31,7 @@ namespace Pluie
     namespace Yaml
     {
         protected const string INSTALL_PATH = "@INSTALL_PATH@";
-        protected const string DATA_PATH    = "@DATA_PATH@";
+        public    const string DATA_PATH    = "@DATA_PATH@";
         public    const string VERSION      = "@VERSION@";
     }
 }

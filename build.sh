@@ -61,9 +61,12 @@ function build.lib()
 {
     cd "$DIR"
     build.title "$lib LIB BUILD"
-    echo
     meson --prefix=/usr ./ build
-    sudo ninja -v install -C build
+    if [ "$UID" != "0" ]; then
+        sudo ninja -v install -C build
+    else
+        ninja -v install -C build
+    fi
     local    rs=$?
     build.title "$lib LIB BUILD" $rs
     return $rs

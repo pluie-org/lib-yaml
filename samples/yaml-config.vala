@@ -35,7 +35,7 @@ int main (string[] args)
 {
     Echo.init(false);
 
-    var path     = "resources/config/db.yml";
+    var path     = Yaml.DATA_PATH + "/config/db.yml";
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");

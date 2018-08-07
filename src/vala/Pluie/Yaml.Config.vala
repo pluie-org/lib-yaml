@@ -137,7 +137,6 @@ public class Pluie.Yaml.Config
         Yaml.Node? n    = null;
         Yaml.Config?  conf = null;
         foreach(var entry in this.paths.entries) {
-            of.keyval(entry.key, entry.value);
             conf = new Yaml.Config(entry.value, this.displayFile);
             sub  = conf.loader.get_nodes ();
             n    = new Yaml.Mapping (root, entry.key);

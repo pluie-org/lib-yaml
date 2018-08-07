@@ -41,7 +41,7 @@ dep_yaml      = cc.find_library('yaml', required : true)
 
 version       = '0.4'
 bindir        = join_paths(get_option('prefix'), get_option('bindir'))
-datadir       = join_paths(get_option('prefix'), get_option('datadir'), 'pluie')
+datadir       = join_paths(get_option('prefix'), get_option('datadir'), 'pluie/yaml')
 libdir        = join_paths(get_option('prefix'), get_option('libdir'), 'pkgconfig')
 incdir        = join_paths(get_option('prefix'), get_option('includedir'), 'pluie')
 
@@ -77,7 +77,11 @@ sources = [
     'src/c/yaml.c'
 ]
 
+install_data('resources/main.yml', install_dir : datadir)
 install_data('resources/test.yml', install_dir : datadir)
+install_data('resources/test.json', install_dir : datadir)
+install_data('resources/config/db.yml', install_dir : join_paths(datadir, 'config'))
+install_data('resources/config/subdir/test.yml', install_dir : join_paths(datadir, 'config/subdir'))
 
 libpluie_yaml = library(
     'pluie-yaml-' + version, 

@@ -12,6 +12,11 @@ the lib does not manage yet tag directives and tag values.
 
 ![pluie-yaml](https://www.meta-tech.academy/img/pluie-yaml-imports2.png)
 
+_legend display_childs_ :
+
+```
+[  node.name   [refCount]   node.parent.name   node.level   node.ntype.infos ()   node.count ()   node.uuid  ]
+```
 ## License
 
 GNU GPL v3
@@ -51,6 +56,15 @@ a demo image will be available soon on docker hub. you will be able to run a con
 ```
 docker run --rm -it pluie/libyaml
 ```
+
+then you can execute any samples :
+
+```
+./json-loader
+```
+
+![pluie-yaml-json](https://www.meta-tech.academy/img/pluie-yaml-json.png)
+
 
 ## Usage
 
