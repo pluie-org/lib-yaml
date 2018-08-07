@@ -4,8 +4,9 @@
 As json is now a valid subset of yaml, you can use this lib to load json files too.  
 
 The purpose of this project is to make vala able to load and deal with yaml configuration files.  
-So, currently the lib deal only with one yaml document, but you can use a special `^imports` clause (nodemap)  
-to load a subset of yaml files in the main yaml document.
+So, currently the lib deal only with one yaml document (it's not recommended to use multiples doc), 
+but you can use a special `^imports` clause (special mapping node) to load a subset of yaml files 
+in the main yaml document.
 
 the lib does not manage yet tag directives and tag values.  
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
@@ -15,8 +16,9 @@ the lib does not manage yet tag directives and tag values.
 _legend display_childs_ :
 
 ```
-[  node.name   [refCount]   node.parent.name   node.level   node.ntype.infos ()   node.count ()   node.uuid  ]
+[ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid ]
 ```
+
 ## License
 
 GNU GPL v3
@@ -24,6 +26,8 @@ GNU GPL v3
 ## Prerequisites
 
 `valac meson ninja glib gee gobject pluie-echo`
+
+see https://git.pluie.org/pluie/libpluie-echo in order to install pluie-echo-0.2 pkg
 
 
 ## Install
@@ -41,29 +45,31 @@ sudo ninja install -C build
 valac --pkg gee-0.8 --pkg pluie-echo-0.2 --pkg pluie-yaml-0.4 main.vala
 ```
 
-see https://git.pluie.org/pluie/libpluie-echo in order to install pluie-echo-0.2 pkg
-
 you can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile samples files
+
 
 ## Api / Documentation
 
 https://pluie.org/pluie-yaml-0.4/index.htm  
 
+
 ## Docker
 
-a demo image will be available soon on docker hub. you will be able to run a container with :
+a demo image is now available on docker hub. To run a container  :
 
 ```
 docker run --rm -it pluie/libyaml
 ```
 
-then you can execute any samples :
-
+then you can execute any samples, for example :
 ```
 ./json-loader
 ```
 
 ![pluie-yaml-json](https://www.meta-tech.academy/img/pluie-yaml-json.png)
+
+see ![pluie/docker-images repository](https://github.com/pluie-org/docker-images)
+for more details
 
 
 ## Usage
@@ -81,7 +87,7 @@ then you can execute any samples :
     }
 
 ```
-see Finder below to get precision about config.get parameter
+see Finder below to get precisions about config.get parameter (search path definition)
 
 -------------------
 
@@ -227,6 +233,7 @@ see samples files in ./samples directory
 * ~~fix nodes traversing~~
 * ~~rewrite nodes classes~~
 * ~~put doc online~~
+* ~~add docker image~~
 * improve doc
 * dumper
 * manage tag directives & tag
