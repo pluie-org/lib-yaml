@@ -125,6 +125,14 @@ namespace Pluie
             }
 
             /**
+              * @return event is tag
+              */
+            public bool is_tag ()
+            {
+                return this == EVT.TAG;
+            }
+
+            /**
               * @return event is key
               */
             public bool is_value ()

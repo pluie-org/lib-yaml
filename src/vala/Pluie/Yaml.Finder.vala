@@ -34,7 +34,7 @@ using Pluie;
 /**
  * Finder class used to easily retriew Yaml.Node
  */
-public class Pluie.Yaml.Finder : Object
+public class Pluie.Yaml.Finder : GLib.Object
 {
 
     /**

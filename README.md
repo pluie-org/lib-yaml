@@ -183,6 +183,16 @@ vala code :
 ```vala
     var config = new Yaml.Config (path);
     var root   = config.root_node ();
+    foreach (var child in root) {
+        of.echo (child.to_string ());
+    }
+```
+
+or
+
+```vala
+    var config = new Yaml.Config (path);
+    var root   = config.root_node ();
     Iterator<Yaml.Node> it = root.iterator ();
     Yaml.Node? child = null;
     for (var has_next = it.next (); has_next; has_next = it.next ()) {

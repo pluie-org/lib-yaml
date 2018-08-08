@@ -5,6 +5,7 @@ bo :
     user     : dev
     password : mysql
     charset  : utf8
+    port     : 3306
 
 therapy :
     driver   : mysql
@@ -13,3 +14,4 @@ therapy :
     user     : dev
     password : mysql
     charset  : utf8
+    port     : !!int 3306

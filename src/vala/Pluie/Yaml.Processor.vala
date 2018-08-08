@@ -62,6 +62,16 @@ public class Pluie.Yaml.Processor
     string?                           ckey;
 
     /**
+     * current tag suffix
+     */
+    string?                           tagSuffix;
+
+    /**
+     * current tag handle
+     */
+    string?                           tagHandle;
+    
+    /**
      * Events list
      */
     public Gee.ArrayList<Yaml.Event>  events           { get; internal set; }
@@ -198,6 +208,8 @@ public class Pluie.Yaml.Processor
         this.change       = false;
         this.ckey         = null;
         this.idAnchor     = null;
+        this.tagHandle    = null;
+        this.tagSuffix    = null;
         this.beginFlowSeq = false;
     }
 
@@ -285,6 +297,12 @@ public class Pluie.Yaml.Processor
      */
     private void on_value ()
     {
+        if (this.event.evtype.is_tag ()) {
+            of.keyval ("tag", this.event.evtype.to_string ());
+            this.tagSuffix = this.event.data["suffix"];
+            this.tagHandle = this.event.data["handle"];
+            this.event     = this.next_event ();
+        }
         if (this.event.evtype.is_scalar ()) {
             this.on_scalar ();
         }
@@ -389,6 +407,11 @@ public class Pluie.Yaml.Processor
     private void on_update ()
     {
         if (this.change) {
+            if (this.tagSuffix != null) {
+                of.action ("setting tag");
+                this.node.tag = this.tagSuffix;
+                of.echo (this.node.to_string ());
+            }
             if (this.node.ntype.is_collection () && (this.node.empty() || (!this.node.first().ntype.is_scalar ()))) {
                 this.parent_node = this.node;
             }
@@ -396,6 +419,8 @@ public class Pluie.Yaml.Processor
                 this.parent_node = this.node.parent;
             }
             this.prev_node = this.node;
+            this.tagHandle = null;
+            this.tagSuffix = null;
             this.node      = null;
             this.change    = false;
         }

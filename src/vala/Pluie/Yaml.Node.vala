@@ -273,7 +273,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
      */
     public override string to_string (bool withIndent = Yaml.DBG_SHOW_INDENT, bool withParent = Yaml.DBG_SHOW_PARENT, bool withUuid = Yaml.DBG_SHOW_UUID, bool withLevel = Yaml.DBG_SHOW_LEVEL, bool withCount = Yaml.DBG_SHOW_COUNT, bool withRefCount = Yaml.DBG_SHOW_REF)
     {
-        return "%s%s%s%s%s%s%s%s%s".printf (
+        return "%s%s%s%s%s%s%s%s%s%s".printf (
             this.level == 0 ? "" : of.s_indent ((int8) (withIndent ? (this.level-1)*4 : 0)),
             of.c (ECHO.OPTION).s ("["),
             this.name != null && !this.ntype.is_scalar ()
@@ -294,6 +294,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
             )),
             withCount ? of.c (ECHO.MICROTIME).s (" %d".printf(this.count ())) : "",
             withUuid  ? of.c (ECHO.COMMENT).s (" %s".printf(this.uuid[0:8]+"...")) : "",
+            this.tag != null ? of.c (ECHO.OPTION_SEP).s (" %s".printf(this.tag)) : "",
 //~             of.c (ECHO.NUM).s ("%d".printf (this.level)),
             of.c (ECHO.OPTION).s ("]")
         );

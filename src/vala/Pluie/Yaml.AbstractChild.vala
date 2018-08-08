@@ -52,6 +52,11 @@ public abstract class Pluie.Yaml.AbstractChild : Yaml.AbstractNode
     public string?      anchor     { get; internal set; default = null; }
 
     /**
+     *
+     */
+    public string?      tag        { get; internal set; default = null; }
+
+    /**
      * default Yaml.Node constructor
      * @param parent the parent node
      * @param type the NODE_TYPE of Yaml.Node to create

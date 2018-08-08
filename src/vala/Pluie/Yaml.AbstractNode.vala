@@ -34,7 +34,7 @@ using Pluie;
 /**
  * abstract class representing a node
  */
-public abstract class Pluie.Yaml.AbstractNode : Object
+public abstract class Pluie.Yaml.AbstractNode : GLib.Object
 {
     /**
      * universal unique identifier
