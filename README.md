@@ -8,7 +8,7 @@ So, currently the lib deal only with one yaml document (it's not recommended to 
 but you can use a special `^imports` clause (special mapping node) to load a subset of yaml files 
 in the main yaml document.
 
-the lib does not manage yet tag directives and tag values.  
+the lib does not manage yet tag directives and tag values (planned).  
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
 
 ![pluie-yaml](https://www.meta-tech.academy/img/pluie-yaml-imports2.png)
@@ -183,8 +183,11 @@ vala code :
 ```vala
     var config = new Yaml.Config (path);
     var root   = config.root_node ();
-    foreach (var child in root) {
-        of.echo (child.to_string ());
+    if (root != null && !root.empty ()) {
+        foreach (var child in root) {
+            // do stuff
+            of.echo (child.to_string ());
+        }
     }
 ```
 
@@ -193,11 +196,14 @@ or
 ```vala
     var config = new Yaml.Config (path);
     var root   = config.root_node ();
-    Iterator<Yaml.Node> it = root.iterator ();
-    Yaml.Node? child = null;
-    for (var has_next = it.next (); has_next; has_next = it.next ()) {
-        child = it.get ();
-        of.echo (child.to_string ());
+    if (root != null && root.count () > 0) {
+        Iterator<Yaml.Node> it = root.iterator ();
+        Yaml.Node? child = null;
+        for (var has_next = it.next (); has_next; has_next = it.next ()) {
+            child = it.get ();
+            // do stuff
+            of.echo (child.to_string ());
+        }
     }
 ```
 
