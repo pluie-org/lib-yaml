@@ -100,6 +100,11 @@ void yaml_parse_file(const char *srcPath, const char *destPath)
                 fprintf(wh, "%lu, %d, %d, %d\n", line, token.type, token.data.version_directive.major, token.data.version_directive.minor);
                 break;
 
+            case YAML_TAG_DIRECTIVE_TOKEN :
+                printf ("YAML_TAG_DIRECTIVE_TOKEN : handle : %s, prefix : %s\n", token.data.tag_directive.handle, token.data.tag_directive.prefix);
+                fprintf(wh, "%lu, %d, \"%s\", \"%s\"\n", line, token.type, token.data.tag_directive.handle, token.data.tag_directive.prefix);
+                break;
+
             case YAML_NO_TOKEN                :
                 fprintf(wh, "%lu, %d, \"%s\"\n", line, token.type, escape_string((char *)parser.problem));
                 stop = 1;

@@ -40,7 +40,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
      */
     public ArrayList<Yaml.Node>   list        { get; internal set; }
 
-    bool                                container   { get; internal set; default = true; }
+    bool                          container   { get; internal set; default = true; }
 
     /**
      * default Yaml.Node constructor
@@ -294,7 +294,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
             )),
             withCount ? of.c (ECHO.MICROTIME).s (" %d".printf(this.count ())) : "",
             withUuid  ? of.c (ECHO.COMMENT).s (" %s".printf(this.uuid[0:8]+"...")) : "",
-            this.tag != null ? of.c (ECHO.OPTION_SEP).s (" %s".printf(this.tag)) : "",
+            this.tag != null ? of.c (ECHO.OPTION_SEP).s (" %s".printf(this.tag.@value)) : "",
 //~             of.c (ECHO.NUM).s ("%d".printf (this.level)),
             of.c (ECHO.OPTION).s ("]")
         );

@@ -35,43 +35,33 @@ int main (string[] args)
 {
     Echo.init(false);
 
-    var path     = Yaml.DATA_PATH + "/config/db.yml";
+    var path     = Yaml.DATA_PATH + "/tag.yml";
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.Scanner.DEBUG = false;
+    Pluie.Yaml.Scanner.DEBUG = true;
     var config = new Yaml.Config (path, true);
     Yaml.Node root   = (Yaml.Node) config.root_node ();
-    Gee.HashMap<string, Db.Profile> db = new Gee.HashMap<string, Db.Profile> ();
+    root.display_childs ();
+    Gee.HashMap<string, Yaml.Example> list = new Gee.HashMap<string, Yaml.Example> ();
     if ((done = root != null)) {
         foreach (var node in root) {
-            of.action ("Yamlize DB profile", node.name);
-            db[node.name] = new Db.Profile ();
-            if (db[node.name].yamlize (node)) {
-                foreach (var p in db[node.name].get_class().list_properties ()) {
-                    var g = (node as Yaml.Mapping).item (p.name);
-                    if (g.tag == null) {
-                        var v = null;
-                        db[node.name].get(p.name, &v);
-                        of.keyval (p.name, v != null ? v : "null");
-                    }
-                    else {
-//~                         of.echo ("tag is %s".printf (g.tag));
-                        if (g.tag == "int") {
-                            int z = -1;
-                            db[node.name].get(p.name, ref z);
-                            of.keyval (p.name, z.to_string ());
-                        }
-                    }
-                }
+            of.action ("Yamlize Yaml.Example", node.name);
+            of.echo (node.to_string ());
+            if (node.tag != null && node.tag.@value == "Pluie.Yaml.Example") {
+                list[node.name] = new Yaml.Example ();
+                of.state (list[node.name].yamlize (node));
             }
             node = node.next_sibling ();
         }
     }
 
-    of.echo ("param [%s] port as int %d".printf ("bo", db["bo"].port));
-    of.echo ("param [%s] port as int %d".printf ("therapy", db["therapy"].port));
-
+    foreach (var entry in list.entries) {
+        of.action ("Getting values", entry.key);
+        of.keyval("type_int" , "%d".printf(entry.value.type_int));
+        of.keyval("type_bool", "%s".printf(entry.value.type_bool.to_string ()));
+        of.keyval("type_char", "%c".printf(entry.value.type_char));
+    }
 
     of.rs (done);
     of.echo ();

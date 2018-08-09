@@ -193,6 +193,25 @@ public class Pluie.Yaml.Scanner
      * @param line the current line
      * @throws GLib.RegexError
      */
+    private void register_event_tag_directive(string evtdata, int line) throws GLib.RegexError
+    {
+        MatchInfo mi = null;
+        Regex    reg = new Regex (REG_TAG);
+        HashMap<string, string>? data = null;
+        if (reg.match (evtdata, 0, out mi)) {
+            data  = new HashMap<string, string>();
+            data.set("handle", mi.fetch (MIEVT_TAG.HANDLE));
+            data.set("prefix", mi.fetch (MIEVT_TAG.SUFFIX));
+        }
+        this.processor.events.add(new Yaml.Event(EVT.TAG_DIRECTIVE, line, null, data));
+    }
+
+    /**
+     * register event tag
+     * @param evtdata the current data event
+     * @param line the current line
+     * @throws GLib.RegexError
+     */
     private void register_event_tag(string evtdata, int line) throws GLib.RegexError
     {
         MatchInfo mi = null;
@@ -299,25 +318,28 @@ public class Pluie.Yaml.Scanner
                 string evtdata = mi.fetch (MIEVT.DATA);
                 switch(type) {
                     case EVT.SCALAR :
-                        this.register_event_scalar(evtdata, line);
+                        this.register_event_scalar (evtdata, line);
                         break;
                     case EVT.ANCHOR :
-                        this.register_event_anchor(evtdata, line);
+                        this.register_event_anchor (evtdata, line);
                         break;
                     case EVT.ALIAS :
-                        this.register_event_alias(evtdata, line);
+                        this.register_event_alias (evtdata, line);
                         break;
                     case EVT.TAG :
-                        this.register_event_tag(evtdata, line);
+                        this.register_event_tag (evtdata, line);
+                        break;
+                    case EVT.TAG_DIRECTIVE :
+                        this.register_event_tag_directive (evtdata, line);
                         break;
                     case EVT.VERSION_DIRECTIVE : 
-                        this.register_event_version(evtdata, line);
+                        this.register_event_version (evtdata, line);
                         break;
                     case EVT.NONE :
-                        this.register_event_error(evtdata, line);
+                        this.register_event_error (evtdata, line);
                         break;
                     default :
-                        this.processor.events.add(new Yaml.Event((Yaml.EVT)type, line, null, null));
+                        this.processor.events.add(new Yaml.Event ((Yaml.EVT) type, line, null, null));
                         break;
                 }
             }

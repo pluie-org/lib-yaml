@@ -250,6 +250,6 @@ see samples files in ./samples directory
 * ~~rewrite nodes classes~~
 * ~~put doc online~~
 * ~~add docker image~~
+* manage tag directives & tag
 * improve doc
 * dumper
-* manage tag directives & tag

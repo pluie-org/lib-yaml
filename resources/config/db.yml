@@ -14,4 +14,4 @@ therapy :
     user     : dev
     password : mysql
     charset  : utf8
-    port     : !!int 3306
+    port     : 3306

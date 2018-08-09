@@ -26,19 +26,21 @@
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
+using GLib;
+using Gee;
 
 /**
  * a test class to implements yamlize
 
  */
-public class Pluie.Db.Profile : Yaml.Object
+public class Pluie.Yaml.Tag : GLib.Object
 {
-    public string driver   { get; set; }
-    public string host     { get; set; }
-    public string dbname   { get; set; }
-    public string user     { get; set; }
-    public string password { get; set; }
-    public string charset  { get; set; }
-    public int port        { get; set; }
-
+    public string handle    { get; internal set; }
+    public string @value    { get; internal set; }
+    
+    public Tag (string @value, string handle = "")
+    {
+        this.@value = @value;
+        this.handle = handle;
+    }
 }

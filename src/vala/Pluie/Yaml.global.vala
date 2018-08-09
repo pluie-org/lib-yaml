@@ -133,6 +133,14 @@ namespace Pluie
             }
 
             /**
+              * @return event is tag
+              */
+            public bool is_tag_directive ()
+            {
+                return this == EVT.TAG_DIRECTIVE;
+            }
+
+            /**
               * @return event is key
               */
             public bool is_value ()

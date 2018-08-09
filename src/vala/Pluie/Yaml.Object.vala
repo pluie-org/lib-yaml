@@ -45,18 +45,26 @@ public abstract class Pluie.Yaml.Object : GLib.Object
             if (node!= null && !node.empty ()) {
                 Iterator<Yaml.Node> it = node.iterator ();
                 foreach (var child in node) {
-                    foreach (var p in this.get_class ().list_properties ()) {
-                        if (p.name == child.name) {
-                            if (child.tag != null) {
-                                switch (child.tag) {
-                                    case "int" :
-                                        this.set (p.name, int.parse(child.first ().data));
-                                        break;
-                                }
+                    of.action ("yamlize ", child.to_string ());
+                    var pspec = this.get_class ().find_property (child.name);
+                    if (pspec != null) {
+                        if (child.first ().tag != null) {
+                            of.keyval ("found tag", child.first ().tag.@value);
+//~                             of.keyval ("value is `%s`", child.first ().data);
+                            switch (child.first ().tag.@value) {
+                                case "char" :
+                                    this.set (child.name, child.first ().data[0]);
+                                    break;
+                                case "bool" :
+                                    this.set (child.name, bool.parse(child.first ().data.down ()));
+                                    break;
+                                case "int" :
+                                    this.set (child.name, int.parse(child.first ().data));
+                                    break;
                             }
-                            else {
-                                this.set (p.name, child.first ().data);
-                            }
+                        }
+                        else {
+                            this.set (child.name, child.first ().data);
                         }
                     }
                 }

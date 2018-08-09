@@ -60,26 +60,28 @@ sources = [
     'build/install.vala',
     'src/vala/Pluie/Io.Reader.vala',
     'src/vala/Pluie/Io.StreamLineMark.vala',
-    'src/vala/Pluie/Db.Profile.vala',
     'src/vala/Pluie/Yaml.global.vala',
     'src/vala/Pluie/Yaml.AbstractChild.vala',
     'src/vala/Pluie/Yaml.AbstractNode.vala',
     'src/vala/Pluie/Yaml.Collection.vala',
     'src/vala/Pluie/Yaml.Config.vala',
     'src/vala/Pluie/Yaml.Event.vala',
+    'src/vala/Pluie/Yaml.Example.vala',
     'src/vala/Pluie/Yaml.Finder.vala',
     'src/vala/Pluie/Yaml.Loader.vala',
     'src/vala/Pluie/Yaml.Mapping.vala',
     'src/vala/Pluie/Yaml.Node.vala',
     'src/vala/Pluie/Yaml.Object.vala',
+    'src/vala/Pluie/Yaml.Processor.vala',
     'src/vala/Pluie/Yaml.Scalar.vala',
     'src/vala/Pluie/Yaml.Scanner.vala',
     'src/vala/Pluie/Yaml.Sequence.vala',
-    'src/vala/Pluie/Yaml.Processor.vala',
+    'src/vala/Pluie/Yaml.Tag.vala',
     'src/c/yaml.c'
 ]
 
 install_data('resources/main.yml', install_dir : datadir)
+install_data('resources/tag.yml', install_dir : datadir)
 install_data('resources/test.yml', install_dir : datadir)
 install_data('resources/test.json', install_dir : datadir)
 install_data('resources/config/db.yml', install_dir : join_paths(datadir, 'config'))
