@@ -35,6 +35,23 @@ using Gee;
  */
 public abstract class Pluie.Yaml.Object : GLib.Object
 {
+
+    public static string type_name (string name)
+    {
+        return name.replace(".", "");
+    }
+
+    public static GLib.Type? type_from_name (string name)
+    {
+        GLib.Type? type = Type.from_name (type_name (name));
+        return type;
+    }
+
+    public string get_type_name ()
+    {
+        return Type.from_instance (this).name ();
+    }
+
     /**
      *
      */

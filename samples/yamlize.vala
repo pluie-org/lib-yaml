@@ -39,18 +39,44 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.Scanner.DEBUG = true;
+    Pluie.Yaml.Scanner.DEBUG = false;
     var config = new Yaml.Config (path, true);
-    Yaml.Node root   = (Yaml.Node) config.root_node ();
+    var root   = config.root_node ();
     root.display_childs ();
-    Gee.HashMap<string, Yaml.Example> list = new Gee.HashMap<string, Yaml.Example> ();
+    // define a map with base Yaml.Object
+    Gee.HashMap<string, Yaml.Object> list = new Gee.HashMap<string, Yaml.Object> ();
+    // require to register type;
+    Yaml.Example? obj = new Pluie.Yaml.Example ();
     if ((done = root != null)) {
         foreach (var node in root) {
             of.action ("Yamlize Yaml.Example", node.name);
             of.echo (node.to_string ());
-            if (node.tag != null && node.tag.@value == "Pluie.Yaml.Example") {
-                list[node.name] = new Yaml.Example ();
-                of.state (list[node.name].yamlize (node));
+            if (node.tag != null) {
+                of.action ("tag value", node.tag.value);
+                var type  = Yaml.Object.type_from_name (node.tag.value);
+                if (type != null && type.is_object ()) {
+                    of.echo ("type founded : %s".printf (type.to_string ()));
+                
+//~                 of.echo ("======");
+//~                 of.action ("Auto Instanciate object as Yaml.Object", type.name ());
+//~                 var o = (Yaml.Object) GLib.Object.new (type);
+//~                 if (o != null) {
+//~                     of.action ("Yamlize Yaml.Object", type.name ());
+//~                     of.state (o.yamlize (node));
+//~                     of.action ("Hardcode casting as", type.name ());
+//~                     var so = o as Yaml.Example;
+//~                     of.action ("Hardcode Getting values object", type.name ());
+//~                     of.keyval("type_int" , "%d".printf(so.type_int));
+//~                     of.keyval("type_bool", "%s".printf(so.type_bool.to_string ()));
+//~                     of.keyval("type_char", "%c".printf(so.type_char));
+//~                     of.echo ("======");
+//~                 }
+                    list[node.name] = (Pluie.Yaml.Object) GLib.Object.new (type);
+                    of.state (list[node.name].yamlize (node));
+                }
+                else {
+                    of.warn ("type %s not found, you probably need to instanciate it first".printf (node.tag.value));
+                }
             }
             node = node.next_sibling ();
         }
@@ -58,9 +84,11 @@ int main (string[] args)
 
     foreach (var entry in list.entries) {
         of.action ("Getting values", entry.key);
-        of.keyval("type_int" , "%d".printf(entry.value.type_int));
-        of.keyval("type_bool", "%s".printf(entry.value.type_bool.to_string ()));
-        of.keyval("type_char", "%c".printf(entry.value.type_char));
+        if ((obj =  entry.value as Yaml.Example)!=null) {
+            of.keyval("type_int" , "%d".printf(obj.type_int));
+            of.keyval("type_bool", "%s".printf(obj.type_bool.to_string ()));
+            of.keyval("type_char", "%c".printf(obj.type_char));
+        }
     }
 
     of.rs (done);
