@@ -25,7 +25,7 @@ GNU GPL v3
 
 ## Prerequisites
 
-`valac meson ninja glib gee gobject pluie-echo`
+`valac meson ninja libyaml glib gobject gmodule gee pluie-echo`
 
 see https://git.pluie.org/pluie/libpluie-echo in order to install pluie-echo-0.2 pkg
 
@@ -42,7 +42,7 @@ sudo ninja install -C build
 ## Compilation
 
 ```
-valac --pkg gee-0.8 --pkg pluie-echo-0.2 --pkg pluie-yaml-0.4 main.vala
+valac  --pkg pluie-echo-0.2 --pkg pluie-yaml-0.4 main.vala
 ```
 
 you can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile samples files

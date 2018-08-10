@@ -7,9 +7,11 @@
     type_int    : !vala!int 3306
     type_bool   : !vala!bool false
     type_char   : !vala!char c
+    type_string : !vala!string mystring1
 
 !vala!Pluie.Yaml.Example test2 :
 
     type_int    : !vala!int 3306
     type_bool   : !vala!bool true
     type_char   : !vala!char g
+    type_string : !vala!string mystring2

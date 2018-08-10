@@ -31,6 +31,7 @@ project('libpluie-yaml', 'vala', 'c')
 cc            = meson.get_compiler('c')
 dep_glib      = dependency('glib-2.0')
 dep_gobject   = dependency('gobject-2.0')
+dep_gmodule   = dependency('gmodule-2.0')
 dep_gio       = dependency('gio-2.0')
 dep_gee       = dependency('gee-0.8')
 dep_echo      = dependency('pluie-echo-0.2')
@@ -92,7 +93,7 @@ libpluie_yaml = library(
     sources,
     vala_header  : 'pluie_yaml.h',
     vala_vapi    : 'pluie-yaml-' +version+'.vapi',
-    dependencies : [dep_glib, dep_gobject, dep_gio, dep_gee, dep_echo, dep_m, dep_yaml],
+    dependencies : [dep_glib, dep_gobject, dep_gmodule, dep_gio, dep_gee, dep_echo, dep_m, dep_yaml],
     install      : true,
     install_dir  : [get_option('libdir'), incdir, true]
 )
@@ -100,7 +101,7 @@ libpluie_yaml = library(
 pkgconfig = import('pkgconfig')
 pkgconfig.generate(
     libraries   : libpluie_yaml,
-    requires    : 'glib-2.0 gobject-2.0 gio-2.0 gee-0.8 pluie-echo-0.2',
+    requires    : 'glib-2.0 gmodule-2.0 gobject-2.0 gio-2.0 gee-0.8 pluie-echo-0.2',
     variables   : 'datarootdir='+join_paths('${prefix}', get_option('datadir'))+'\ndatadir='+join_paths('${datarootdir}', 'pluie'),
     version     : version,
     name        : 'libpluie-yaml',

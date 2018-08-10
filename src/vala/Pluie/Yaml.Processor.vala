@@ -271,7 +271,8 @@ public class Pluie.Yaml.Processor
      */
     private void on_tag_directive ()
     {
-        of.action ("on_tag_directive %s".printf (this.event.data["handle"]), this.event.data["prefix"]);
+        if (Yaml.Scanner.DEBUG) 
+            of.action ("on_tag_directive %s".printf (this.event.data["handle"]), this.event.data["prefix"]);
         this.tags[this.event.data["handle"]] = this.event.data["prefix"];
     }
 
@@ -315,8 +316,9 @@ public class Pluie.Yaml.Processor
     private void on_tag (bool onKey = false)
     {
         if (this.event.evtype.is_tag ()) {
-            of.keyval ("tag %s".printf (this.event.data["handle"]), this.event.data["suffix"]);
-            if (this.tags.contains (this.event.data["handle"])) {
+            if (Yaml.Scanner.DEBUG)
+                of.keyval ("tag %s".printf (this.event.data["handle"]), this.event.data["suffix"]);
+            if (this.tags.has_key (this.event.data["handle"])) {
                 var tag = new Yaml.Tag (this.event.data["suffix"], this.tags[this.event.data["handle"]]);
                 if (onKey) 
                     this.keyTag = tag;
@@ -449,12 +451,12 @@ public class Pluie.Yaml.Processor
     private void on_update ()
     {
         if (this.node != null) {
-            of.echo (this.node.name);
+            if (Yaml.Scanner.DEBUG) of.echo (this.node.name);
         }
         if (this.change) {
-            of.action ("on change", this.node.name);
+            if (Yaml.Scanner.DEBUG) of.action ("on change", this.node.name);
             if (this.keyTag != null) {
-                of.action ("setting tag", this.keyTag.@value);
+                if (Yaml.Scanner.DEBUG) of.action ("setting tag", this.keyTag.@value);
                 this.node.tag       = this.keyTag;
             }
             else if (this.valueTag != null) {
