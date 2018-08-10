@@ -1,17 +1,25 @@
 %YAML 1.2
 %TAG !yaml! tag:yaml.org,2002:
-%TAG !vala! tag:pluie.org,2018:vala/
+%TAG !v! tag:pluie.org,2018:vala/
 ---
-!vala!Pluie.Yaml.Example test1 :
+!v!Pluie.Yaml.Example test1 :
 
-    type_int    : !vala!int 3306
-    type_bool   : !vala!bool false
-    type_char   : !vala!char c
-    type_string : !vala!string mystring1
+    type_int    : !v!int 3306
+    type_bool   : !v!bool false
+    type_char   : !v!char c
+    type_string : !v!string mystring1
+    type_uchar  : !v!uchar L
+    type_uint   : !v!uint 62005
+    type_float  : !v!float 42.36
+    type_double : !v!double 95542123.4579512128
 
-!vala!Pluie.Yaml.Example test2 :
+!v!Pluie.Yaml.Example test2 :
 
-    type_int    : !vala!int 3306
-    type_bool   : !vala!bool true
-    type_char   : !vala!char g
-    type_string : !vala!string mystring2
+    type_int    : !v!int 3306
+    type_bool   : !v!bool true
+    type_char   : !v!char g
+    type_string : !v!string mystring2
+    type_uchar  : !v!uchar Y
+    type_uint   : !v!uint 63005
+    type_float  : !v!float 5.28
+    type_double : !v!double 9.28

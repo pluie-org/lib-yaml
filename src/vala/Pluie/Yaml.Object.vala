@@ -141,7 +141,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
                             if ((def = obj.get_class ().find_property (child.name)) != null) {
                                 if ((snode = child.first ()) != null) {
                                     if (snode.tag != null) {
-                                        obj.set_by_basic_type (def.name, def.value_type, snode);
+                                        obj.set_from_scalar (def.name, def.value_type, snode);
                                     }
                                     else {
                                         obj.set (child.name, snode.data);
@@ -165,7 +165,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     /**
      *
      */
-    public void set_by_basic_type (string name, GLib.Type type, Yaml.Node node)
+    public void set_from_scalar (string name, GLib.Type type, Yaml.Node node)
     {
         GLib.Value v = GLib.Value(type);
         var data     = node.data; 
@@ -181,11 +181,31 @@ public abstract class Pluie.Yaml.Object : GLib.Object
             case Type.CHAR :
                 v.set_schar((int8)data.data[0]);
                 break;
+            case Type.UCHAR :
+                v.set_uchar((uint8)data.data[0]);
+                break;
             case Type.BOOLEAN :
                 v.set_boolean (bool.parse(data.down ()));
                 break;
             case Type.INT :
                 v.set_int(int.parse(data));
+                break;
+            case Type.UINT :
+                v.set_uint((uint)long.parse(data));
+                break;
+            case Type.LONG :
+            case Type.INT64 :
+                v.set_long((long)int64.parse(data));
+                break;
+            case Type.ULONG :
+            case Type.UINT64 :
+                v.set_ulong((ulong)uint64.parse(data));
+                break;
+            case Type.FLOAT :
+                v.set_float((float)double.parse(data));
+                break;
+            case Type.DOUBLE :
+                v.set_double(double.parse(data));
                 break;
         }
         this.set_property(name, v);

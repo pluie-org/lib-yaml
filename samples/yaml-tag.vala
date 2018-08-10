@@ -65,10 +65,13 @@ int main (string[] args)
     foreach (var entry in list.entries) {
         of.action ("Getting Hard coded values for Yaml.Object %s".printf (of.c (ECHO.MICROTIME).s (o.type_from_self ())), entry.key);
         if ((o =  entry.value as Yaml.Example)!=null) {
-            of.keyval("type_int"   , "%d".printf(o.type_int));
-            of.keyval("type_bool"  , "%s".printf(o.type_bool.to_string ()));
-            of.keyval("type_char"  , "%c".printf(o.type_char));
-            of.keyval("type_string", "%s".printf(o.type_string));
+            of.keyval("type_int"   , "%d" .printf(o.type_int));
+            of.keyval("type_bool"  , "%s" .printf(o.type_bool.to_string ()));
+            of.keyval("type_char"  , "%c" .printf(o.type_char));
+            of.keyval("type_string", "%s" .printf(o.type_string));
+            of.keyval("type_uchar" , "%u" .printf(o.type_uchar));
+            of.keyval("type_float" , "%f" .printf(o.type_float));
+            of.keyval("type_double", "%f" .printf(o.type_double));
         }
     }
 

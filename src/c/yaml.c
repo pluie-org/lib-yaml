@@ -101,7 +101,6 @@ void yaml_parse_file(const char *srcPath, const char *destPath)
                 break;
 
             case YAML_TAG_DIRECTIVE_TOKEN :
-                printf ("YAML_TAG_DIRECTIVE_TOKEN : handle : %s, prefix : %s\n", token.data.tag_directive.handle, token.data.tag_directive.prefix);
                 fprintf(wh, "%lu, %d, \"%s\", \"%s\"\n", line, token.type, token.data.tag_directive.handle, token.data.tag_directive.prefix);
                 break;
 
