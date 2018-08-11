@@ -8,7 +8,8 @@ So, currently the lib deal only with one yaml document (it's not recommended to 
 but you can use a special `^imports` clause (special mapping node) to load a subset of yaml files 
 in the main yaml document.
 
-the lib does not manage yet tag directives and tag values (planned).  
+The lib partially manage tag directives and tag values (basic types and Yaml.Object extended objects types).
+
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
 
 ![pluie-yaml](https://www.meta-tech.academy/img/pluie-yaml-imports2.png)
@@ -237,6 +238,55 @@ or
 
 -------------------
 
+### Tag Directives & Tag values
+
+an example is available with `samples/yaml-tag.vala` sample
+and `resources/tag.yml` file
+
+on yaml side, proceed like that :
+
+```yaml
+%YAML 1.2
+%TAG !v! tag:pluie.org,2018:vala/
+---
+!v!Pluie.Yaml.Example test1 :
+    myname      : test1object
+    type_int    : !v!int 3306
+    type_bool   : !v!bool false
+    type_char   : !v!char c
+    type_string : !v!string mystring1
+    type_uchar  : !v!uchar L
+    type_uint   : !v!uint 62005
+    type_float  : !v!float 42.36
+    type_double : !v!double 95542123.4579512128
+    !v!Pluie.Yaml.SubExample type_object : 
+        toto : totovalue1
+        tata : tatavalue1
+        titi : 123
+        tutu : 1
+```
+
+on vala side :
+
+```vala
+    ...
+    Yaml.Example obj = (Yaml.Example) Yaml.Object.from_node (root.first ());
+    of.echo("obj.type_int : %d".printf (o.type_int));
+    obj.type_object.method_a ()
+```
+
+![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-ex.png)
+
+code from samples/yaml-tag.vala :
+
+![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-code.png)
+
+output from samples/yaml-tag.vala :
+
+![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-ex2.png)
+
+-------------------
+
 ### more samples
 
 see samples files in ./samples directory
@@ -250,6 +300,6 @@ see samples files in ./samples directory
 * ~~rewrite nodes classes~~
 * ~~put doc online~~
 * ~~add docker image~~
-* manage tag directives & tag
+* manage tag directives & tag (partially done)
 * improve doc
 * dumper

@@ -88,7 +88,17 @@ public abstract class Pluie.Yaml.AbstractNode : GLib.Object
         return node != null && node.uuid == this.uuid;
     }
 
-    public virtual string to_string (bool withIndent = Yaml.DBG_SHOW_INDENT, bool withParent = Yaml.DBG_SHOW_PARENT, bool withUuid = Yaml.DBG_SHOW_UUID, bool withLevel = Yaml.DBG_SHOW_LEVEL, bool withCount = Yaml.DBG_SHOW_COUNT, bool withRefCount = Yaml.DBG_SHOW_REF){
+    public virtual string to_string (
+        bool withIndent   = Yaml.DBG_SHOW_INDENT, 
+        bool withParent   = Yaml.DBG_SHOW_PARENT, 
+        bool withUuid     = Yaml.DBG_SHOW_UUID, 
+        bool withLevel    = Yaml.DBG_SHOW_LEVEL, 
+        bool withCount    = Yaml.DBG_SHOW_COUNT, 
+        bool withRefCount = Yaml.DBG_SHOW_REF, 
+        bool withTag      = Yaml.DBG_SHOW_TAG, 
+        bool withType     = Yaml.DBG_SHOW_TYPE
+    )
+    {
         return "";
     }
     

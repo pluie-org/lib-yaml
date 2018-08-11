@@ -59,12 +59,11 @@ int main (string[] args)
             node = node.next_sibling ();
         }
     }
-    of.echo ("");
     // hard code
-    Yaml.Example? o = new Pluie.Yaml.Example ();
+    Yaml.Example? o = null;
     foreach (var entry in list.entries) {
-        of.action ("Getting Hard coded values for Yaml.Object %s".printf (of.c (ECHO.MICROTIME).s (o.type_from_self ())), entry.key);
-        if ((o =  entry.value as Yaml.Example)!=null) {
+        if ((o =  (Yaml.Example) entry.value)!=null) {
+            of.action ("Getting Hard coded values for Yaml.Object %s".printf (of.c (ECHO.MICROTIME).s (o.type_from_self ())), entry.key);
             of.keyval("type_int"   , "%d" .printf(o.type_int));
             of.keyval("type_bool"  , "%s" .printf(o.type_bool.to_string ()));
             of.keyval("type_char"  , "%c" .printf(o.type_char));
@@ -72,6 +71,12 @@ int main (string[] args)
             of.keyval("type_uchar" , "%u" .printf(o.type_uchar));
             of.keyval("type_float" , "%f" .printf(o.type_float));
             of.keyval("type_double", "%f" .printf(o.type_double));
+            of.keyval("type_object", "%s" .printf(o.type_object.get_type ().name ()));
+            of.keyval("    toto (string)", "%s" .printf(o.type_object.toto));
+            of.keyval("    tapa (string)", "%s" .printf(o.type_object.tata));
+            of.keyval("    titi (int)"   , "%d" .printf(o.type_object.titi));
+            of.keyval("    tutu (bool)"  , "%s" .printf(o.type_object.tutu.to_string ()));
+            o.type_object.method_a ();
         }
     }
 

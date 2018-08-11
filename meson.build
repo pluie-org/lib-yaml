@@ -74,9 +74,11 @@ sources = [
     'src/vala/Pluie/Yaml.Node.vala',
     'src/vala/Pluie/Yaml.Object.vala',
     'src/vala/Pluie/Yaml.Processor.vala',
+    'src/vala/Pluie/Yaml.Root.vala',
     'src/vala/Pluie/Yaml.Scalar.vala',
     'src/vala/Pluie/Yaml.Scanner.vala',
     'src/vala/Pluie/Yaml.Sequence.vala',
+    'src/vala/Pluie/Yaml.SubExample.vala',
     'src/vala/Pluie/Yaml.Tag.vala',
     'src/c/yaml.c'
 ]

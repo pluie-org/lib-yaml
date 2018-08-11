@@ -259,6 +259,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     {
         if (withTitle) {
             of.action ("display_childs", this.name);
+            of.echo ("");
         }
         of.echo (this.to_string ());
         if (!this.empty ()) {
@@ -271,13 +272,22 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     /**
      * get a presentation string of current Yaml.Node
      */
-    public override string to_string (bool withIndent = Yaml.DBG_SHOW_INDENT, bool withParent = Yaml.DBG_SHOW_PARENT, bool withUuid = Yaml.DBG_SHOW_UUID, bool withLevel = Yaml.DBG_SHOW_LEVEL, bool withCount = Yaml.DBG_SHOW_COUNT, bool withRefCount = Yaml.DBG_SHOW_REF)
+    public override string to_string (
+        bool withIndent   = Yaml.DBG_SHOW_INDENT, 
+        bool withParent   = Yaml.DBG_SHOW_PARENT, 
+        bool withUuid     = Yaml.DBG_SHOW_UUID, 
+        bool withLevel    = Yaml.DBG_SHOW_LEVEL, 
+        bool withCount    = Yaml.DBG_SHOW_COUNT, 
+        bool withRefCount = Yaml.DBG_SHOW_REF, 
+        bool withTag      = Yaml.DBG_SHOW_TAG, 
+        bool withType     = Yaml.DBG_SHOW_TYPE
+    )
     {
-        return "%s%s%s%s%s%s%s%s%s%s".printf (
+        return "%s%s%s%s%s%s%s%s%s%s%s".printf (
             this.level == 0 ? "" : of.s_indent ((int8) (withIndent ? (this.level-1)*4 : 0)),
             of.c (ECHO.OPTION).s ("["),
             this.name != null && !this.ntype.is_scalar ()
-                ?  of.c (ECHO.TIME).s ("%s".printf (this.name))
+                ?  of.c (ntype.is_root () ? ECHO.MICROTIME : ECHO.TIME).s ("%s".printf (this.name))
                 : (
                     this.ntype.is_scalar ()
                         ? of.c(ECHO.DATE).s ("%s".printf (this.data))
@@ -285,18 +295,21 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
             ),
             withRefCount ? of.c (ECHO.COMMAND).s ("[%lu]".printf (this.ref_count)) : "",
             !withParent || this.parent == null
-                ? ""
+                ? withLevel ? of.c (ECHO.NUM).s (" %d".printf (this.level)) : ""
                 : of.c (ECHO.SECTION).s (" "+this.parent.name)+(
                     withLevel ? of.c (ECHO.NUM).s (" %d".printf (this.level)) : " "
                 ),
-            of.c (ECHO.OPTION_SEP).s (" %s".printf(
-                !this.ntype.is_mapping () || this.count () >= 1 && !this.first().ntype.is_scalar () ? this.ntype.infos () : NODE_TYPE.SINGLE_PAIR.infos ()
-            )),
-            withCount ? of.c (ECHO.MICROTIME).s (" %d".printf(this.count ())) : "",
+            withType  ? of.c (ECHO.OPTION_SEP).s (" %s".printf(this.ntype.infos ())) : "",
+            withCount && this.ntype.is_collection () ? of.c (ECHO.MICROTIME).s (" %d".printf(this.count ())) : "",
             withUuid  ? of.c (ECHO.COMMENT).s (" %s".printf(this.uuid[0:8]+"...")) : "",
-            this.tag != null ? of.c (ECHO.OPTION_SEP).s (" %s".printf(this.tag.@value)) : "",
-//~             of.c (ECHO.NUM).s ("%d".printf (this.level)),
-            of.c (ECHO.OPTION).s ("]")
+            this.tag != null && withTag
+                ? " %s%s".printf (
+                    of.c (ECHO.TITLE).s (" %s ".printf(this.tag.handle)), 
+                    of.c (ECHO.DEFAULT).s (" %s".printf(this.tag.value))
+                )
+                : "",
+            of.c (ECHO.OPTION).s ("]"),
+            withTag && this.ntype.is_root () ? (this as Yaml.Root).get_display_tag_directives () : ""
         );
     }
 }

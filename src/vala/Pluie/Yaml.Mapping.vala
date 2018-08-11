@@ -55,7 +55,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
      */
     public Mapping.with_scalar (Yaml.Node? parent = null, string? name = null, string? data = null)
     {
-        base (parent, NODE_TYPE.MAPPING, name);
+        base (parent, NODE_TYPE.SINGLE_PAIR, name);
         var s = new Scalar (null, data);
         this.add (s);
     }
@@ -90,6 +90,9 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     {
         base.on_added (child);
         if (this.keys != null) {
+            if (!this.ntype.is_single_pair () && this.keys.size == 0 && child.ntype.is_scalar ()) {
+                this.ntype = Yaml.NODE_TYPE.SINGLE_PAIR;
+            }
             this.keys.add(child.name);
         }
     }

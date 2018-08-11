@@ -32,11 +32,13 @@ namespace Pluie
     namespace Yaml
     {
         public static bool DBG_SHOW_INDENT = true;
-        public static bool DBG_SHOW_PARENT = true;
+        public static bool DBG_SHOW_PARENT = false;
         public static bool DBG_SHOW_UUID   = true;
-        public static bool DBG_SHOW_LEVEL  = true;
-        public static bool DBG_SHOW_REF    = true;
+        public static bool DBG_SHOW_LEVEL  = false;
+        public static bool DBG_SHOW_REF    = false;
         public static bool DBG_SHOW_COUNT  = true;
+        public static bool DBG_SHOW_TAG    = true;
+        public static bool DBG_SHOW_TYPE   = true;
 
         /**
          * ParseError 

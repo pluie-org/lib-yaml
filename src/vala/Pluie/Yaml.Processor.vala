@@ -87,11 +87,6 @@ public class Pluie.Yaml.Processor
     Gee.HashMap<string, Yaml.Node>    anchors          { get; internal set; }
 
     /**
-     * Tags map definition
-     */
-    Gee.HashMap<string, string>       tags             { get; internal set; }
-
-    /**
      * Error event
      */
     Yaml.Event?                       event            { get; internal set; }
@@ -104,7 +99,7 @@ public class Pluie.Yaml.Processor
     /**
      * the root Yaml.Node
      */
-    public Yaml.Node                  root;
+    public Yaml.Root                  root;
 
     /**
      * current previous Yaml.Node
@@ -133,7 +128,6 @@ public class Pluie.Yaml.Processor
     {
         this.events  = new Gee.ArrayList<Yaml.Event>();
         this.anchors = new Gee.HashMap<string, Yaml.Node>();
-        this.tags    = new Gee.HashMap<string, string>();
     }
 
     /**
@@ -214,8 +208,7 @@ public class Pluie.Yaml.Processor
      */
     private void reset ()
     {
-        this.root         = new Yaml.Mapping (null, "PluieYamlRoot");
-        this.root.ntype   = Yaml.NODE_TYPE.ROOT;
+        this.root         = new Yaml.Root ();
         this.prev_node    = this.root; 
         this.parent_node  = this.root;
         this.iterator     = this.events.iterator ();
@@ -273,7 +266,7 @@ public class Pluie.Yaml.Processor
     {
         if (Yaml.Scanner.DEBUG) 
             of.action ("on_tag_directive %s".printf (this.event.data["handle"]), this.event.data["prefix"]);
-        this.tags[this.event.data["handle"]] = this.event.data["prefix"];
+        this.root.tag_directives[this.event.data["handle"]] = this.event.data["prefix"];
     }
 
     /**
@@ -318,8 +311,8 @@ public class Pluie.Yaml.Processor
         if (this.event.evtype.is_tag ()) {
             if (Yaml.Scanner.DEBUG)
                 of.keyval ("tag %s".printf (this.event.data["handle"]), this.event.data["suffix"]);
-            if (this.tags.has_key (this.event.data["handle"])) {
-                var tag = new Yaml.Tag (this.event.data["suffix"], this.tags[this.event.data["handle"]]);
+            if (this.root.tag_directives.has_key (this.event.data["handle"])) {
+                var tag = new Yaml.Tag (this.event.data["suffix"], this.event.data["handle"].replace("!", ""));
                 if (onKey) 
                     this.keyTag = tag;
                 else

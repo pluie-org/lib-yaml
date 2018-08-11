@@ -34,7 +34,18 @@ using Gee;
  */
 public abstract class Pluie.Yaml.Object : GLib.Object
 {
+    /**
+     *
+     */
     private static GLib.Module? p_module;
+
+    /**
+     *
+     */
+    public virtual void yaml_init ()
+    {
+        Dbg.msg ("Yaml.Object (%s) instantiated".printf (this.type_from_self ()), Log.LINE, Log.FILE);
+    }
 
     /**
      *
@@ -135,17 +146,17 @@ public abstract class Pluie.Yaml.Object : GLib.Object
                     if (Yaml.Scanner.DEBUG) of.echo ("object type founded : %s".printf (type.to_string ()));
                     obj = (Yaml.Object) GLib.Object.new (type);
                     if (node!= null && !node.empty ()) {
-                        GLib.ParamSpec? def = null;
-                        Yaml.Node?    snode = null;
+                        GLib.ParamSpec?  def = null;
+                        Yaml.Node?    scalar = null;
                         foreach (var child in node) {
                             if ((def = obj.get_class ().find_property (child.name)) != null) {
-                                if ((snode = child.first ()) != null) {
-                                    if (snode.tag != null) {
-                                        obj.set_from_scalar (def.name, def.value_type, snode);
+                                if (child.ntype.is_single_pair ()) {
+                                    if ((scalar = child.first ()) != null) {
+                                        obj.set_from_scalar (def.name, def.value_type, scalar);
                                     }
-                                    else {
-                                        obj.set (child.name, snode.data);
-                                    }
+                                }
+                                else if (child.ntype.is_mapping ()) {
+                                    obj.set (child.name, from_node(child));
                                 }
                             }
                         }
@@ -159,6 +170,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
         catch (GLib.Error e) {
             of.warn (e.message);
         }
+        obj.yaml_init ();
         return obj;
     }
 
@@ -185,7 +197,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
                 v.set_uchar((uint8)data.data[0]);
                 break;
             case Type.BOOLEAN :
-                v.set_boolean (bool.parse(data.down ()));
+                v.set_boolean (data == "1" || data.down () == "true");
                 break;
             case Type.INT :
                 v.set_int(int.parse(data));
