@@ -26,7 +26,7 @@
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-project('libpluie-yaml', 'vala', 'c')
+project('libpluie-yaml', 'vala', 'c', version:'0.4')
 
 cc            = meson.get_compiler('c')
 dep_glib      = dependency('glib-2.0')
@@ -97,6 +97,7 @@ libpluie_yaml = library(
     vala_vapi    : 'pluie-yaml-' +version+'.vapi',
     dependencies : [dep_glib, dep_gobject, dep_gmodule, dep_gio, dep_gee, dep_echo, dep_m, dep_yaml],
     install      : true,
+    version      : version,
     install_dir  : [get_option('libdir'), incdir, true]
 )
 
