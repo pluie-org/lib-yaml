@@ -58,6 +58,7 @@ public class Pluie.Yaml.Example : Yaml.Object
     public uint64          type_uint64   { get; set; }
     public bool            type_bool     { get; set; }
     public Yaml.SubExample type_object   { get; set; }
+    public Yaml.NODE_TYPE  type_enum     { get; set; }
 
     /**
      *

@@ -185,41 +185,66 @@ public abstract class Pluie.Yaml.Object : GLib.Object
             of.action("Auto setting property value %s".printf (of.c (ECHO.MICROTIME).s (type.name ())), name);
             of.echo (data);
         }
-        switch (type)
-        {
-            case Type.STRING :
-                v.set_string(data);
-                break;
-            case Type.CHAR :
-                v.set_schar((int8)data.data[0]);
-                break;
-            case Type.UCHAR :
-                v.set_uchar((uint8)data.data[0]);
-                break;
-            case Type.BOOLEAN :
-                v.set_boolean (data == "1" || data.down () == "true");
-                break;
-            case Type.INT :
-                v.set_int(int.parse(data));
-                break;
-            case Type.UINT :
-                v.set_uint((uint)long.parse(data));
-                break;
-            case Type.LONG :
-            case Type.INT64 :
-                v.set_long((long)int64.parse(data));
-                break;
-            case Type.ULONG :
-            case Type.UINT64 :
-                v.set_ulong((ulong)uint64.parse(data));
-                break;
-            case Type.FLOAT :
-                v.set_float((float)double.parse(data));
-                break;
-            case Type.DOUBLE :
-                v.set_double(double.parse(data));
-                break;
+        if (type.is_a(Type.ENUM)) {
+            this.set_enum_value (ref v, type, data);
+        }
+        else {
+            switch (type)
+            {
+                case Type.STRING :
+                    v.set_string(data);
+                    break;
+                case Type.CHAR :
+                    v.set_schar((int8)data.data[0]);
+                    break;
+                case Type.UCHAR :
+                    v.set_uchar((uint8)data.data[0]);
+                    break;
+                case Type.BOOLEAN :
+                    v.set_boolean (data == "1" || data.down () == "true");
+                    break;
+                case Type.INT :
+                    v.set_int(int.parse(data));
+                    break;
+                case Type.UINT :
+                    v.set_uint((uint)long.parse(data));
+                    break;
+                case Type.LONG :
+                case Type.INT64 :
+                    v.set_long((long)int64.parse(data));
+                    break;
+                case Type.ULONG :
+                case Type.UINT64 :
+                    v.set_ulong((ulong)uint64.parse(data));
+                    break;
+                case Type.FLOAT :
+                    v.set_float((float)double.parse(data));
+                    break;
+                case Type.DOUBLE :
+                    v.set_double(double.parse(data));
+                    break;
+            }
         }
         this.set_property(name, v);
+    }
+
+    /**
+     *
+     */
+    public void set_enum_value (ref Value v, GLib.Type type, string data)
+    {
+        EnumClass eclass = (EnumClass) type.class_ref();
+        unowned EnumValue? evalue = eclass.get_value_by_name(data);
+        if (evalue == null) {
+            evalue = eclass.get_value_by_nick(data.down());
+            int64 e = 0;
+            if(evalue == null) {
+                if(!int64.try_parse(data, out e)) {
+                    Dbg.error ("invalid enum value %s".printf(data), Log.METHOD, Log.LINE);
+                }
+            }
+            e = evalue.value;
+            v.set_enum((int)e);
+        }
     }
 }

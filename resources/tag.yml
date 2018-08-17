@@ -12,6 +12,7 @@
     type_uint   : !v!uint 62005
     type_float  : !v!float 42.36
     type_double : !v!double 95542123.4579512128
+    type_enum   : !v!Pluie.Yaml.NODE_TYPE SCALAR
     !v!Pluie.Yaml.SubExample type_object : 
         toto : totovalue1
         tata : tatavalue1
