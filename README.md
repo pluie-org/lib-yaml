@@ -17,7 +17,26 @@ The lib partially manage tag directives and tag values (basic types and Yaml.Obj
 _legend display_childs_ :
 
 ```
-[ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid ]
+[ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid  node.tag]
+```
+
+You can easily manage display tracing of yaml nodes by setting these var according to your needs :
+
+```vala
+namespace Pluie
+{
+    namespace Yaml
+    {
+        public static bool DEBUG           = false;
+
+        public static bool DBG_SHOW_INDENT = true;
+        public static bool DBG_SHOW_PARENT = false;
+        public static bool DBG_SHOW_UUID   = true;
+        public static bool DBG_SHOW_LEVEL  = false;
+        public static bool DBG_SHOW_REF    = false;
+        public static bool DBG_SHOW_COUNT  = true;
+        public static bool DBG_SHOW_TAG    = true;
+        public static bool DBG_SHOW_TYPE   = true;
 ```
 
 ## License
@@ -259,11 +278,22 @@ on yaml side, proceed like that :
     type_uint   : !v!uint 62005
     type_float  : !v!float 42.36
     type_double : !v!double 95542123.4579512128
+    type_enum   : !v!Pluie.Yaml.NODE_TYPE scalar # or int
     !v!Pluie.Yaml.ExampleChild type_object : 
         toto : totovalue1
         tata : tatavalue1
         titi : 123
         tutu : 1
+    !v!Pluie.Yaml.ExampleStruct type_struct : 
+        red   : !v!uint8 214
+        green : !v!uint8 78
+        blue  : 153
+    !v!Gee.ArrayList type_gee_al :
+        - ab_1
+        - ab_2
+        - ab_3
+        - ab_4
+
 ```
 
 **note :** 
@@ -277,11 +307,12 @@ on vala side :
 ```vala
     ...
     var obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
-    of.echo("obj.type_int : %d".printf (o.type_int));
+    of.echo("obj.type_int : %d".printf (obj.type_int));
+    // calling ExampleChild method
     obj.type_object.method_a ()
 ```
 
-![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-ex.png)
+![pluie-yaml-tag](https://www.meta-tech.academy/img/pluie-yaml-tag-directives-yaml-node.png?tmp=2)
 
 ### Builder
 
@@ -304,7 +335,7 @@ public class Example : Yaml.Object
     ...
 ```
 
-Secondly you must override the `Yaml.Object populate_by_type (Glib.Typem Yaml.Node node)` original method.  
+Secondly you must override the `Yaml.Object populate_by_type (Glib.Type, Yaml.Node node)` original method.  
 `populate_by_type` is called by the Yaml.Builder only if the type property is prealably registered.
 
 Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
@@ -325,7 +356,8 @@ Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
         }
     }
 ```
-
+Once your class has this glue, you can deal with complex object and populate them
+directly from yaml files.
 
 for more details see :
 * `src/vala/Pluie/Yaml.Example.vala`
@@ -335,11 +367,11 @@ for more details see :
 
 code from samples/yaml-tag.vala :
 
-![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-code.png)
+![pluie-yaml-tag](https://www.meta-tech.academy/img/pluie-yaml-sample-tag-code.png)
 
 output from samples/yaml-tag.vala :
 
-![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-ex2.png)
+![pluie-yaml-tag](https://www.meta-tech.academy/img/pluie-yaml-sample-tag-output.png?tmp=53)
 
 -------------------
 

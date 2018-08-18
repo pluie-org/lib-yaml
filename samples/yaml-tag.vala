@@ -44,8 +44,7 @@ int main (string[] args)
     var config = new Yaml.Config (path, true);
     var root   = config.root_node ();
     root.display_childs ();
-    // define a map with base Yaml.Object type rather than target type
-    Gee.HashMap<string, Yaml.Object> list = new Gee.HashMap<string, Yaml.Object> ();
+    var list = new Gee.HashMap<string, Yaml.Object> ();
     if ((done = root != null)) {
         foreach (var node in root) {
             of.action ("Yaml.Object from node", node.name);
