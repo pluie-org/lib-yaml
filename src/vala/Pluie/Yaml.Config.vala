@@ -1,7 +1,8 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
- *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.4
+ *  @software  : pluie-yaml  <https://git.pluie.org/pluie/lib-yaml>
+ *  @version   : 0.5
+ *  @type      : library
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -9,20 +10,20 @@
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
- *  This file is part of lib-yaml.
+ *  This file is part of pluie-yaml.
  *  
- *  lib-yaml is free software (free as in speech) : you can redistribute it
+ *  pluie-yaml is free software (free as in speech) : you can redistribute it
  *  and/or modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, either version 3 of the License,
  *  or (at your option) any later version.
  *  
- *  lib-yaml is distributed in the hope that it will be useful, but WITHOUT
+ *  pluie-yaml is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  *  more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with lib-yaml.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with pluie-yaml.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
@@ -144,9 +145,7 @@ public class Pluie.Yaml.Config
                 subnode.parent = null;
                 n.add(subnode);
             }
-//~             root.add (n);
         }
-//~         root.update_level();
     }
 
     /**
@@ -175,7 +174,7 @@ public class Pluie.Yaml.Config
         foreach (var v in this.varmap.entries) {
             if (v.key != "path") {
                 this.paths[key] = val.replace ("^%s^".printf (v.key), v.value);
-                if (Yaml.Scanner.DEBUG) of.keyval (key, this.paths[key]);
+                Yaml.dbg_keyval (key, this.paths[key]);
             }
         }
     }

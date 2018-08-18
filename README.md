@@ -17,7 +17,26 @@ The lib partially manage tag directives and tag values (basic types and Yaml.Obj
 _legend display_childs_ :
 
 ```
-[ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid ]
+[ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid  node.tag]
+```
+
+You can easily manage display tracing of yaml nodes by setting these var according to your needs :
+
+```vala
+namespace Pluie
+{
+    namespace Yaml
+    {
+        public static bool DEBUG           = false;
+
+        public static bool DBG_SHOW_INDENT = true;
+        public static bool DBG_SHOW_PARENT = false;
+        public static bool DBG_SHOW_UUID   = true;
+        public static bool DBG_SHOW_LEVEL  = false;
+        public static bool DBG_SHOW_REF    = false;
+        public static bool DBG_SHOW_COUNT  = true;
+        public static bool DBG_SHOW_TAG    = true;
+        public static bool DBG_SHOW_TYPE   = true;
 ```
 
 ## License
@@ -46,23 +65,24 @@ sudo ninja install -C build
 valac  --pkg pluie-echo-0.2 --pkg pluie-yaml-0.4 main.vala
 ```
 
-you can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile samples files
+You can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile samples files
 
 
 ## Api / Documentation
 
-https://pluie.org/pluie-yaml-0.4/index.htm  
+https://pluie.org/pluie-yaml-0.5/index.htm  
 
 
 ## Docker
 
-a demo image is now available on docker hub. To run a container  :
+A demo image is now available on docker hub. To run a container  :
 
 ```
 docker run --rm -it pluie/libyaml
 ```
 
-then you can execute any samples, for example :
+Then you can execute any samples, for example :
+
 ```
 ./json-loader
 ```
@@ -125,7 +145,7 @@ load a single document.
 ```vala
     var path   = "./config/main.yml";
     // uncomment to enable debug
-    // Pluie.Yaml.Scanner.DEBUG = true;
+    // Pluie.Yaml.DEBUG = true;
     var loader = new Yaml.Loader (path /* , displayFile, displayNode */);
     if ((done = loader.done)) {
         Yaml.Node root = loader.get_nodes ();
@@ -136,7 +156,7 @@ load a single document.
 
 ### finder
 
-**lib-yaml** provide a `Yaml.Finder` to easily retriew a particular yaml node.  
+**pluie-yaml** provide a `Yaml.Finder` to easily retriew a particular yaml node.  
 Search path definition has two mode.  
 The default mode is `Yaml.FIND_MODE.DOT`  
 - child mapping node are separated by dot
@@ -259,31 +279,100 @@ on yaml side, proceed like that :
     type_uint   : !v!uint 62005
     type_float  : !v!float 42.36
     type_double : !v!double 95542123.4579512128
-    !v!Pluie.Yaml.SubExample type_object : 
+    type_enum   : !v!Pluie.Yaml.NODE_TYPE scalar # or int
+    !v!Pluie.Yaml.ExampleChild type_object : 
         toto : totovalue1
         tata : tatavalue1
         titi : 123
         tutu : 1
+    !v!Pluie.Yaml.ExampleStruct type_struct : 
+        red   : !v!uint8 214
+        green : !v!uint8 78
+        blue  : 153
+    !v!Gee.ArrayList type_gee_al :
+        - ab_1
+        - ab_2
+        - ab_3
+        - ab_4
+
 ```
+
+**note :** 
+only the first level of yaml node matching a vala object need a tag.
+**pluie-yaml** has mechanisms to retriew properties types of a Yaml.Object.
+So basic vala types tag, enum tag, struct tag and derived Yaml.Object (here ExampleChild) 
+or GLib.Object vala tags are not necessary inside a Yaml.Object.
 
 on vala side :
 
 ```vala
     ...
-    Yaml.Example obj = (Yaml.Example) Yaml.Object.from_node (root.first ());
-    of.echo("obj.type_int : %d".printf (o.type_int));
+    var obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+    of.echo("obj.type_int : %d".printf (obj.type_int));
+    // calling ExampleChild method
     obj.type_object.method_a ()
 ```
 
-![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-ex.png)
+![pluie-yaml-tag](https://www.meta-tech.academy/img/pluie-yaml-tag-directives-yaml-node.png?tmp=2)
+
+### Builder
+
+**pluie-yaml** provide a Yaml.Builder which has automatic mechanisms to build Yaml.Object instances (and derived classes)
+and set basics types properties, enum properties and based Yaml.Object properties from Yaml.node.
+
+Other types like struct or native GLib.Object (Gee.ArrayList for example) properties need some stuff in order to be populated appropriately  
+We cannot do introspection on Structure's properties, so you need to implement a method which will do the job.
+
+First at all, in the static construct of your class, you need to register (properties) types that need some glue for instanciation.
+
+```vala
+public class Example : Yaml.Object
+{
+    static construct
+    {
+        Yaml.Object.register.add_type (typeof (Example), typeof (ExampleStruct));
+        Yaml.Object.register.add_type (typeof (Example), typeof (Gee.ArrayList));
+    }
+    ...
+```
+
+Secondly you must override the `Yaml.Object populate_by_type (Glib.Type, Yaml.Node node)` original method.  
+`populate_by_type` is called by the Yaml.Builder only if the type property is prealably registered.
+
+Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
+
+```vala
+    public override void populate_by_type(GLib.Type type, Yaml.Node node)
+    {
+        if (type == typeof (Yaml.ExampleStruct)) {
+            this.type_struct = ExampleStruct.from_yaml_node (node);
+        }
+        else if (type == typeof (Gee.ArrayList)) {
+            this.type_gee_al = new Gee.ArrayList<string> ();
+            if (!node.empty ()) {
+                foreach (var child in node) {
+                    this.type_gee_al.add(child.data);
+                }
+            }
+        }
+    }
+```
+Once your class has this glue, you can deal with complex object and populate them
+directly from yaml files.
+
+for more details see :
+* `src/vala/Pluie/Yaml.Example.vala`
+* `src/vala/Pluie/Yaml.ExampleChild.vala`
+* `src/vala/Pluie/Yaml.ExampleStruct.vala`
+* `samples/yaml-tag.vala`
 
 code from samples/yaml-tag.vala :
 
-![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-code.png)
+![pluie-yaml-tag](https://www.meta-tech.academy/img/pluie-yaml-sample-tag-code.png)
 
 output from samples/yaml-tag.vala :
 
-![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-ex2.png)
+![pluie-yaml-tag](https://www.meta-tech.academy/img/pluie-yaml-sample-tag-output.png?tmp=53)
 
 -------------------
 

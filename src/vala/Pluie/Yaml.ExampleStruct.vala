@@ -28,28 +28,32 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
-/**
- * a class representing a stream mark recording a line and it's position in the stream
- * to permit future rewind @see Io.Reader
- */
-public class Pluie.Io.StreamLineMark
+public struct Pluie.Yaml.ExampleStruct
 {
-    /**
-     * current line
-     */
-    public int     line { get; internal set; default = 0; }
-    /**
-     * current position (stream.tell value)
-     */
-    public int64   pos  { get; internal set; default = 0; }
-
-    /**
-     * construct a StreamLineMark with given pos & line
-     */
-    public StreamLineMark (int64 pos, int line)
+    public uint red;
+    public uint green;
+    public uint blue;
+    public static ExampleStruct from_yaml_node (Yaml.Node node)
     {
-        this.pos  = pos;
-        this.line = line;
+        var s = ExampleStruct ();
+        foreach (var child in node) {
+            var v = child.val (typeof (uint));
+            switch (child.name) {
+                case "red" :
+                    s.red   = v.get_uint ();
+                    break;
+                case "green" :
+                    s.green = v.get_uint ();
+                    break;
+                case "blue" :
+                    s.blue  = v.get_uint ();
+                    break;
+            }
+        }
+        return s;
     }
-
+    public string to_string ()
+    {
+        return "%s(red:%u,green:%u,blue:%u)".printf ((typeof (ExampleStruct)).name (), this.red, this.green, this.blue);
+    }
 }

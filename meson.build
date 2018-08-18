@@ -1,7 +1,8 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-#  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
-#  @version   : 0.4
+#  @software  : pluie-yaml  <https://git.pluie.org/pluie/lib-yaml>
+#  @version   : 0.5
+#  @type      : library
 #  @date      : 2018
 #  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
 #  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -9,24 +10,24 @@
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-#  This file is part of lib-yaml.
+#  This file is part of pluie-yaml.
 #  
 #  lib-yaml is free software (free as in speech) : you can redistribute it
 #  and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation, either version 3 of the License,
 #  or (at your option) any later version.
 #  
-#  lib-yaml is distributed in the hope that it will be useful, but WITHOUT
+#  pluie-yaml is distributed in the hope that it will be useful, but WITHOUT
 #  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 #  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 #  more details.
 #  
 #  You should have received a copy of the GNU General Public License
-#  along with lib-yaml.  If not, see <http://www.gnu.org/licenses/>.
+#  along with pluie-yaml.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-project('libpluie-yaml', 'vala', 'c', version:'0.4')
+project('libpluie-yaml', 'vala', 'c', version:'0.5')
 
 cc            = meson.get_compiler('c')
 dep_glib      = dependency('glib-2.0')
@@ -40,7 +41,7 @@ dep_yaml      = cc.find_library('yaml', required : true)
 
 #~ add_global_link_arguments('-lyaml', language : 'c')
 
-version       = '0.4'
+version       = '0.5'
 bindir        = join_paths(get_option('prefix'), get_option('bindir'))
 datadir       = join_paths(get_option('prefix'), get_option('datadir'), 'pluie/yaml')
 libdir        = join_paths(get_option('prefix'), get_option('libdir'), 'pkgconfig')
@@ -64,21 +65,24 @@ sources = [
     'src/vala/Pluie/Yaml.global.vala',
     'src/vala/Pluie/Yaml.AbstractChild.vala',
     'src/vala/Pluie/Yaml.AbstractNode.vala',
+    'src/vala/Pluie/Yaml.Builder.vala',
     'src/vala/Pluie/Yaml.Collection.vala',
     'src/vala/Pluie/Yaml.Config.vala',
     'src/vala/Pluie/Yaml.Event.vala',
     'src/vala/Pluie/Yaml.Example.vala',
+    'src/vala/Pluie/Yaml.ExampleChild.vala',
+    'src/vala/Pluie/Yaml.ExampleStruct.vala',
     'src/vala/Pluie/Yaml.Finder.vala',
     'src/vala/Pluie/Yaml.Loader.vala',
     'src/vala/Pluie/Yaml.Mapping.vala',
     'src/vala/Pluie/Yaml.Node.vala',
     'src/vala/Pluie/Yaml.Object.vala',
     'src/vala/Pluie/Yaml.Processor.vala',
+    'src/vala/Pluie/Yaml.Register.vala',
     'src/vala/Pluie/Yaml.Root.vala',
     'src/vala/Pluie/Yaml.Scalar.vala',
     'src/vala/Pluie/Yaml.Scanner.vala',
     'src/vala/Pluie/Yaml.Sequence.vala',
-    'src/vala/Pluie/Yaml.SubExample.vala',
     'src/vala/Pluie/Yaml.Tag.vala',
     'src/c/yaml.c'
 ]

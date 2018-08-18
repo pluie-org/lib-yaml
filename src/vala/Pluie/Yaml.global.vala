@@ -1,7 +1,8 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
- *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.4
+ *  @software  : pluie-yaml  <https://git.pluie.org/pluie/lib-yaml>
+ *  @version   : 0.5
+ *  @type      : library
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -9,20 +10,20 @@
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
- *  This file is part of lib-yaml.
+ *  This file is part of pluie-yaml.
  *  
- *  lib-yaml is free software (free as in speech) : you can redistribute it
+ *  pluie-yaml is free software (free as in speech) : you can redistribute it
  *  and/or modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, either version 3 of the License,
  *  or (at your option) any later version.
  *  
- *  lib-yaml is distributed in the hope that it will be useful, but WITHOUT
+ *  pluie-yaml is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  *  more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with lib-yaml.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with pluie-yaml.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
@@ -31,6 +32,8 @@ namespace Pluie
 {
     namespace Yaml
     {
+        public static bool DEBUG           = false;
+
         public static bool DBG_SHOW_INDENT = true;
         public static bool DBG_SHOW_PARENT = false;
         public static bool DBG_SHOW_UUID   = true;
@@ -39,6 +42,38 @@ namespace Pluie
         public static bool DBG_SHOW_COUNT  = true;
         public static bool DBG_SHOW_TAG    = true;
         public static bool DBG_SHOW_TYPE   = true;
+
+        /**
+         *
+         */
+        public static void dbg_action (string msg, string? val = null)
+        {
+            if (Pluie.Yaml.DEBUG) of.action (msg, val);
+        }
+
+        /**
+         *
+         */
+        public static void dbg_keyval (string key, string val)
+        {
+            if (Pluie.Yaml.DEBUG) of.keyval (key, val);
+        }
+
+        /**
+         *
+         */
+        public static void dbg_state (bool done)
+        {
+            if (Pluie.Yaml.DEBUG) of.state (done);
+        }
+
+        /**
+         *
+         */
+        public static void dbg (string? msg = null)
+        {
+            if (Pluie.Yaml.DEBUG && msg != null) of.echo (msg);
+        }
 
         /**
          * ParseError 

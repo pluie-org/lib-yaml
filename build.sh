@@ -1,8 +1,9 @@
 #!/bin/bash
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-#  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
-#  @version   : 0.4
+#  @software  : pluie-yaml  <https://git.pluie.org/pluie/lib-yaml>
+#  @version   : 0.5
+#  @type      : library
 #  @date      : 2018
 #  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
 #  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -10,9 +11,9 @@
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-#  This file is part of lib-yaml.
+#  This file is part of pluie-yaml.
 #  
-#  lib-yaml is free software (free as in speech) : you can redistribute it
+#  pluie-yaml is free software (free as in speech) : you can redistribute it
 #  and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation, either version 3 of the License,
 #  or (at your option) any later version.
@@ -23,14 +24,14 @@
 #  more details.
 #  
 #  You should have received a copy of the GNU General Public License
-#  along with lib-yaml.  If not, see <http://www.gnu.org/licenses/>.
+#  along with pluie-yaml.  If not, see <http://www.gnu.org/licenses/>.
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 
 # --------------------------------------------------------
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-lib="pluie-yaml-0.4"
+lib="pluie-yaml-0.5"
  c1="\033[1;38;5;215m"
  c2="\033[1;38;5;97m"
 cok="\033[1;38;5;37m"

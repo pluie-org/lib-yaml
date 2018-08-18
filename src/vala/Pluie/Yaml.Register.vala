@@ -28,28 +28,67 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
+using GLib;
+using Pluie;
+using Gee;
+
 /**
- * a class representing a stream mark recording a line and it's position in the stream
- * to permit future rewind @see Io.Reader
+ * a class registering type which could be populated
  */
-public class Pluie.Io.StreamLineMark
+public class Pluie.Yaml.Register : GLib.Object
 {
     /**
-     * current line
+     *
      */
-    public int     line { get; internal set; default = 0; }
-    /**
-     * current position (stream.tell value)
-     */
-    public int64   pos  { get; internal set; default = 0; }
+    public static Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> reg { get; internal set; }
 
     /**
-     * construct a StreamLineMark with given pos & line
+     *
      */
-    public StreamLineMark (int64 pos, int line)
-    {
-        this.pos  = pos;
-        this.line = line;
+    static construct {
+        Yaml.Register.reg = new Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> ();
     }
 
+    /**
+     *
+     */
+    private Gee.ArrayList<GLib.Type> init_type_list ()
+    {
+        return new Gee.ArrayList<GLib.Type> ();
+    }
+
+    /**
+     *
+     */
+    public Gee.ArrayList<GLib.Type>? get_type_list (GLib.Type type)
+    {
+        return reg.get (type);
+    }
+
+    /**
+     *
+     */
+    public bool add_type (GLib.Type type, GLib.Type addedType)
+    {
+        if (!this.is_registered (type)) {
+            reg.set (type, this.init_type_list ());
+        }
+        return reg.get (type).add (addedType);
+    }
+
+    /**
+     *
+     */
+    public bool is_registered (GLib.Type type)
+    {
+        return reg.has_key (type);
+    }
+
+    /**
+     *
+     */
+    public bool is_registered_type (GLib.Type type, GLib.Type checktype)
+    {
+        return this.is_registered (type) && reg.get (type).contains (checktype);
+    }
 }

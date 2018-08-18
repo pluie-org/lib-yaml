@@ -1,7 +1,8 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
- *  @software  : lib-yaml    <https://git.pluie.org/pluie/lib-yaml>
- *  @version   : 0.4
+ *  @software  : pluie-yaml  <https://git.pluie.org/pluie/lib-yaml>
+ *  @version   : 0.5
+ *  @type      : library
  *  @date      : 2018
  *  @licence   : GPLv3.0     <http://www.gnu.org/licenses/>
  *  @author    : a-Sansara   <[dev]at[pluie]dot[org]>
@@ -9,20 +10,20 @@
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
- *  This file is part of lib-yaml.
+ *  This file is part of pluie-yaml.
  *  
- *  lib-yaml is free software (free as in speech) : you can redistribute it
+ *  pluie-yaml is free software (free as in speech) : you can redistribute it
  *  and/or modify it under the terms of the GNU General Public License as
  *  published by the Free Software Foundation, either version 3 of the License,
  *  or (at your option) any later version.
  *  
- *  lib-yaml is distributed in the hope that it will be useful, but WITHOUT
+ *  pluie-yaml is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  *  more details.
  *  
  *  You should have received a copy of the GNU General Public License
- *  along with lib-yaml.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with pluie-yaml.  If not, see <http://www.gnu.org/licenses/>.
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
@@ -37,7 +38,6 @@ extern void yaml_parse_file(string srcPath, string destPath);
  */
 public class Pluie.Yaml.Scanner
 {
-    public static bool DEBUG         = false;
     /**
      * Regex pattern use to find EVENT
      */
@@ -143,14 +143,14 @@ public class Pluie.Yaml.Scanner
         this.before_run (path);
         this.processor = new Yaml.Processor ();
         this.done      = false;
-        if (Pluie.Yaml.Scanner.DEBUG) of.action ("Scanning events", path);
+        Yaml.dbg_action ("Scanning events", path);
         while (this.reader.readable) {
             this.scan_event (this.reader.read ());
         }
         this.done = true;
-        if (Pluie.Yaml.Scanner.DEBUG) of.state (this.done);
+        Yaml.dbg_state (this.done);
         this.done = this.done && this.processor.run ();
-        if (Pluie.Yaml.Scanner.DEBUG) of.state (this.done);
+        Yaml.dbg_state (this.done);
         Dbg.out (Log.METHOD, "done:%d".printf ((int)done), Log.LINE, Log.FILE);
         return this.done;
     }

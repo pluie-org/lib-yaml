@@ -1,5 +1,4 @@
 %YAML 1.2
-%TAG !yaml! tag:yaml.org,2002:
 %TAG !v! tag:pluie.org,2018:vala/
 ---
 !v!Pluie.Yaml.Example test1 :
@@ -12,11 +11,21 @@
     type_uint   : !v!uint 62005
     type_float  : !v!float 42.36
     type_double : !v!double 95542123.4579512128
-    !v!Pluie.Yaml.SubExample type_object : 
+    type_enum   : !v!Pluie.Yaml.NODE_TYPE scalar # or int
+    !v!Pluie.Yaml.ExampleChild type_object : 
         toto : totovalue1
         tata : tatavalue1
         titi : 123
         tutu : 1
+    !v!Pluie.Yaml.ExampleStruct type_struct : 
+        red   : !v!uint8 214
+        green : !v!uint8 78
+        blue  : 153
+    !v!Gee.ArrayList type_gee_al :
+        - ab_1
+        - ab_2
+        - ab_3
+        - ab_4
 
 !v!Pluie.Yaml.Example test2 :
     myname      : test2object
@@ -28,7 +37,8 @@
     type_uint   : 63005
     type_float  : 5.28
     type_double : 9.28
-    !v!Pluie.Yaml.SubExample type_object : 
+    type_enum   : PLUIE_YAML_NODE_TYPE_SCALAR
+    !v!Pluie.Yaml.ExampleChild type_object : 
         toto : totovalue2
         tata : tatavalue2
         titi : !v!int 456
