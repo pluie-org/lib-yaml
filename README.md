@@ -65,23 +65,24 @@ sudo ninja install -C build
 valac  --pkg pluie-echo-0.2 --pkg pluie-yaml-0.4 main.vala
 ```
 
-you can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile samples files
+You can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile samples files
 
 
 ## Api / Documentation
 
-https://pluie.org/pluie-yaml-0.4/index.htm  
+https://pluie.org/pluie-yaml-0.5/index.htm  
 
 
 ## Docker
 
-a demo image is now available on docker hub. To run a container  :
+A demo image is now available on docker hub. To run a container  :
 
 ```
 docker run --rm -it pluie/libyaml
 ```
 
-then you can execute any samples, for example :
+Then you can execute any samples, for example :
+
 ```
 ./json-loader
 ```
