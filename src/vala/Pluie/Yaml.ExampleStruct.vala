@@ -27,28 +27,32 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
-using GLib;
-using Gee;
-using Pluie;
-
-int main (string[] args)
+public struct Pluie.Yaml.ExampleStruct
 {
-    Echo.init(false);
-
-    var path     = Yaml.DATA_PATH + "/tag.yml";
-    var done     = false;
-
-    of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.Scanner.DEBUG = true;
-    Yaml.Object? obj = null;
-    var config = new Yaml.Config (path, true);
-    var root   = config.root_node ();
-    root.display_childs ();
-    // define a map with base Yaml.Object type rather than target type
-    obj = Yaml.Object.from_node (root.first()); 
-
-    of.rs (done);
-    of.echo ();
-    return (int) done;
-
+    public uint red;
+    public uint green;
+    public uint blue;
+    public static ExampleStruct from_yaml_node (Yaml.Node node)
+    {
+        var s = ExampleStruct ();
+        foreach (var child in node) {
+            var v = child.val (typeof (uint));
+            switch (child.name) {
+                case "red" :
+                    s.red   = v.get_uint ();
+                    break;
+                case "green" :
+                    s.green = v.get_uint ();
+                    break;
+                case "blue" :
+                    s.blue  = v.get_uint ();
+                    break;
+            }
+        }
+        return s;
+    }
+    public string to_string ()
+    {
+        return "%s(red:%u,green:%u,blue:%u)".printf ((typeof (ExampleStruct)).name (), this.red, this.green, this.blue);
+    }
 }

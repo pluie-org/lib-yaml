@@ -28,26 +28,66 @@
  */
 
 using GLib;
-using Gee;
 using Pluie;
+using Gee;
 
-int main (string[] args)
+/**
+ * a class registering type which could be populated
+ */
+public class Pluie.Yaml.Register : GLib.Object
 {
-    Echo.init(false);
+    /**
+     *
+     */
+    public static Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> reg { get; internal set; }
 
-    var path     = Yaml.DATA_PATH + "/test.yml";
-    var done     = false;
-
-    of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.DEBUG = false;
-    var loader = new Yaml.Loader (path, true, true);
-    if ((done = loader.done)) {
-        var root = loader.get_nodes ();
-        done = root != null; 
+    /**
+     *
+     */
+    static construct {
+        Yaml.Register.reg = new Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> ();
     }
 
-    of.rs (done);
-    of.echo ();
-    return (int) done;
+    /**
+     *
+     */
+    private Gee.ArrayList<GLib.Type> init_type_list ()
+    {
+        return new Gee.ArrayList<GLib.Type> ();
+    }
 
+    /**
+     *
+     */
+    public Gee.ArrayList<GLib.Type>? get_type_list (GLib.Type type)
+    {
+        return reg.get (type);
+    }
+
+    /**
+     *
+     */
+    public bool add_type (GLib.Type type, GLib.Type addedType)
+    {
+        if (!this.is_registered (type)) {
+            reg.set (type, this.init_type_list ());
+        }
+        return reg.get (type).add (addedType);
+    }
+
+    /**
+     *
+     */
+    public bool is_registered (GLib.Type type)
+    {
+        return reg.has_key (type);
+    }
+
+    /**
+     *
+     */
+    public bool is_registered_type (GLib.Type type, GLib.Type checktype)
+    {
+        return this.is_registered (type) && reg.get (type).contains (checktype);
+    }
 }

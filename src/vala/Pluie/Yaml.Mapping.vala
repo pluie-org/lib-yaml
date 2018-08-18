@@ -143,8 +143,12 @@ public class Pluie.Yaml.Mapping : Yaml.Node
         return clone;
     }
 
+    /**
+     *
+     */
     public Gee.ArrayList<string>? child_names ()
     {
         return this.keys;
     }
+
 }

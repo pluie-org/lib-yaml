@@ -144,9 +144,7 @@ public class Pluie.Yaml.Config
                 subnode.parent = null;
                 n.add(subnode);
             }
-//~             root.add (n);
         }
-//~         root.update_level();
     }
 
     /**
@@ -175,7 +173,7 @@ public class Pluie.Yaml.Config
         foreach (var v in this.varmap.entries) {
             if (v.key != "path") {
                 this.paths[key] = val.replace ("^%s^".printf (v.key), v.value);
-                if (Yaml.Scanner.DEBUG) of.keyval (key, this.paths[key]);
+                Yaml.dbg_keyval (key, this.paths[key]);
             }
         }
     }

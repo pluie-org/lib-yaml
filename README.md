@@ -125,7 +125,7 @@ load a single document.
 ```vala
     var path   = "./config/main.yml";
     // uncomment to enable debug
-    // Pluie.Yaml.Scanner.DEBUG = true;
+    // Pluie.Yaml.DEBUG = true;
     var loader = new Yaml.Loader (path /* , displayFile, displayNode */);
     if ((done = loader.done)) {
         Yaml.Node root = loader.get_nodes ();
@@ -136,7 +136,7 @@ load a single document.
 
 ### finder
 
-**lib-yaml** provide a `Yaml.Finder` to easily retriew a particular yaml node.  
+**pluie-yaml** provide a `Yaml.Finder` to easily retriew a particular yaml node.  
 Search path definition has two mode.  
 The default mode is `Yaml.FIND_MODE.DOT`  
 - child mapping node are separated by dot
@@ -270,12 +270,64 @@ on vala side :
 
 ```vala
     ...
-    Yaml.Example obj = (Yaml.Example) Yaml.Object.from_node (root.first ());
+    var obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
     of.echo("obj.type_int : %d".printf (o.type_int));
     obj.type_object.method_a ()
 ```
 
 ![pluie-yaml-tag](https://www.meta-tech.academy/img/libyaml-tag-ex.png)
+
+### Builder
+
+**pluie-yaml** has automatic mechanisms to build Yaml.Object instances (and derived classes)
+and set basics types properties, enum properties and based Yaml.Object properties.
+
+Other types like struct or native GLib.Object (Gee.ArrayList for example) properties need some stuff in order to populate instances appropriately  
+We cannot do introspection on Structure's properties, so you need to implement a method which will do the job.
+
+First at all you need to register in the static construct, (properties) types that need some glue for instanciation.
+
+```vala
+public class Example : Yaml.Object
+{
+    static construct
+    {
+        Yaml.Object.register.add_type (typeof (Example), typeof (ExampleStruct));
+        Yaml.Object.register.add_type (typeof (Example), typeof (Gee.ArrayList));
+    }
+    ...
+```
+
+Secondly you must override the `Yaml.Object populate_by_type (Glib.Typem Yaml.Node node)` original method.  
+`populate_by_type` is called by the Yaml.Builder only if the type property is prealably registered.
+
+Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
+
+```
+    public override void populate_by_type(GLib.Type type, Yaml.Node node)
+    {
+        switch (type) {
+            case typeof (Yaml.ExampleStruct) :
+                this.type_struct = ExampleStruct.from_yaml_node (node);
+                break;
+            case typeof (Gee.ArrayList) :
+                this.type_gee_al = new Gee.ArrayList<string> ();
+                if (!node.empty ()) {
+                    foreach (var child in node) {
+                        this.type_gee_al.add(child.data);
+                    }
+                }
+                break;
+        }
+    }
+```
+
+
+for more details see :
+* `src/vala/Pluie/Yaml.Example.vala`
+* `src/vala/Pluie/Yaml.ExampleChild.vala`
+* `src/vala/Pluie/Yaml.ExampleStruct.vala`
+* `samples/yaml-tag.vala`
 
 code from samples/yaml-tag.vala :
 

@@ -39,7 +39,7 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.Scanner.DEBUG = false;
+    Pluie.Yaml.DEBUG = false;
     Yaml.Object? obj = null;
     var config = new Yaml.Config (path, true);
     var root   = config.root_node ();
@@ -50,7 +50,7 @@ int main (string[] args)
         foreach (var node in root) {
             of.action ("Yaml.Object from node", node.name);
             of.echo (node.to_string (false));
-            if ((obj = Yaml.Object.from_node (node)) != null) {
+            if ((obj = Yaml.Builder.from_node (node)) != null) {
                 list[node.name] = obj;
             }
             else {
@@ -69,14 +69,22 @@ int main (string[] args)
             of.keyval("type_char"  , "%c" .printf(o.type_char));
             of.keyval("type_string", "%s" .printf(o.type_string));
             of.keyval("type_uchar" , "%u" .printf(o.type_uchar));
+            of.keyval("type_uint"  , "%u" .printf(o.type_uint));
             of.keyval("type_float" , "%f" .printf(o.type_float));
             of.keyval("type_double", "%f" .printf(o.type_double));
+            of.keyval("type_struct", "%s" .printf(o.type_struct.to_string ()));
             of.keyval("type_object", "%s" .printf(o.type_object.get_type ().name ()));
-            of.keyval("    toto (string)", "%s" .printf(o.type_object.toto));
-            of.keyval("    tapa (string)", "%s" .printf(o.type_object.tata));
-            of.keyval("    titi (int)"   , "%d" .printf(o.type_object.titi));
-            of.keyval("    tutu (bool)"  , "%s" .printf(o.type_object.tutu.to_string ()));
+            of.keyval("    toto"   , "%s (string)" .printf(o.type_object.toto));
+            of.keyval("    tapa"   , "%s (string)" .printf(o.type_object.tata));
+            of.keyval("    titi"   , "%d (int)"    .printf(o.type_object.titi));
+            of.keyval("    tutu"   , "%s (bool)"   .printf(o.type_object.tutu.to_string ()));
             o.type_object.method_a ();
+            if (o.type_gee_al != null) {
+                of.keyval("type_gee_al", "(%s)" .printf(o.type_gee_al.get_type ().name ()));
+                foreach (string v in o.type_gee_al) {
+                    of.echo("       - item : %s".printf (v));
+                }
+            }
         }
     }
 

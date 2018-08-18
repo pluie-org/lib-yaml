@@ -40,7 +40,7 @@ int main (string[] args)
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
 
-    Pluie.Yaml.Scanner.DEBUG = false;
+    Pluie.Yaml.DEBUG = false;
     var config = new Yaml.Config (path, true);
     var spath  = "^imports";
     var node   = config.get (spath);

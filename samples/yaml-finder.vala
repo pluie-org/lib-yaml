@@ -39,7 +39,7 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-//~     Pluie.Yaml.Scanner.DEBUG = false;
+//~     Pluie.Yaml.DEBUG = false;
     var loader = new Yaml.Loader (path, true);
     if ((done = loader.done)) {
         Yaml.Node root = loader.get_nodes ();

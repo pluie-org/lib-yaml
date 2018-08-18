@@ -251,6 +251,17 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
         return new Yaml.Node (null, this.ntype, name);
     }
 
+    /**
+     *
+     */
+    public GLib.Value val (GLib.Type type)
+    {
+        var v = GLib.Value(type);
+        if (this.ntype.is_single_pair ()) {
+            Yaml.Builder.set_basic_type_value (ref v, type, this.first ().data);
+        }
+        return v;
+    }
 
     /**
      * display childs

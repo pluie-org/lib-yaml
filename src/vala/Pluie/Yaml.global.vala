@@ -31,6 +31,8 @@ namespace Pluie
 {
     namespace Yaml
     {
+        public static bool DEBUG           = false;
+
         public static bool DBG_SHOW_INDENT = true;
         public static bool DBG_SHOW_PARENT = false;
         public static bool DBG_SHOW_UUID   = true;
@@ -39,6 +41,38 @@ namespace Pluie
         public static bool DBG_SHOW_COUNT  = true;
         public static bool DBG_SHOW_TAG    = true;
         public static bool DBG_SHOW_TYPE   = true;
+
+        /**
+         *
+         */
+        public static void dbg_action (string msg, string? val = null)
+        {
+            if (Pluie.Yaml.DEBUG) of.action (msg, val);
+        }
+
+        /**
+         *
+         */
+        public static void dbg_keyval (string key, string val)
+        {
+            if (Pluie.Yaml.DEBUG) of.keyval (key, val);
+        }
+
+        /**
+         *
+         */
+        public static void dbg_state (bool done)
+        {
+            if (Pluie.Yaml.DEBUG) of.state (done);
+        }
+
+        /**
+         *
+         */
+        public static void dbg (string? msg = null)
+        {
+            if (Pluie.Yaml.DEBUG && msg != null) of.echo (msg);
+        }
 
         /**
          * ParseError 

@@ -158,10 +158,8 @@ public class Pluie.Yaml.Processor
      */
     public bool run ()
     {
-        if (Yaml.Scanner.DEBUG) {
-            this.read ();
-            of.action ("Processing events");
-        }
+        if (Yaml.DEBUG) this.read ();
+        Yaml.dbg_action ("Processing events");
         this.reset ();
         for (var has_next = this.iterator.next (); has_next; has_next = this.iterator.next ()) {
             this.event = this.iterator.get ();
@@ -180,7 +178,9 @@ public class Pluie.Yaml.Processor
                 this.on_entry ();
             }
             if (this.beginFlowSeq && this.event.evtype.is_scalar ()) {
-                this.on_scalar (true);
+                if (!this.change) {
+                    this.on_scalar (true);
+                }
                 this.beginFlowSeq = false;
             }
             if (this.event.evtype.is_key () && (this.event = this.get_value_key_event ()) != null) {
@@ -264,8 +264,7 @@ public class Pluie.Yaml.Processor
      */
     private void on_tag_directive ()
     {
-        if (Yaml.Scanner.DEBUG) 
-            of.action ("on_tag_directive %s".printf (this.event.data["handle"]), this.event.data["prefix"]);
+        Yaml.dbg_action ("on_tag_directive %s".printf (this.event.data["handle"]), this.event.data["prefix"]);
         this.root.tag_directives[this.event.data["handle"]] = this.event.data["prefix"];
     }
 
@@ -309,8 +308,7 @@ public class Pluie.Yaml.Processor
     private void on_tag (bool onKey = false)
     {
         if (this.event.evtype.is_tag ()) {
-            if (Yaml.Scanner.DEBUG)
-                of.keyval ("tag %s".printf (this.event.data["handle"]), this.event.data["suffix"]);
+            Yaml.dbg_keyval ("tag %s".printf (this.event.data["handle"]), this.event.data["suffix"]);
             if (this.root.tag_directives.has_key (this.event.data["handle"])) {
                 var tag = new Yaml.Tag (this.event.data["suffix"], this.event.data["handle"].replace("!", ""));
                 if (onKey) 
@@ -444,12 +442,12 @@ public class Pluie.Yaml.Processor
     private void on_update ()
     {
         if (this.node != null) {
-            if (Yaml.Scanner.DEBUG) of.echo (this.node.name);
+            Yaml.dbg (this.node.name);
         }
         if (this.change) {
-            if (Yaml.Scanner.DEBUG) of.action ("on change", this.node.name);
+            Yaml.dbg_action ("on change", this.node.name != null ? this.node.name : this.node.data);
             if (this.keyTag != null) {
-                if (Yaml.Scanner.DEBUG) of.action ("setting tag", this.keyTag.@value);
+                Yaml.dbg_action ("setting tag", this.keyTag.@value);
                 this.node.tag       = this.keyTag;
             }
             else if (this.valueTag != null) {

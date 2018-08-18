@@ -101,7 +101,5 @@ public abstract class Pluie.Yaml.AbstractNode : GLib.Object
     {
         return "";
     }
-    
-    
  
 }

@@ -31,9 +31,8 @@ using Gee;
 
 /**
  * a test class to implements yamlize
-
  */
-public class Pluie.Yaml.Tag : GLib.Object
+public class Pluie.Yaml.Tag
 {
     public string handle    { get; internal set; }
     public string @value    { get; internal set; }

@@ -29,9 +29,8 @@
 
 /**
  * a test class to implements yamlize
-
  */
-public class Pluie.Yaml.SubExample : Yaml.Object
+public class Pluie.Yaml.ExampleChild : Yaml.Object
 {
     public string  toto   { get; set; }
     public string  tata   { get; set; }
