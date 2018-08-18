@@ -259,12 +259,18 @@ on yaml side, proceed like that :
     type_uint   : !v!uint 62005
     type_float  : !v!float 42.36
     type_double : !v!double 95542123.4579512128
-    !v!Pluie.Yaml.SubExample type_object : 
+    !v!Pluie.Yaml.ExampleChild type_object : 
         toto : totovalue1
         tata : tatavalue1
         titi : 123
         tutu : 1
 ```
+
+**note :** 
+only the first level of yaml node matching a vala object need a tag.
+**pluie-yaml** has mechanisms to retriew properties types of a Yaml.Object.
+So basic vala types tag, enum tag, struct tag and derived Yaml.Object (here ExampleChild) 
+or GLib.Object vala tags are not necessary inside a Yaml.Object.
 
 on vala side :
 
@@ -279,13 +285,13 @@ on vala side :
 
 ### Builder
 
-**pluie-yaml** has automatic mechanisms to build Yaml.Object instances (and derived classes)
-and set basics types properties, enum properties and based Yaml.Object properties.
+**pluie-yaml** provide a Yaml.Builder which has automatic mechanisms to build Yaml.Object instances (and derived classes)
+and set basics types properties, enum properties and based Yaml.Object properties from Yaml.node.
 
-Other types like struct or native GLib.Object (Gee.ArrayList for example) properties need some stuff in order to populate instances appropriately  
+Other types like struct or native GLib.Object (Gee.ArrayList for example) properties need some stuff in order to be populated appropriately  
 We cannot do introspection on Structure's properties, so you need to implement a method which will do the job.
 
-First at all you need to register in the static construct, (properties) types that need some glue for instanciation.
+First at all, in the static construct of your class, you need to register (properties) types that need some glue for instanciation.
 
 ```vala
 public class Example : Yaml.Object
@@ -303,21 +309,19 @@ Secondly you must override the `Yaml.Object populate_by_type (Glib.Typem Yaml.No
 
 Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
 
-```
+```vala
     public override void populate_by_type(GLib.Type type, Yaml.Node node)
     {
-        switch (type) {
-            case typeof (Yaml.ExampleStruct) :
-                this.type_struct = ExampleStruct.from_yaml_node (node);
-                break;
-            case typeof (Gee.ArrayList) :
-                this.type_gee_al = new Gee.ArrayList<string> ();
-                if (!node.empty ()) {
-                    foreach (var child in node) {
-                        this.type_gee_al.add(child.data);
-                    }
+        if (type == typeof (Yaml.ExampleStruct)) {
+            this.type_struct = ExampleStruct.from_yaml_node (node);
+        }
+        else if (type == typeof (Gee.ArrayList)) {
+            this.type_gee_al = new Gee.ArrayList<string> ();
+            if (!node.empty ()) {
+                foreach (var child in node) {
+                    this.type_gee_al.add(child.data);
                 }
-                break;
+            }
         }
     }
 ```
