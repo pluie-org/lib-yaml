@@ -27,12 +27,27 @@
  * 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
-
+/**
+ *
+ */
 public struct Pluie.Yaml.ExampleStruct
 {
+    /**
+     *
+     */
     public uint red;
+    /**
+     *
+     */
     public uint green;
+    /**
+     *
+     */
     public uint blue;
+
+    /**
+     *
+     */
     public static ExampleStruct from_yaml_node (Yaml.Node node)
     {
         var s = ExampleStruct ();
@@ -52,6 +67,10 @@ public struct Pluie.Yaml.ExampleStruct
         }
         return s;
     }
+
+    /**
+     *
+     */
     public string to_string ()
     {
         return "%s(red:%u,green:%u,blue:%u)".printf ((typeof (ExampleStruct)).name (), this.red, this.green, this.blue);

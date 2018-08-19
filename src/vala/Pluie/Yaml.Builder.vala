@@ -131,6 +131,7 @@ public class Pluie.Yaml.Builder
                 Yaml.dbg_action ("vala type founded", "%s (%s)".printf (type.name (), type.to_string ()));
                 if (type.is_object ()) {
                     obj = (Yaml.Object) GLib.Object.new (type);
+                    obj.set ("yaml_name", node.name);
                     if (node!= null && !node.empty ()) {
                         GLib.ParamSpec?  def = null;
                         Yaml.Node?    scalar = null;
@@ -174,7 +175,7 @@ public class Pluie.Yaml.Builder
         }
         else if (Yaml.Object.register.is_registered_type(parentType, type)) {
             Yaml.dbg ("%s is a registered type".printf (type.name ()));
-            obj.populate_by_type (type, node);
+            obj.populate_from_node (type, node);
         }
         else {
             Dbg.error ("%s is not registered and cannot be populated".printf (type.name ()), Log.METHOD, Log.LINE);
@@ -241,6 +242,58 @@ public class Pluie.Yaml.Builder
     /**
      *
      */
+    public static string? get_basic_type_value (GLib.Object obj, GLib.Type type, string name)
+    {
+        GLib.Value v = GLib.Value(Type.STRING);
+        switch (type)
+        {
+            case Type.STRING :
+                string s; 
+                obj.get (name, out s);
+                v = s;
+                break;
+            case Type.CHAR :
+                char c; 
+                obj.get (name, out c);
+                v = c.to_string ();
+                break;
+            case Type.UCHAR :
+                uchar c; 
+                obj.get (name, out c);
+                break;
+            case Type.UINT64 :
+            case Type.UINT :
+                uint64 i;
+                obj.get (name, out i);
+                break;
+            case Type.INT64 :
+            case Type.INT :
+                int64 i;
+                obj.get (name, out i);
+                v = i.to_string ();
+                break;
+            case Type.BOOLEAN :
+                bool b;
+                obj.get (name, out b);
+                v = b.to_string ();
+                break;
+            case Type.DOUBLE :
+                double d;
+                obj.get (name, out d);
+                v = "%f".printf (d);
+                break;
+            case Type.FLOAT :
+                float f;
+                obj.get (name, out f);
+                v = "%f".printf (f);
+                break;
+        }
+        return (string) v;
+    }
+
+    /**
+     *
+     */
     public static void set_enum_value (ref Value v, GLib.Type type, string data)
     {
         EnumClass kenum = (EnumClass) type.class_ref();
@@ -259,4 +312,53 @@ public class Pluie.Yaml.Builder
 //~         of.echo ("enumValue : %d".printf (enumval.value));
     }
 
+    public static string transform_param_name (string name)
+    {
+        return name.replace("-", "_");
+    }
+
+    /**
+     *
+     */
+    public static Yaml.Node to_node (Yaml.Object obj, Yaml.Node? parent = null, bool root = true)
+    { 
+        var node     = new Yaml.Mapping (parent, obj.yaml_name);
+        string? name = null;
+        foreach (var def in obj.get_class ().list_properties ()){
+            name = Yaml.Builder.transform_param_name(def.name);
+            if (name != null && name != "yaml_name") {
+                if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
+                    var child = obj.populate_to_node(def.value_type, name);
+                    if (child != null) {
+                        node.add (child);
+                    }
+                }
+                else if (def.value_type.is_enum ()) {
+                    EnumValue enumval;
+                    obj.get (name, out enumval);
+                    string data = enumval.value.to_string ();
+                    var n = new Yaml.Mapping.with_scalar (node, name, (string) data);
+                    n.tag = new Yaml.Tag (def.value_type.name (), "v");
+
+                }
+                else if (def.value_type.is_fundamental ()) {
+                    string data = Yaml.Builder.get_basic_type_value(obj, def.value_type, name);
+                    if (data != null) {
+                        new Yaml.Mapping.with_scalar (node, name, (string) data);
+                    }
+                }
+                else {
+                    of.error ("type %s for property %s is not registered".printf (def.value_type.name (), name));
+                }
+            }
+        }
+        node.tag = new Yaml.Tag (obj.get_type ().name (), "v");
+        if (root) {
+            var rootNode = new Yaml.Root();
+            rootNode.add (node);
+            rootNode.tag_directives["!v!"] = "tag:pluie.org,2018:vala/";
+            return rootNode;
+        }
+        else return node;
+    }
 }

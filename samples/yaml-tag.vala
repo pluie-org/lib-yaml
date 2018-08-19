@@ -64,21 +64,22 @@ int main (string[] args)
     Yaml.Example? o = null;
     foreach (var entry in list.entries) {
         if ((o =  (Yaml.Example) entry.value)!=null) {
-            of.action ("Getting Hard coded values for Yaml.Object %s".printf (of.c (ECHO.MICROTIME).s (o.type_from_self ())), entry.key);
-            of.keyval("type_int"   , "%d" .printf(o.type_int));
-            of.keyval("type_bool"  , "%s" .printf(o.type_bool.to_string ()));
-            of.keyval("type_char"  , "%c" .printf(o.type_char));
-            of.keyval("type_string", "%s" .printf(o.type_string));
-            of.keyval("type_uchar" , "%u" .printf(o.type_uchar));
-            of.keyval("type_uint"  , "%u" .printf(o.type_uint));
-            of.keyval("type_float" , "%f" .printf(o.type_float));
-            of.keyval("type_double", "%f" .printf(o.type_double));
-            of.keyval("type_struct", "%s" .printf(o.type_struct.to_string ()));
-            of.keyval("type_object", "%s" .printf(o.type_object.get_type ().name ()));
-            of.keyval("    toto"   , "%s (string)" .printf(o.type_object.toto));
-            of.keyval("    tapa"   , "%s (string)" .printf(o.type_object.tata));
-            of.keyval("    titi"   , "%d (int)"    .printf(o.type_object.titi));
-            of.keyval("    tutu"   , "%s (bool)"   .printf(o.type_object.tutu.to_string ()));
+            of.action ("Getting Hard coded values for Yaml.Object %s".printf (of.c (ECHO.MICROTIME).s (o.get_type().name ())), entry.key);
+            of.keyval("yaml_name"    , "%s" .printf(o.yaml_name));
+            of.keyval("type_int"     , "%d" .printf(o.type_int));
+            of.keyval("type_bool"    , "%s" .printf(o.type_bool.to_string ()));
+            of.keyval("type_char"    , "%c" .printf(o.type_char));
+            of.keyval("type_string"  , "%s" .printf(o.type_string));
+            of.keyval("type_uchar"   , "%u" .printf(o.type_uchar));
+            of.keyval("type_uint"    , "%u" .printf(o.type_uint));
+            of.keyval("type_float"   , "%f" .printf(o.type_float));
+            of.keyval("type_double"  , "%f" .printf(o.type_double));
+            of.keyval("type_struct"  , "%s" .printf(o.type_struct.to_string ()));
+            of.keyval("type_object"  , "%s" .printf(o.type_object.get_type ().name ()));
+            of.keyval("    toto"     , "%s (string)" .printf(o.type_object.toto));
+            of.keyval("    tapa"     , "%s (string)" .printf(o.type_object.tata));
+            of.keyval("    titi"     , "%d (int)"    .printf(o.type_object.titi));
+            of.keyval("    tutu"     , "%s (bool)"   .printf(o.type_object.tutu.to_string ()));
             o.type_object.method_a ();
             if (o.type_gee_al != null) {
                 of.keyval("type_gee_al", "(%s)" .printf(o.type_gee_al.get_type ().name ()));

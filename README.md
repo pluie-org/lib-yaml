@@ -336,13 +336,13 @@ public class Example : Yaml.Object
     ...
 ```
 
-Secondly you must override the `Yaml.Object populate_by_type (Glib.Type, Yaml.Node node)` original method.  
+Secondly you must override the `Yaml.Object populate_from_node (Glib.Type, Yaml.Node node)` original method.  
 `populate_by_type` is called by the Yaml.Builder only if the type property is prealably registered.
 
 Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
 
 ```vala
-    public override void populate_by_type(GLib.Type type, Yaml.Node node)
+    public override void populate_from_node(GLib.Type type, Yaml.Node node)
     {
         if (type == typeof (Yaml.ExampleStruct)) {
             this.type_struct = ExampleStruct.from_yaml_node (node);

@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/bash
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #  @software  : pluie-yaml  <https://git.pluie.org/pluie/lib-yaml>

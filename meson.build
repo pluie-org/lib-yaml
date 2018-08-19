@@ -27,7 +27,7 @@
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
-project('libpluie-yaml', 'vala', 'c', version:'0.5')
+project('pluie-yaml', 'vala', 'c', version:'0.5')
 
 cc            = meson.get_compiler('c')
 dep_glib      = dependency('glib-2.0')
@@ -41,7 +41,7 @@ dep_yaml      = cc.find_library('yaml', required : true)
 
 #~ add_global_link_arguments('-lyaml', language : 'c')
 
-version       = '0.5'
+version       = meson.project_version()
 bindir        = join_paths(get_option('prefix'), get_option('bindir'))
 datadir       = join_paths(get_option('prefix'), get_option('datadir'), 'pluie/yaml')
 libdir        = join_paths(get_option('prefix'), get_option('libdir'), 'pkgconfig')

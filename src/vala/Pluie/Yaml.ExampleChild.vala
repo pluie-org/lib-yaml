@@ -40,6 +40,6 @@ public class Pluie.Yaml.ExampleChild : Yaml.Object
 
     public void method_a ()
     {
-        of.echo ("          called method from object %s builded via yaml".printf (this.type_from_self ()));
+        of.echo ("          called method from object %s builded via yaml".printf (this.get_type().name ()));
     }
 }

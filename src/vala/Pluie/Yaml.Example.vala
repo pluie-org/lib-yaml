@@ -78,13 +78,13 @@ public class Pluie.Yaml.Example : Yaml.Object
     protected override void yaml_init ()
     {
         // base.yaml_init ();
-        Dbg.msg ("Yaml.Object %s (%s) instantiated".printf (this.myname, this.type_from_self ()), Log.LINE, Log.FILE);
+        Dbg.msg ("Yaml.Object %s (%s) instantiated".printf (this.myname, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**
      *
      */
-    public override void  populate_by_type(GLib.Type type, Yaml.Node node)
+    public override void  populate_from_node(GLib.Type type, Yaml.Node node)
     {
         try {
             if (type == typeof (Yaml.ExampleStruct)) {
@@ -104,4 +104,27 @@ public class Pluie.Yaml.Example : Yaml.Object
         }
     }
 
+    /**
+     *
+     */
+    public override Yaml.Node?  populate_to_node(GLib.Type type, string name)
+    {
+        Yaml.Node? node = base.populate_to_node (type, name);
+        if (node == null) {
+            if (type == typeof (Yaml.ExampleStruct)) {
+                node = new Yaml.Mapping (null, name);
+                new Yaml.Mapping.with_scalar (node, "red"  , this.type_struct.red.to_string ());
+                new Yaml.Mapping.with_scalar (node, "green", this.type_struct.green.to_string ());
+                new Yaml.Mapping.with_scalar (node, "blue" , this.type_struct.blue.to_string ());
+            }
+            else if (type == typeof (Gee.ArrayList)) {
+                node = new Yaml.Sequence (null, name);
+                foreach (var data in this.type_gee_al) {
+                    new Yaml.Scalar (node, data);
+                }
+            }
+            node.tag = new Yaml.Tag (type.name (), "v");
+        }
+        return node;
+    }
 }

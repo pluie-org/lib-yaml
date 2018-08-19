@@ -38,7 +38,17 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     /**
      *
      */
-    public static Yaml.Register register { get; private set; }
+    public string               yaml_name { get; internal set; }
+
+    /**
+     *
+     */
+    public static Yaml.Register register  { get; private set; }
+
+    /**
+     *
+     */
+    public static Yaml.Tag yaml_tag       { get; internal set; }
 
     /**
      *
@@ -46,6 +56,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     static construct
     {
         register = new Yaml.Register();
+        yaml_tag = new Tag (typeof (Pluie.Yaml.Object).name (), "v");
     }
 
     /**
@@ -53,24 +64,30 @@ public abstract class Pluie.Yaml.Object : GLib.Object
      */
     public virtual void yaml_init ()
     {
-        Dbg.msg ("Yaml.Object (%s) instantiated".printf (this.type_from_self ()), Log.LINE, Log.FILE);
-    }
-
-    /**
-     * retiew GLib.Type related to instance
-     */
-    public string type_from_self ()
-    {
-        return Type.from_instance (this).name ();
+        Dbg.msg ("Yaml.Object (%s) instantiated".printf (this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**
      *
      */
-    public virtual void populate_by_type(GLib.Type type, Yaml.Node node)
+    public virtual void populate_from_node(GLib.Type type, Yaml.Node node)
     {
         if (type.is_a (typeof (Yaml.Object))) {
             this.set (node.name, Yaml.Builder.from_node(node, type));
         }
+    }
+
+    /**
+     *
+     */
+    public virtual Yaml.Node? populate_to_node(GLib.Type type, string name)
+    {
+        Yaml.Node? node = null;
+        if (type.is_a (typeof (Yaml.Object))) {
+            var o = (Yaml.Object) GLib.Object.new (type);
+            this.get (name, out o);
+            node = Yaml.Builder.to_node (o, null, false);
+        }
+        return node;
     }
 }
