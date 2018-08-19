@@ -38,6 +38,7 @@ extern void yaml_parse_file(string srcPath, string destPath);
  */
 public class Pluie.Yaml.Scanner
 {
+    string             path;
     /**
      * Regex pattern use to find EVENT
      */
@@ -112,9 +113,24 @@ public class Pluie.Yaml.Scanner
      */
     public Scanner (string path)
     {
-        var destPath = Path.build_filename (Environment.get_tmp_dir (), Path.get_basename(path));
-        yaml_parse_file(path, destPath);
-        this.reader  = new Io.Reader (destPath);
+        var date     = new GLib.DateTime.now_local ().format ("%s");
+        this.path    = Path.build_filename (Environment.get_tmp_dir (), "pluie-yaml-%s-%s.events".printf (date, Path.get_basename(path)));
+        yaml_parse_file(path, this.path);
+        this.reader  = new Io.Reader (this.path);
+    }
+
+    /**
+     *
+     */
+    ~Scanner()
+    {
+        var f = GLib.File.new_for_path (this.path);
+        try {
+            f.delete ();
+        }
+        catch (GLib.Error e) {
+            of.error (e.message);
+        }
     }
 
     /**
