@@ -54,18 +54,24 @@ public struct Pluie.Yaml.ExampleStruct
         foreach (var child in node) {
             var v = child.val (typeof (uint));
             switch (child.name) {
-                case "red" :
-                    s.red   = v.get_uint ();
-                    break;
-                case "green" :
-                    s.green = v.get_uint ();
-                    break;
-                case "blue" :
-                    s.blue  = v.get_uint ();
-                    break;
+                case "red"   : s.red   = v.get_uint (); break;
+                case "green" : s.green = v.get_uint (); break;
+                case "blue"  : s.blue  = v.get_uint (); break;
             }
         }
         return s;
+    }
+
+    /**
+     *
+     */
+    public static Yaml.Node to_yaml_node (ref ExampleStruct self, string name)
+    {
+        var node = new Yaml.Mapping (null, name);
+        new Yaml.Mapping.with_scalar (node, "red"  , self.red.to_string ());
+        new Yaml.Mapping.with_scalar (node, "green", self.green.to_string ());
+        new Yaml.Mapping.with_scalar (node, "blue" , self.blue.to_string ());
+        return node;
     }
 
     /**

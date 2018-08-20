@@ -64,7 +64,7 @@ public class Pluie.Yaml.Example : Yaml.Object
     public Yaml.ExampleChild    type_object   { get; set; }
     public Yaml.NODE_TYPE       type_enum     { get; set; }
     public Yaml.ExampleStruct   type_struct   { get; set; }
-    public Gee.ArrayList<string> type_gee_al   { get; set; }
+    public Gee.ArrayList<double?>   type_gee_al   { get; set; }
 
     static construct
     {
@@ -94,10 +94,11 @@ public class Pluie.Yaml.Example : Yaml.Object
                 this.type_struct = ExampleStruct.from_yaml_node (node);
             }
             else if (type == typeof (Gee.ArrayList)) {
-                this.type_gee_al = new Gee.ArrayList<string> ();
+                this.type_gee_al = new Gee.ArrayList<double?> ();
                 if (!node.empty ()) {
+                    this.type_gee_al.clear ();
                     foreach (var child in node) {
-                        this.type_gee_al.add(child.data);
+                        this.type_gee_al.add((double) double.parse (child.data));
                     }
                 }
             }
@@ -115,16 +116,8 @@ public class Pluie.Yaml.Example : Yaml.Object
         Yaml.Node? node = base.populate_to_node (type, name);
         if (node == null) {
             if (type == typeof (Yaml.ExampleStruct)) {
-                node = new Yaml.Mapping (null, name);
-                new Yaml.Mapping.with_scalar (node, "red"  , this.type_struct.red.to_string ());
-                new Yaml.Mapping.with_scalar (node, "green", this.type_struct.green.to_string ());
-                new Yaml.Mapping.with_scalar (node, "blue" , this.type_struct.blue.to_string ());
-            }
-            else if (type == typeof (Gee.ArrayList)) {
-                node = new Yaml.Sequence (null, name);
-                foreach (var data in this.type_gee_al) {
-                    new Yaml.Scalar (node, data);
-                }
+                Yaml.ExampleStruct p = this.type_struct;
+                node = ExampleStruct.to_yaml_node (ref p, name);
             }
         }
         return node;

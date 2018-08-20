@@ -22,10 +22,10 @@
         green : !v!uint8 78
         blue  : 153
     !v!Gee.ArrayList type_gee_al :
-        - ab_1
-        - ab_2
-        - ab_3
-        - ab_4
+        - 1.2
+        - 2.2
+        - 3.2
+        - 4.2
 
 !v!Pluie.Yaml.Example test2 :
     myname      : test2object

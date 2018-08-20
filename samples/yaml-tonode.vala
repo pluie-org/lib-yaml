@@ -32,6 +32,57 @@ using GLib;
 using Gee;
 using Pluie;
 
+public void inspect_type (GLib.Type type, ...) 
+{
+    var l = va_list();
+    while (true) {
+        var obj = l.arg<GLib.Object> ();
+        if (obj == null) {
+            break;  // end of the list
+        }
+        print ("%s\n", type.name ());
+        print (" is-obj: %s\n", type.is_object ().to_string ());
+        print (" is-abstr: %s\n", type.is_abstract ().to_string ());
+        print (" is-classed: %s\n", type.is_classed ().to_string ());
+        print (" is-derivable: %s\n", type.is_derivable ().to_string ());
+        print (" is-derived: %s\n", type.is_derived ().to_string ());
+        print (" is-fund: %s\n", type.is_fundamental ().to_string ());
+        print (" is-inst: %s\n", type.is_instantiatable ().to_string ());
+        print (" is-iface: %s\n", type.is_interface ().to_string ());
+        print (" is-enum: %s\n", type.is_enum ().to_string ());
+        print (" is-flags: %s\n", type.is_object ().to_string ());
+
+        // Output:
+        //  `` Children:``
+        print (" Children:\n");
+        foreach (unowned Type ch in type.children ()) {
+            print ("  - %s\n", ch.name ());
+        }
+
+        //  `` Interfaces:``
+        //  ``  - Interface``
+        print (" Interfaces:\n");
+        foreach (unowned Type ch in type.interfaces ()) {
+            if ( ch == typeof(Gee.Traversable)) {
+                print ("  --- !!! element type is  %s\n", (obj as Gee.Traversable).element_type.name ());
+                if ((obj as Gee.Traversable).element_type == typeof (Gee.Map.Entry)) {
+                    print ("  --- !!! key type is  %s\n", (obj as Gee.Map).key_type.name ());
+                    print ("  --- !!! value type is  %s\n", (obj as Gee.Map).value_type.name ());
+                }
+            }
+            print ("  - %s\n", ch.name ());
+        }
+
+        // Output:
+        //  `` Parents:``
+        //  ``  - GObject``
+        print (" Parents:\n");
+        for (Type p = type.parent (); p != 0 ; p = p.parent ()) {
+            print ("  - %s\n", p.name ());
+        }
+    }
+}
+
 int main (string[] args)
 {
     Echo.init(false);
@@ -42,14 +93,32 @@ int main (string[] args)
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
     Pluie.Yaml.DEBUG = false;
     var config = new Yaml.Config (path, true);
-    var root   = config.root_node ();
+    var root   = config.root_node () as Yaml.Root;
     root.display_childs ();
 
     of.action ("Yaml.Builder.from_node", root.first ().name);
     var obj    = (Yaml.Example) Yaml.Builder.from_node (root.first ());
     obj.type_object.method_a ();
+    if (obj.type_gee_al != null) {
+        of.keyval("type_gee_al", "(%s)" .printf(obj.type_gee_al.get_type ().name ()));
+        foreach (double v in obj.type_gee_al as Gee.ArrayList<double?>) {
+            of.echo("       - item : %f".printf (v));
+        }
+    }
+
+
+//~     double dv = 46548970.54324546464;
+//~     var d = new Gee.ArrayList<double?> ();
+//~     d.add(dv);
+    
+//~     Gee.ArrayList<double?>* z  = d;
+//~     of.action ("!!!!!!!Yaml.Builder.to_node", obj.get_type ().name ());
+//~     var m = Yaml.Builder.gee_arraylist_to_node (z, "toto", root);
 
     of.action ("Yaml.Builder.to_node", obj.get_type ().name ());
+
+//~     inspect_type (root.tag_directives.get_type (), root.tag_directives);
+
     var n = Yaml.Builder.to_node (obj);
     if ((done = n !=null)) { 
         n.display_childs ();

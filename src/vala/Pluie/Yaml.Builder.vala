@@ -327,7 +327,12 @@ public class Pluie.Yaml.Builder
         foreach (var def in obj.get_class ().list_properties ()){
             name = Yaml.Builder.transform_param_name(def.name);
             if (name != null && name != "yaml_name") {
-                if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
+                if (def.value_type.is_a (typeof (Gee.ArrayList))) {
+                    void *p;
+                    obj.get(name, out p);
+                    Yaml.Builder.gee_arraylist_to_node(p, name, node);
+                }
+                else if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
                     var child = obj.populate_to_node(def.value_type, name);
                     if (child != null) {
                         child.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(def.value_type), "v");
@@ -361,5 +366,56 @@ public class Pluie.Yaml.Builder
             return rootNode;
         }
         else return node;
+    }
+
+    /**
+     *
+     */
+    public static Yaml.Node? gee_arraylist_to_node (Gee.ArrayList* o, string property_name, Yaml.Node parent)
+    {
+        Yaml.dbg_action ("prop %s (type %s) has element type :".printf (property_name, o->get_type ().name ()), o->element_type.name ());
+        var type = o->element_type;
+        var node = new Yaml.Sequence (parent, property_name);
+        var it = o->iterator();
+        while (it.next ()) {
+            if (!o->element_type.is_object () && o->element_type.is_fundamental ()) {
+                string data = "";
+                switch (o->element_type) {
+                    case Type.INT64 :
+                    case Type.INT   :
+                        data = ((int64) it.get ()).to_string ();
+                        break;
+                    case Type.CHAR :
+                        data = ((char) it.get ()).to_string ();
+                        break;
+                    case Type.UCHAR :
+                        data = ((uchar) it.get ()).to_string ();
+                        break;
+                    case Type.UINT64 :
+                    case Type.UINT :
+                        data = ((uint64) it.get ()).to_string ();
+                        break;
+                    case Type.BOOLEAN :
+                        data = ((bool) it.get ()).to_string ();
+                        break;
+                    case Type.FLOAT :
+                        float* f = (float*) it.get ();
+                        data = f.to_string ();
+                        break;
+                    case Type.DOUBLE :
+                        double* d = (double*) it.get ();
+                        data = d.to_string ();
+                        break;
+                    default :
+                        data = (string) it.get ();
+                        break;
+                }
+                new Yaml.Scalar (node, data);
+            }
+            else if (o->element_type.is_object ()) {
+
+            }
+        }
+        return node;
     }
 }
