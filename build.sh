@@ -78,7 +78,9 @@ function build.samples()
     for file in ./samples/*.vala
     do
         if [[ -f $file ]]; then
-            build.sample "$file"
+            if [ -z "$1" ] || [  "$1" == "$file" ]; then
+                build.sample "$file"
+            fi
         fi
     done
     echo -e "\n RESUME : "
@@ -104,10 +106,14 @@ function build.sample()
 # --------------------------------------------------------
 function build.main()
 {
+    local onefile=""
+    if [ ! -z "$1" ]; then
+        onefile="./samples/$1.vala"
+    fi
     build.lib
     if [ $? -eq 0 ]; then
-        build.samples
+        build.samples $onefile
     fi
 }
 
-build.main
+build.main "$1"
