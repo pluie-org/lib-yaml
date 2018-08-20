@@ -18,7 +18,7 @@ with version 0.5, **pluie-yaml** is now able to :
 
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
 
-![pluie-yaml-1](https://www.meta-tech.academy/img/pluie-yaml-1.png)
+![pluie-yaml-1](https://www.meta-tech.academy/img/pluie-yaml-1.png?tmp=1)
 
 ![pluie-yaml-2](https://www.meta-tech.academy/img/pluie-yaml-2.png)
 
@@ -120,7 +120,7 @@ see Finder below to get precisions about config.get parameter (search path defin
 
 ![pluie-yaml](https://www.meta-tech.academy/img/pluie-yaml-imports2.png)
 
-_legend display_childs_ :
+__legend display_childs__ :
 
 ```
 [ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid  node.tag]
@@ -337,7 +337,7 @@ We cannot do introspection on Structure's properties, so you need to implement a
 First at all, in the static construct of your class, you need to register (properties) types that need some glue for instanciation.
 
 ```vala
-public class Example : Yaml.Object
+public class Yaml.Example : Yaml.Object
 {
     static construct
     {
@@ -392,7 +392,24 @@ output from samples/yaml-tag.vala :
 ### Build Yaml.Node from Yaml.Object
 
 reverse build mechanism is also possible but have the same limitation.
-you need to override the `public Yaml.Node? populate_to_node(GLib.Type type, string name)` Yaml.Object original method
+
+```vala
+    var config = new Yaml.Config (path, true);
+    var root   = config.root_node ();
+    root.display_childs ();
+
+    of.action ("Yaml.Builder.from_node", root.first ().name);
+    var obj    = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+    obj.type_object.method_a ();
+
+    of.action ("Yaml.Builder.to_node", obj.get_type ().name ());
+    var n = Yaml.Builder.to_node (obj);
+    if ((done = n !=null)) { 
+        n.display_childs ();
+    }
+```
+
+you need to override the `public Yaml.Node? populate_to_node(GLib.Type type, string name)` Yaml.Object original method  
 `populate_to_node` is also automatically called by the Yaml.Builder if the type property is prealably registered.
 
 Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
@@ -420,10 +437,6 @@ Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
     }
 ```
 
-for more details see :
-* `samples/yaml-tonode.vala`
-
-
 -------------------
 
 ### more samples
@@ -439,6 +452,8 @@ see samples files in ./samples directory
 * ~~rewrite nodes classes~~
 * ~~put doc online~~
 * ~~add docker image~~
+* ~~transform Yaml.Node nodes to Yaml.Object objects~~
+* ~~transform Yaml.Object objects to Yaml.Node nodes~~
 * manage tag directives & tag (partially done)
 * improve doc
 * dumper
