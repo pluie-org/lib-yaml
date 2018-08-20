@@ -68,8 +68,11 @@ public class Pluie.Yaml.Example : Yaml.Object
 
     static construct
     {
-        Yaml.Object.register.add_type (typeof (Yaml.Example), typeof (Yaml.ExampleStruct));
-        Yaml.Object.register.add_type (typeof (Yaml.Example), typeof (Gee.ArrayList));
+        Yaml.Object.register.add_type (
+            typeof (Yaml.Example), 
+            typeof (Yaml.ExampleStruct), 
+            typeof (Gee.ArrayList)
+        );
     }
 
     /**
@@ -123,7 +126,6 @@ public class Pluie.Yaml.Example : Yaml.Object
                     new Yaml.Scalar (node, data);
                 }
             }
-            node.tag = new Yaml.Tag (type.name (), "v");
         }
         return node;
     }

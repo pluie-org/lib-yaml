@@ -57,6 +57,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     {
         register = new Yaml.Register();
         yaml_tag = new Tag (typeof (Pluie.Yaml.Object).name (), "v");
+        register.add_namespace("Pluie", "Pluie.Yaml", "Gee");
     }
 
     /**

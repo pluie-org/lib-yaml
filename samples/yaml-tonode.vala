@@ -44,8 +44,12 @@ int main (string[] args)
     var config = new Yaml.Config (path, true);
     var root   = config.root_node ();
     root.display_childs ();
-    var obj    = (Yaml.Example) Yaml.Builder.from_node (root.first ());
 
+    of.action ("Yaml.Builder.from_node", root.first ().name);
+    var obj    = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+    obj.type_object.method_a ();
+
+    of.action ("Yaml.Builder.to_node", obj.get_type ().name ());
     var n = Yaml.Builder.to_node (obj);
     if ((done = n !=null)) { 
         n.display_childs ();

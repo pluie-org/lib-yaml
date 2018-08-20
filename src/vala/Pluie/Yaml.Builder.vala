@@ -330,6 +330,7 @@ public class Pluie.Yaml.Builder
                 if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
                     var child = obj.populate_to_node(def.value_type, name);
                     if (child != null) {
+                        child.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(def.value_type), "v");
                         node.add (child);
                     }
                 }
@@ -338,7 +339,7 @@ public class Pluie.Yaml.Builder
                     obj.get (name, out enumval);
                     string data = enumval.value.to_string ();
                     var n = new Yaml.Mapping.with_scalar (node, name, (string) data);
-                    n.tag = new Yaml.Tag (def.value_type.name (), "v");
+                    n.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(def.value_type), "v");
 
                 }
                 else if (def.value_type.is_fundamental ()) {
@@ -352,7 +353,7 @@ public class Pluie.Yaml.Builder
                 }
             }
         }
-        node.tag = new Yaml.Tag (obj.get_type ().name (), "v");
+        node.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(obj.get_type ()), "v");
         if (root) {
             var rootNode = new Yaml.Root();
             rootNode.add (node);

@@ -40,13 +40,18 @@ public class Pluie.Yaml.Register : GLib.Object
     /**
      *
      */
-    public static Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> reg { get; internal set; }
+    public static Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> rtype         { get; internal set; }
+    /**
+     *
+     */
+    public static Gee.ArrayList<string>                       namespaces    { get; internal set; }
 
     /**
      *
      */
     static construct {
-        Yaml.Register.reg = new Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> ();
+        Yaml.Register.rtype      = new Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> ();
+        Yaml.Register.namespaces = new Gee.ArrayList<string> ();
     }
 
     /**
@@ -60,20 +65,82 @@ public class Pluie.Yaml.Register : GLib.Object
     /**
      *
      */
-    public Gee.ArrayList<GLib.Type>? get_type_list (GLib.Type type)
+    public bool add_namespace (string name, ...)
     {
-        return reg.get (type);
+        var l    = va_list();
+        Yaml.dbg ("adding namespace %s".printf (name));
+        var done = Yaml.Register.namespaces.contains (name) || Yaml.Register.namespaces.add (name);
+        while (done) {
+            string? ns = l.arg();
+            if (ns == null) {
+                break;  // end of the list
+            }
+            Yaml.dbg ("adding namespace %s".printf (ns));
+            if (!Yaml.Register.namespaces.contains (ns)) {
+                done = done && Yaml.Register.namespaces.add (ns);
+            }
+        }
+        return done;
     }
 
     /**
      *
      */
-    public bool add_type (GLib.Type type, GLib.Type addedType)
+    public string resolve_namespace_type (GLib.Type type)
     {
-        if (!this.is_registered (type)) {
-            reg.set (type, this.init_type_list ());
+        var name = type.name ();
+        try {
+            Regex reg = new Regex ("([A-Z]{1}[a-z]+)");
+            var d  = reg.split (type.name (), 0);
+            var rn = "";
+            var gb = "";
+            for (var i = 1; i < d.length; i+=2) {
+                rn += d[i];
+                if (namespaces.contains (rn)) {
+                    rn += ".";
+                    gb += d[i];
+                }
+            }
+            // case ENUM which ends with dot
+            if (rn.substring(-1) == ".") {
+                rn = name.splice (0, gb.length, rn);
+            }
+            name = rn;
         }
-        return reg.get (type).add (addedType);
+        catch (GLib.RegexError e) {
+            of.error (e.message);
+        }
+        Yaml.dbg ("resolve_namespace_type %s => %s".printf (type.name (), name));  
+        return name;
+    }
+
+    /**
+     *
+     */
+    public Gee.ArrayList<GLib.Type>? get_type_list (GLib.Type type)
+    {
+        return rtype.get (type);
+    }
+
+    /**
+     *
+     */
+    public bool add_type (GLib.Type owntype, ...)
+    {
+        bool done = true;
+        if (!this.is_registered (owntype)) {
+            rtype.set (owntype, this.init_type_list ());
+        }
+        var l = va_list();
+        while (done) {
+            GLib.Type? t = l.arg<GLib.Type> ();
+            if (t == null || t == Type.INVALID) {
+                break;
+            }
+            Yaml.dbg ("adding to %s type %s".printf (owntype.name (), t.name ()));
+            done = done && rtype.get (owntype).add (t);
+        }
+        return done;
     }
 
     /**
@@ -81,7 +148,7 @@ public class Pluie.Yaml.Register : GLib.Object
      */
     public bool is_registered (GLib.Type type)
     {
-        return reg.has_key (type);
+        return rtype.has_key (type);
     }
 
     /**
@@ -89,6 +156,6 @@ public class Pluie.Yaml.Register : GLib.Object
      */
     public bool is_registered_type (GLib.Type type, GLib.Type checktype)
     {
-        return this.is_registered (type) && reg.get (type).contains (checktype);
+        return this.is_registered (type) && rtype.get (type).contains (checktype);
     }
 }

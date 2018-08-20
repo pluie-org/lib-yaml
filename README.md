@@ -10,34 +10,17 @@ in the main yaml document.
 
 The lib partially manage tag directives and tag values (basic types and Yaml.Object extended objects types).
 
+with version 0.5, **pluie-yaml** is now able to : 
+
+* parse yaml file with vala tags => transform to Yaml.Node
+* Build Yaml.Object from Yaml.Node (with some glue for struct and non Yaml.Object derived types)
+* Build Yaml.Node from Yaml.Object (with some glue for struct and non Yaml.Object derived types)
+
 **pluie-yaml** use the ![libyaml c library](https://github.com/yaml/libyaml) (License MIT, many thanks to Kirill Simonov) to parse and retriew related yaml events.
 
-![pluie-yaml](https://www.meta-tech.academy/img/pluie-yaml-imports2.png)
+![pluie-yaml-1](https://www.meta-tech.academy/img/pluie-yaml-1.png)
 
-_legend display_childs_ :
-
-```
-[ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid  node.tag]
-```
-
-You can easily manage display tracing of yaml nodes by setting these var according to your needs :
-
-```vala
-namespace Pluie
-{
-    namespace Yaml
-    {
-        public static bool DEBUG           = false;
-
-        public static bool DBG_SHOW_INDENT = true;
-        public static bool DBG_SHOW_PARENT = false;
-        public static bool DBG_SHOW_UUID   = true;
-        public static bool DBG_SHOW_LEVEL  = false;
-        public static bool DBG_SHOW_REF    = false;
-        public static bool DBG_SHOW_COUNT  = true;
-        public static bool DBG_SHOW_TAG    = true;
-        public static bool DBG_SHOW_TYPE   = true;
-```
+![pluie-yaml-2](https://www.meta-tech.academy/img/pluie-yaml-2.png)
 
 ## License
 
@@ -133,6 +116,34 @@ see Finder below to get precisions about config.get parameter (search path defin
     test  : ^dir^/test.yml 
     # here final db path will be "./config/db.yml"
     db    : db.yml
+```
+
+![pluie-yaml](https://www.meta-tech.academy/img/pluie-yaml-imports2.png)
+
+_legend display_childs_ :
+
+```
+[ node.name  [refCount]  node.parent.name  node.level  node.ntype.infos ()  node.count ()  node.uuid  node.tag]
+```
+
+You can easily manage display tracing of yaml nodes by setting these var according to your needs :
+
+```vala
+using Pluie
+
+...
+        // general debug display usefull informations
+        Yaml.DEBUG           = false;
+        // drive display_childs method :
+        Yaml.DBG_SHOW_INDENT = true;
+        Yaml.DBG_SHOW_PARENT = false;
+        Yaml.DBG_SHOW_UUID   = true;
+        Yaml.DBG_SHOW_LEVEL  = false;
+        Yaml.DBG_SHOW_REF    = false;
+        Yaml.DBG_SHOW_COUNT  = true;
+        Yaml.DBG_SHOW_TAG    = true;
+        Yaml.DBG_SHOW_TYPE   = true;
+...
 ```
 
 -------------------
@@ -330,14 +341,17 @@ public class Example : Yaml.Object
 {
     static construct
     {
-        Yaml.Object.register.add_type (typeof (Example), typeof (ExampleStruct));
-        Yaml.Object.register.add_type (typeof (Example), typeof (Gee.ArrayList));
+        Yaml.Object.register.add_type (
+            typeof (Yaml.Example),       // owned type
+            typeof (Yaml.ExampleStruct), // property type
+            typeof (Gee.ArrayList)       // property type
+        );
     }
     ...
 ```
 
-Secondly you must override the `Yaml.Object populate_from_node (Glib.Type, Yaml.Node node)` original method.  
-`populate_by_type` is called by the Yaml.Builder only if the type property is prealably registered.
+Secondly you must override the `public void populate_from_node (Glib.Type, Yaml.Node node)` Yaml.Object original method.  
+`populate_from_node` is automatically called by the Yaml.Builder if the type property is prealably registered.
 
 Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
 
@@ -373,6 +387,42 @@ code from samples/yaml-tag.vala :
 output from samples/yaml-tag.vala :
 
 ![pluie-yaml-tag](https://www.meta-tech.academy/img/pluie-yaml-sample-tag-output.png?tmp=53)
+
+
+### Build Yaml.Node from Yaml.Object
+
+reverse build mechanism is also possible but have the same limitation.
+you need to override the `public Yaml.Node? populate_to_node(GLib.Type type, string name)` Yaml.Object original method
+`populate_to_node` is also automatically called by the Yaml.Builder if the type property is prealably registered.
+
+Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
+
+```vala
+    public override Yaml.Node?  populate_to_node(GLib.Type type, string name)
+    {
+        Yaml.Node? node = base.populate_to_node (type, name);
+        // non Yaml.Object type & registered type
+        if (node == null) {
+            if (type == typeof (Yaml.ExampleStruct)) {
+                node = new Yaml.Mapping (null, name);
+                new Yaml.Mapping.with_scalar (node, "red"  , this.type_struct.red.to_string ());
+                new Yaml.Mapping.with_scalar (node, "green", this.type_struct.green.to_string ());
+                new Yaml.Mapping.with_scalar (node, "blue" , this.type_struct.blue.to_string ());
+            }
+            else if (type == typeof (Gee.ArrayList)) {
+                node = new Yaml.Sequence (null, name);
+                foreach (var data in this.type_gee_al) {
+                    new Yaml.Scalar (node, data);
+                }
+            }
+        }
+        return node;
+    }
+```
+
+for more details see :
+* `samples/yaml-tonode.vala`
+
 
 -------------------
 
