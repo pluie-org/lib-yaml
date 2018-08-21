@@ -173,6 +173,9 @@ public class Pluie.Yaml.Builder
         if (type.is_a (typeof (Yaml.Object))) {
             obj.set (node.name, Yaml.Builder.from_node(node, type));
         }
+        else if (type.is_a (typeof (Gee.ArrayList))) {
+            Yaml.Builder.gee_arraylist_from_node(obj, node);
+        }
         else if (Yaml.Object.register.is_registered_type(parentType, type)) {
             Yaml.dbg ("%s is a registered type".printf (type.name ()));
             obj.populate_from_node (type, node);
@@ -371,6 +374,104 @@ public class Pluie.Yaml.Builder
     /**
      *
      */
+    public static void gee_arraylist_from_node (Yaml.Object obj, Yaml.Node node)
+    {
+        Gee.ArrayList* o;
+        obj.get(node.name, out o);
+        var type = o->element_type;
+        if (!type.is_object () && type.is_fundamental ()) {
+            switch (type)
+            {
+                case Type.STRING :
+                    var l = new Gee.ArrayList<string> ();
+                    o = &l;
+                    break;
+                case Type.CHAR :
+                    var l = new Gee.ArrayList<int8> ();
+                    o = &l;
+                    break;
+                case Type.UCHAR :
+                    var l = new Gee.ArrayList<uchar> ();
+                    o = &l;
+                    break;
+                case Type.BOOLEAN :
+                    var l = new Gee.ArrayList<bool> ();
+                    o = &l;
+                    break;
+                case Type.INT :
+                    var l = new Gee.ArrayList<int> ();
+                    o = &l;
+                    break;
+                case Type.UINT :
+                    var l = new Gee.ArrayList<uint> ();
+                    o = &l;
+                    o->add((uint)long.parse(child.data));
+                    break;
+                case Type.LONG :
+                case Type.INT64 :
+                    var l = new Gee.ArrayList<long> ();
+                    o = &l;
+                    break;
+                case Type.ULONG :
+                case Type.UINT64 :
+                    var l = new Gee.ArrayList<ulong> ();
+                    o = &l;
+                    break;
+                case Type.FLOAT :
+                    var l = new Gee.ArrayList<float?> ();
+                    o = &l;
+                    break;
+                case Type.DOUBLE :
+                    var l = new Gee.ArrayList<double?> ();
+                    o = &l;
+                    break;
+            }
+            foreach (var child in node) {
+                switch (type)
+                {
+                    case Type.STRING :
+                        o->add(child.data);
+                        break;
+                    case Type.CHAR :
+                        o->add((int8)child.data.data[0]);
+                        break;
+                    case Type.UCHAR :
+                        o->add((uint8)child.data.data[0]);
+                        break;
+                    case Type.BOOLEAN :
+                        o->add(child.data == "1" || child.data.down () == "true");
+                        break;
+                    case Type.INT :
+                        o->add(int.parse(child.data));
+                        break;
+                    case Type.UINT :
+                        o->add((uint)long.parse(child.data));
+                        break;
+                    case Type.LONG :
+                    case Type.INT64 :
+                        o->add((long)int64.parse(data));
+                        break;
+                    case Type.ULONG :
+                    case Type.UINT64 :
+                        o->add((ulong)uint64.parse(data));
+                        break;
+                    case Type.FLOAT :
+                        o->add((float)double.parse(data));
+                        break;
+                    case Type.DOUBLE :
+                        o->add(double.parse(child.data));
+                        break;
+                }
+            }
+        }
+        else if (type.is_object ()) {
+
+        }
+    }
+
+    /**
+     *
+     */
     public static Yaml.Node? gee_arraylist_to_node (Gee.ArrayList* o, string property_name, Yaml.Node parent, bool is_char = false)
     {
         Yaml.dbg_action ("prop %s (type %s) has element type :".printf (property_name, o->get_type ().name ()), o->element_type.name ());
@@ -378,14 +479,14 @@ public class Pluie.Yaml.Builder
         var node = new Yaml.Sequence (parent, property_name);
         var it = o->iterator();
         while (it.next ()) {
-            if (!o->element_type.is_object () && o->element_type.is_fundamental ()) {
+            if (!type.is_object () && type.is_fundamental ()) {
                 string data = "";
-                if (is_char && (o->element_type == typeof (unichar) || o->element_type == typeof (uchar))) {
+                if (is_char && (type == typeof (unichar) || type == typeof (uchar))) {
                     void* d = (void*) it.get ();   
                     data = ((unichar) d).to_string();
                 }
                 else {
-                    switch (o->element_type) {
+                    switch (type) {
                         case Type.LONG :
                         case Type.INT64 :
                             int64* d = (int64*) it.get ();
@@ -426,7 +527,7 @@ public class Pluie.Yaml.Builder
                 }
                 var f = new Yaml.Scalar (node, data);
             }
-            else if (o->element_type.is_object ()) {
+            else if (type.is_object ()) {
 
             }
         }
