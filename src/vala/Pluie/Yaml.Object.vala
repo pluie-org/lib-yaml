@@ -60,12 +60,25 @@ public abstract class Pluie.Yaml.Object : GLib.Object
         register.add_namespace("Pluie", "Pluie.Yaml", "Gee");
     }
 
+    public Object ()
+    {
+        this.yaml_construct ();
+    }
+
+    /**
+     *
+     */
+    public virtual void yaml_construct ()
+    {
+        Dbg.msg ("Yaml.Object (%s) construct".printf (this.get_type().name ()), Log.LINE, Log.FILE);
+    }
+
     /**
      *
      */
     public virtual void yaml_init ()
     {
-        Dbg.msg ("Yaml.Object (%s) instantiated".printf (this.get_type().name ()), Log.LINE, Log.FILE);
+        Dbg.msg ("Yaml.Object (%s) init".printf (this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**

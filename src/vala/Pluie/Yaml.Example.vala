@@ -65,6 +65,7 @@ public class Pluie.Yaml.Example : Yaml.Object
     public Yaml.NODE_TYPE       type_enum     { get; set; }
     public Yaml.ExampleStruct   type_struct   { get; set; }
     public Gee.ArrayList<double?>   type_gee_al   { get; set; }
+    public Gee.ArrayList<Yaml.ExampleChild> type_gee_alobject   { get; set; }
 
     static construct
     {
@@ -78,10 +79,21 @@ public class Pluie.Yaml.Example : Yaml.Object
     /**
      *
      */
+    protected override void yaml_construct ()
+    {
+        this.type_gee_al = new Gee.ArrayList<double?> ();
+        this.type_gee_alobject = new Gee.ArrayList<Yaml.ExampleChild> ();
+        // base.yaml_init ();
+        Dbg.msg ("Yaml.Object %s (%s) instantiated".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
+    }
+
+    /**
+     *
+     */
     protected override void yaml_init ()
     {
         // base.yaml_init ();
-        Dbg.msg ("Yaml.Object %s (%s) instantiated".printf (this.myname, this.get_type().name ()), Log.LINE, Log.FILE);
+        Dbg.msg ("Yaml.Object %s (%s) initialized".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**
@@ -89,22 +101,8 @@ public class Pluie.Yaml.Example : Yaml.Object
      */
     public override void  populate_from_node(GLib.Type type, Yaml.Node node)
     {
-        try {
-            if (type == typeof (Yaml.ExampleStruct)) {
-                this.type_struct = ExampleStruct.from_yaml_node (node);
-            }
-            else if (type == typeof (Gee.ArrayList)) {
-                this.type_gee_al = new Gee.ArrayList<double?> ();
-                if (!node.empty ()) {
-                    this.type_gee_al.clear ();
-                    foreach (var child in node) {
-                        this.type_gee_al.add((double) double.parse (child.data));
-                    }
-                }
-            }
-        }
-        catch (GLib.Error e) {
-            Dbg.error(e.message, Log.METHOD, Log.LINE);
+        if (type == typeof (Yaml.ExampleStruct)) {
+            this.type_struct = ExampleStruct.from_yaml_node (node);
         }
     }
 

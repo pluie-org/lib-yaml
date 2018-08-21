@@ -26,6 +26,23 @@
         - 2.2
         - 3.2
         - 4.2
+    !v!Gee.ArrayList type_gee_alobject :
+        - toto : totovalue1
+          tata : tatavalue1
+          titi : 789
+          tutu : true
+        - toto : totovalue2
+          tata : tatavalue2
+          titi : 456
+          tutu : false
+        - toto : totovalue3
+          tata : tatavalue3
+          titi : 123
+          tutu : 1
+        - toto : totovalue4
+          tata : tatavalue4
+          titi : 44
+          tutu : 0
 
 !v!Pluie.Yaml.Example test2 :
     myname      : test2object

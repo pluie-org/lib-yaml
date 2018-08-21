@@ -103,7 +103,7 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.DEBUG = false;
+    Pluie.Yaml.DEBUG = true;
     var config = new Yaml.Config (path, true);
     var root   = config.root_node () as Yaml.Root;
     root.first ().display_childs ();
@@ -129,42 +129,42 @@ int main (string[] args)
 //~     list.add_all_array (data);
 //~     Gee.ArrayList* p  = list;
 //~     var mynode = new Yaml.Root ();
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<double?>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<double?>", mynode);
 
 
 //~     string[] data2 = { "mastring1", "mastring2", "mastring3", "mastring4", "mastring5" };
 //~     var list2   = new Gee.ArrayList<string> ();
 //~     list2.add_all_array (data2);
 //~     p  = list2;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<string>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<string>", mynode);
 
 
 //~     int[] data3 = { 123, 456, 9875, 64205, 9924563 };
 //~     var list3   = new Gee.ArrayList<int> ();
 //~     list3.add_all_array (data3);
 //~     p  = list3;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<int>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<int>", mynode);
 
 
 //~     int64?[] data4 = { 123, 456, -9875, 64205, -549924563 };
 //~     var list4   = new Gee.ArrayList<int64?> ();
 //~     list4.add_all_array (data4);
 //~     p  = list4;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<int64?>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<int64?>", mynode);
 
 
 //~     long?[] data5 = { 123, 456, -9875, 64205, -549924563 };
 //~     var list5   = new Gee.ArrayList<long?> ();
 //~     list5.add_all_array (data5);
 //~     p  = list5;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<long?>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<long?>", mynode);
 
 
 //~     uint[] data6 = { 123, 456, 19875, 64205, 1549924563 };
 //~     var list6   = new Gee.ArrayList<uint> ();
 //~     list6.add_all_array (data6);
 //~     p  = list6;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uint>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<uint>", mynode);
 
 
 //~     uint8[] data7 = { 97, 99, 122, 72 };
@@ -174,7 +174,7 @@ int main (string[] args)
 //~         of.echo("       - item7 : %u".printf (u));
 //~     }
 //~     p  = list7;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uint8>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<uint8>", mynode);
 
 
 //~     uchar[] data8 = { 'a', 'c', 'z', 'H' };
@@ -184,7 +184,7 @@ int main (string[] args)
 //~         of.echo("       - item8 : %c".printf (u));
 //~     }
 //~     p  = list8;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uchar>", mynode, true);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<uchar>", mynode, true);
 
 
 //~     unichar[] data9 = { '水', 'は', '方', 'の', 'é', 'à', 'ï', 'Ô' };
@@ -194,7 +194,7 @@ int main (string[] args)
 //~         of.echo("       - item9 : %s (%lu)".printf (u.to_string (), u));
 //~     }
 //~     p  = list9;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<unichar?>", mynode, true);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<unichar?>", mynode, true);
 
 
 //~     uint64?[] data10 = { 4521, 8954354, 4535213213 };
@@ -204,7 +204,7 @@ int main (string[] args)
 //~         of.echo("       - item10 : %s".printf (u.to_string ()));
 //~     }
 //~     p  = list10;
-//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uint64?>", mynode);
+//~     Yaml.GeeBuilder.arraylist_to_node (p, "Gee.ArrayList<uint64?>", mynode);
 
 //~     mynode.display_childs ();
 
