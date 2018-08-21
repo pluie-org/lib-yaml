@@ -83,8 +83,8 @@ int main (string[] args)
             o.type_object.method_a ();
             if (o.type_gee_al != null) {
                 of.keyval("type_gee_al", "(%s)" .printf(o.type_gee_al.get_type ().name ()));
-                foreach (string v in o.type_gee_al) {
-                    of.echo("       - item : %s".printf (v));
+                foreach (double v in o.type_gee_al) {
+                    of.echo("       - item : %f".printf (v));
                 }
             }
         }

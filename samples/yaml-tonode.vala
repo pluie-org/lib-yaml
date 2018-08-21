@@ -41,6 +41,7 @@ public void inspect_type (GLib.Type type, ...)
             break;  // end of the list
         }
         print ("%s\n", type.name ());
+        print ("%s\n", type.name ());
         print (" is-obj: %s\n", type.is_object ().to_string ());
         print (" is-abstr: %s\n", type.is_abstract ().to_string ());
         print (" is-classed: %s\n", type.is_classed ().to_string ());
@@ -64,7 +65,18 @@ public void inspect_type (GLib.Type type, ...)
         print (" Interfaces:\n");
         foreach (unowned Type ch in type.interfaces ()) {
             if ( ch == typeof(Gee.Traversable)) {
+                var t = (obj as Gee.Traversable).element_type;
                 print ("  --- !!! element type is  %s\n", (obj as Gee.Traversable).element_type.name ());
+                print (" is-obj: %s\n", t.is_object ().to_string ());
+                print (" is-abstr: %s\n", t.is_abstract ().to_string ());
+                print (" is-classed: %s\n", t.is_classed ().to_string ());
+                print (" is-derivable: %s\n", t.is_derivable ().to_string ());
+                print (" is-derived: %s\n", t.is_derived ().to_string ());
+                print (" is-fund: %s\n", t.is_fundamental ().to_string ());
+                print (" is-inst: %s\n", t.is_instantiatable ().to_string ());
+                print (" is-iface: %s\n", t.is_interface ().to_string ());
+                print (" is-enum: %s\n", t.is_enum ().to_string ());
+                print (" is-flags: %s\n", t.is_object ().to_string ());
                 if ((obj as Gee.Traversable).element_type == typeof (Gee.Map.Entry)) {
                     print ("  --- !!! key type is  %s\n", (obj as Gee.Map).key_type.name ());
                     print ("  --- !!! value type is  %s\n", (obj as Gee.Map).value_type.name ());
@@ -94,7 +106,7 @@ int main (string[] args)
     Pluie.Yaml.DEBUG = false;
     var config = new Yaml.Config (path, true);
     var root   = config.root_node () as Yaml.Root;
-    root.display_childs ();
+    root.first ().display_childs ();
 
     of.action ("Yaml.Builder.from_node", root.first ().name);
     var obj    = (Yaml.Example) Yaml.Builder.from_node (root.first ());
@@ -106,23 +118,95 @@ int main (string[] args)
         }
     }
 
-
-//~     double dv = 46548970.54324546464;
-//~     var d = new Gee.ArrayList<double?> ();
-//~     d.add(dv);
-    
-//~     Gee.ArrayList<double?>* z  = d;
-//~     of.action ("!!!!!!!Yaml.Builder.to_node", obj.get_type ().name ());
-//~     var m = Yaml.Builder.gee_arraylist_to_node (z, "toto", root);
-
-    of.action ("Yaml.Builder.to_node", obj.get_type ().name ());
-
-//~     inspect_type (root.tag_directives.get_type (), root.tag_directives);
-
     var n = Yaml.Builder.to_node (obj);
     if ((done = n !=null)) { 
         n.display_childs ();
     }
+
+
+//~     double?[] data = { 46548970.54324546464, 2.2, 2.1, 2.4, 5.7 };
+//~     var list   = new Gee.ArrayList<double?> ();
+//~     list.add_all_array (data);
+//~     Gee.ArrayList* p  = list;
+//~     var mynode = new Yaml.Root ();
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<double?>", mynode);
+
+
+//~     string[] data2 = { "mastring1", "mastring2", "mastring3", "mastring4", "mastring5" };
+//~     var list2   = new Gee.ArrayList<string> ();
+//~     list2.add_all_array (data2);
+//~     p  = list2;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<string>", mynode);
+
+
+//~     int[] data3 = { 123, 456, 9875, 64205, 9924563 };
+//~     var list3   = new Gee.ArrayList<int> ();
+//~     list3.add_all_array (data3);
+//~     p  = list3;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<int>", mynode);
+
+
+//~     int64?[] data4 = { 123, 456, -9875, 64205, -549924563 };
+//~     var list4   = new Gee.ArrayList<int64?> ();
+//~     list4.add_all_array (data4);
+//~     p  = list4;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<int64?>", mynode);
+
+
+//~     long?[] data5 = { 123, 456, -9875, 64205, -549924563 };
+//~     var list5   = new Gee.ArrayList<long?> ();
+//~     list5.add_all_array (data5);
+//~     p  = list5;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<long?>", mynode);
+
+
+//~     uint[] data6 = { 123, 456, 19875, 64205, 1549924563 };
+//~     var list6   = new Gee.ArrayList<uint> ();
+//~     list6.add_all_array (data6);
+//~     p  = list6;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uint>", mynode);
+
+
+//~     uint8[] data7 = { 97, 99, 122, 72 };
+//~     var list7   = new Gee.ArrayList<uint8> ();
+//~     list7.add_all_array (data7);
+//~     foreach (uint8 u in list7) {
+//~         of.echo("       - item7 : %u".printf (u));
+//~     }
+//~     p  = list7;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uint8>", mynode);
+
+
+//~     uchar[] data8 = { 'a', 'c', 'z', 'H' };
+//~     var list8   = new Gee.ArrayList<uchar> ();
+//~     list8.add_all_array (data8);
+//~     foreach (uchar u in list8) {
+//~         of.echo("       - item8 : %c".printf (u));
+//~     }
+//~     p  = list8;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uchar>", mynode, true);
+
+
+//~     unichar[] data9 = { '水', 'は', '方', 'の', 'é', 'à', 'ï', 'Ô' };
+//~     var list9   = new Gee.ArrayList<unichar> ();
+//~     list9.add_all_array (data9);
+//~     foreach (unichar u in list9) {
+//~         of.echo("       - item9 : %s (%lu)".printf (u.to_string (), u));
+//~     }
+//~     p  = list9;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<unichar?>", mynode, true);
+
+
+//~     uint64?[] data10 = { 4521, 8954354, 4535213213 };
+//~     var list10   = new Gee.ArrayList<uint64?> ();
+//~     list10.add_all_array (data10);
+//~     foreach (uint64 u in list10) {
+//~         of.echo("       - item10 : %s".printf (u.to_string ()));
+//~     }
+//~     p  = list10;
+//~     Yaml.Builder.gee_arraylist_to_node (p, "Gee.ArrayList<uint64?>", mynode);
+
+//~     mynode.display_childs ();
 
     of.rs (done);
     of.echo ();

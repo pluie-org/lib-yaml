@@ -371,7 +371,7 @@ public class Pluie.Yaml.Builder
     /**
      *
      */
-    public static Yaml.Node? gee_arraylist_to_node (Gee.ArrayList* o, string property_name, Yaml.Node parent)
+    public static Yaml.Node? gee_arraylist_to_node (Gee.ArrayList* o, string property_name, Yaml.Node parent, bool is_char = false)
     {
         Yaml.dbg_action ("prop %s (type %s) has element type :".printf (property_name, o->get_type ().name ()), o->element_type.name ());
         var type = o->element_type;
@@ -380,37 +380,51 @@ public class Pluie.Yaml.Builder
         while (it.next ()) {
             if (!o->element_type.is_object () && o->element_type.is_fundamental ()) {
                 string data = "";
-                switch (o->element_type) {
-                    case Type.INT64 :
-                    case Type.INT   :
-                        data = ((int64) it.get ()).to_string ();
-                        break;
-                    case Type.CHAR :
-                        data = ((char) it.get ()).to_string ();
-                        break;
-                    case Type.UCHAR :
-                        data = ((uchar) it.get ()).to_string ();
-                        break;
-                    case Type.UINT64 :
-                    case Type.UINT :
-                        data = ((uint64) it.get ()).to_string ();
-                        break;
-                    case Type.BOOLEAN :
-                        data = ((bool) it.get ()).to_string ();
-                        break;
-                    case Type.FLOAT :
-                        float* f = (float*) it.get ();
-                        data = f.to_string ();
-                        break;
-                    case Type.DOUBLE :
-                        double* d = (double*) it.get ();
-                        data = d.to_string ();
-                        break;
-                    default :
-                        data = (string) it.get ();
-                        break;
+                if (is_char && (o->element_type == typeof (unichar) || o->element_type == typeof (uchar))) {
+                    void* d = (void*) it.get ();   
+                    data = ((unichar) d).to_string();
                 }
-                new Yaml.Scalar (node, data);
+                else {
+                    switch (o->element_type) {
+                        case Type.LONG :
+                        case Type.INT64 :
+                            int64* d = (int64*) it.get ();
+                            data = d.to_string ();
+                            break;
+                        case Type.INT   :
+                            data = ((int64) it.get ()).to_string ();
+                            break;
+                        case Type.CHAR :
+                            data = ((char) it.get ()).to_string ();
+                            break;
+                        case Type.UCHAR :
+                            data = "%u".printf (((uint) it.get ()));
+                            break;
+                        case Type.ULONG :
+                        case Type.UINT64 :
+                            uint64* d = (uint64*) it.get ();
+                            data = d.to_string ();
+                            break;
+                        case Type.UINT :
+                            data = "%u".printf ((uint) it.get ());
+                            break;
+                        case Type.BOOLEAN :
+                            data = ((bool) it.get ()).to_string ();
+                            break;
+                        case Type.FLOAT :
+                            float* f = (float*) it.get ();
+                            data = f.to_string ();
+                            break;
+                        case Type.DOUBLE :
+                            double* d = (double*) it.get ();
+                            data = d.to_string ();
+                            break;
+                        default :
+                            data = (string) it.get ();
+                            break;
+                    }
+                }
+                var f = new Yaml.Scalar (node, data);
             }
             else if (o->element_type.is_object ()) {
 
