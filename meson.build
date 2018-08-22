@@ -73,7 +73,6 @@ sources = [
     'src/vala/Pluie/Yaml.ExampleChild.vala',
     'src/vala/Pluie/Yaml.ExampleStruct.vala',
     'src/vala/Pluie/Yaml.Finder.vala',
-    'src/vala/Pluie/Yaml.GeeBuilder.vala',
     'src/vala/Pluie/Yaml.Loader.vala',
     'src/vala/Pluie/Yaml.Mapping.vala',
     'src/vala/Pluie/Yaml.Node.vala',

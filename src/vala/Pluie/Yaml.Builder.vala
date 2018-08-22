@@ -48,7 +48,7 @@ public class Pluie.Yaml.Builder
     private static unowned GLib.Module p_open_module ()
     {
         if (p_module == null) {
-            p_module = GLib.Module.open (null, 0);
+            p_module = Module.open (null, 0);
         }
         return p_module;
     }
@@ -58,7 +58,7 @@ public class Pluie.Yaml.Builder
      */
     public static GLib.Type? type_from_string (string name)
     {
-        GLib.Type? type = Type.from_name (name.replace(".", ""));
+        Type? type = Type.from_name (name.replace(".", ""));
         return type;
     }
 
@@ -110,7 +110,7 @@ public class Pluie.Yaml.Builder
                 }
             }
         }
-        catch (GLib.RegexError e) {
+        catch (RegexError e) {
             of.error (e.message, true);
         }
         return !begin ? sb.str : name;
@@ -169,18 +169,11 @@ public class Pluie.Yaml.Builder
     /**
      *
      */
-    public static void set_from_collection (ref Yaml.Object obj, GLib.Type parentType, Yaml.Node node, GLib.Type type)
+    public static void set_from_collection (ref Yaml.Object obj, Type parentType, Yaml.Node node, Type type)
     {
         Yaml.dbg (" > set_from_collection %s (%s)".printf (node.name, type.name ()));
-        if (type.is_a (typeof (Yaml.Object))) {
-            obj.set (node.name, Yaml.Builder.from_node(node, type));
-        }
-        else if (type.is_a (typeof (Gee.ArrayList))) {
-            Yaml.GeeBuilder.arraylist_from_node(ref obj, node, type);
-        }
-        else if (Yaml.Object.register.is_registered_type(parentType, type)) {
-            Yaml.dbg ("%s is a registered type".printf (type.name ()));
-            obj.populate_from_node (type, node);
+        if (type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type (parentType, type)) {
+            obj.populate_from_node (node.name, type, node);
         }
         else {
             Dbg.error ("%s is not registered and cannot be populated".printf (type.name ()), Log.METHOD, Log.LINE);
@@ -332,13 +325,8 @@ public class Pluie.Yaml.Builder
         foreach (var def in obj.get_class ().list_properties ()){
             name = Yaml.Builder.transform_param_name(def.name);
             if (name != null && name != "yaml_name") {
-                if (def.value_type.is_a (typeof (Gee.ArrayList))) {
-                    void *p;
-                    obj.get(name, out p);
-                    Yaml.GeeBuilder.arraylist_to_node(p, name, node);
-                }
-                else if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
-                    var child = obj.populate_to_node(def.value_type, name);
+                if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
+                    var child = obj.populate_to_node(name, def.value_type, node);
                     if (child != null) {
                         child.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(def.value_type), "v");
                         node.add (child);

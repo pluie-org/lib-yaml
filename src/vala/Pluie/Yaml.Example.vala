@@ -81,10 +81,10 @@ public class Pluie.Yaml.Example : Yaml.Object
      */
     protected override void yaml_construct ()
     {
-        this.type_gee_al = new Gee.ArrayList<double?> ();
+        this.type_gee_al       = new Gee.ArrayList<double?> ();
         this.type_gee_alobject = new Gee.ArrayList<Yaml.ExampleChild> ();
-        // base.yaml_init ();
-        Dbg.msg ("Yaml.Object %s (%s) instantiated".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
+        register.add_namespace("Gee");
+        Dbg.msg ("%s (%s) instantiated".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**
@@ -92,30 +92,57 @@ public class Pluie.Yaml.Example : Yaml.Object
      */
     protected override void yaml_init ()
     {
-        // base.yaml_init ();
-        Dbg.msg ("Yaml.Object %s (%s) initialized".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
+        Dbg.msg ("%s (%s) initialized".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**
      *
      */
-    public override void  populate_from_node(GLib.Type type, Yaml.Node node)
-    {
+    public override void populate_from_node (string name, GLib.Type type, Yaml.Node node) {
         if (type == typeof (Yaml.ExampleStruct)) {
             this.type_struct = ExampleStruct.from_yaml_node (node);
+        }
+        else if (type == typeof (Gee.ArrayList)) {
+            foreach (var child in node) {
+                switch (name) {
+                    case "type_gee_al":
+                        this.type_gee_al.add(double.parse(child.data));
+                        break;
+                    case "type_gee_alobject":
+                        this.type_gee_alobject.add((Yaml.ExampleChild) Yaml.Builder.from_node (child, typeof (Yaml.ExampleChild)));
+                        break;
+                }
+            }
+        }
+        else {
+            base.populate_from_node (name, type, node);
         }
     }
 
     /**
      *
      */
-    public override Yaml.Node?  populate_to_node(GLib.Type type, string name)
-    {
-        Yaml.Node? node = base.populate_to_node (type, name);
+    public override Yaml.Node? populate_to_node (string name, GLib.Type type, Yaml.Node parent) {
+        Yaml.Node? node = base.populate_to_node (name, type, parent);
         if (node == null) {
             if (type == typeof (Yaml.ExampleStruct)) {
                 Yaml.ExampleStruct p = this.type_struct;
                 node = ExampleStruct.to_yaml_node (ref p, name);
+            }
+            else if (type == typeof (Gee.ArrayList)) {
+                node = new Yaml.Sequence (parent, name);
+                switch (name) {
+                    case "type_gee_al" :
+                        foreach (var data in this.type_gee_al) {
+                            new Yaml.Scalar (node, data.to_string ());
+                        }
+                        break;
+                    case "type_gee_alobject" :
+                        foreach (var data in this.type_gee_alobject) {
+                            Yaml.Builder.to_node (data, node, false);
+                        }
+                    break;
+                }
             }
         }
         return node;

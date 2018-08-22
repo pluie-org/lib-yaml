@@ -31,7 +31,7 @@ using GLib;
 using Gee;
 
 /**
- * a test class to implements yamlize
+ * Yaml.Object bqse class which can be transform to a Yaml.Node structure
  */
 public abstract class Pluie.Yaml.Object : GLib.Object
 {
@@ -48,7 +48,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     /**
      *
      */
-    public static Yaml.Tag yaml_tag       { get; internal set; }
+    public static Yaml.Tag      yaml_tag  { get; internal set; }
 
     /**
      *
@@ -57,9 +57,12 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     {
         register = new Yaml.Register();
         yaml_tag = new Tag (typeof (Pluie.Yaml.Object).name (), "v");
-        register.add_namespace("Pluie", "Pluie.Yaml", "Gee");
+        register.add_namespace("Pluie", "Pluie.Yaml");
     }
 
+    /**
+     *
+     */
     public Object ()
     {
         this.yaml_construct ();
@@ -70,7 +73,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
      */
     public virtual void yaml_construct ()
     {
-        Dbg.msg ("Yaml.Object (%s) construct".printf (this.get_type().name ()), Log.LINE, Log.FILE);
+        Dbg.msg ("%s (%s) instantiated".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**
@@ -78,14 +81,13 @@ public abstract class Pluie.Yaml.Object : GLib.Object
      */
     public virtual void yaml_init ()
     {
-        Dbg.msg ("Yaml.Object (%s) init".printf (this.get_type().name ()), Log.LINE, Log.FILE);
+        Dbg.msg ("%s (%s) initialized".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
     /**
      *
      */
-    public virtual void populate_from_node(GLib.Type type, Yaml.Node node)
-    {
+    public virtual signal void populate_from_node (string name, GLib.Type type, Yaml.Node node) {
         if (type.is_a (typeof (Yaml.Object))) {
             this.set (node.name, Yaml.Builder.from_node(node, type));
         }
@@ -94,8 +96,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     /**
      *
      */
-    public virtual Yaml.Node? populate_to_node(GLib.Type type, string name)
-    {
+    public virtual signal Yaml.Node? populate_to_node (string name, GLib.Type type, Yaml.Node parent) {
         Yaml.Node? node = null;
         if (type.is_a (typeof (Yaml.Object))) {
             var o = (Yaml.Object) GLib.Object.new (type);
@@ -104,4 +105,5 @@ public abstract class Pluie.Yaml.Object : GLib.Object
         }
         return node;
     }
+
 }

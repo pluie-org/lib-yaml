@@ -117,19 +117,22 @@ public class Pluie.Yaml.GeeBuilder
                         obj.set (node.name, l);
                         break;
                     case Type.DOUBLE :
-                        var l = new Gee.ArrayList<double?> ();
+                        
+//~                         .add(double.parse(child.data));
+//~                         var l = new Gee.ArrayList<double?> ();
                         foreach (var child in node) {
-                            l.add(double.parse(child.data));
+                            obj.sig_set_data (node.name, type, child);
+//~                             l.add(double.parse(child.data));
                         }
-                        obj.set (node.name, l);
+//~                         obj.set (node.name, l);
                         break;
                 }
             }
             else if (elementType.is_object ()) {
-                var pg = p;
-                foreach (var child in node) {
-                    pg.add(Yaml.Builder.from_node (child, elementType));
-                }
+//~                 var pg = p;
+//~                 foreach (var child in node) {
+//~                     pg.add(Yaml.Builder.from_node (child, elementType));
+//~                 }
             }
         }
         else {

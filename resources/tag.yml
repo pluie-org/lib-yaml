@@ -44,19 +44,3 @@
           titi : 44
           tutu : 0
 
-!v!Pluie.Yaml.Example test2 :
-    myname      : test2object
-    type_int    : 3306
-    type_bool   : "true"
-    type_char   : g
-    type_string : mystring2
-    type_uchar  : Y
-    type_uint   : 63005
-    type_float  : 5.28
-    type_double : 9.28
-    type_enum   : PLUIE_YAML_NODE_TYPE_SCALAR
-    !v!Pluie.Yaml.ExampleChild type_object : 
-        toto : totovalue2
-        tata : tatavalue2
-        titi : !v!int 456
-        tutu : !v!bool TRUE
