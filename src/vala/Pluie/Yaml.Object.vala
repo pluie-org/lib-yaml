@@ -88,8 +88,12 @@ public abstract class Pluie.Yaml.Object : GLib.Object
      *
      */
     public virtual signal void populate_from_node (string name, GLib.Type type, Yaml.Node node) {
-        if (type.is_a (typeof (Yaml.Object))) {
+        if (type.is_a(typeof (Yaml.Object))) {
             this.set (node.name, Yaml.Builder.from_node(node, type));
+        }
+        else {
+            message ("base Yaml.Object : %s".printf (Log.METHOD));
+            this.set (node.name, (GLib.Object) Yaml.Builder.from_node(node, type));
         }
     }
 
@@ -98,12 +102,33 @@ public abstract class Pluie.Yaml.Object : GLib.Object
      */
     public virtual signal Yaml.Node? populate_to_node (string name, GLib.Type type, Yaml.Node parent) {
         Yaml.Node? node = null;
-        if (type.is_a (typeof (Yaml.Object))) {
-            var o = (Yaml.Object) GLib.Object.new (type);
+        if (type.is_object ()) {
+            var o = (GLib.Object) GLib.Object.new (type);
             this.get (name, out o);
-            node = Yaml.Builder.to_node (o, null, false);
+            node = Yaml.Builder.to_node (o, parent, false, null, name);
         }
         return node;
     }
 
+    public delegate GLib.Object CastYamlObject (string name, GLib.Object obj);
+
+    /**
+     *
+     */
+    public virtual Yaml.Node? collection_to_node (Gee.Collection list, CastYamlObject castYamlObject, string name, Yaml.Node? parent = null)
+    {
+        var node = new Yaml.Sequence (parent, name);
+        node.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(list.get_type ()), "v");
+        var it = list.iterator ();
+        var i  = 0;
+        while (it.next ()) {
+            Yaml.Builder.to_node (
+                castYamlObject(name, (GLib.Object) it.get ()), 
+                node, 
+                false,
+                i++
+            );
+        }
+        return node;
+    }
 }

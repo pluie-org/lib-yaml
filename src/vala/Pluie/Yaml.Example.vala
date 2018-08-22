@@ -70,8 +70,9 @@ public class Pluie.Yaml.Example : Yaml.Object
     static construct
     {
         Yaml.Object.register.add_type (
-            typeof (Yaml.Example), 
-            typeof (Yaml.ExampleStruct), 
+            typeof (Yaml.Example),
+            typeof (Yaml.ExampleChild),
+            typeof (Yaml.ExampleStruct),
             typeof (Gee.ArrayList)
         );
     }
@@ -83,7 +84,7 @@ public class Pluie.Yaml.Example : Yaml.Object
     {
         this.type_gee_al       = new Gee.ArrayList<double?> ();
         this.type_gee_alobject = new Gee.ArrayList<Yaml.ExampleChild> ();
-        register.add_namespace("Gee");
+        register.add_namespace("Gee", "GLib");
         Dbg.msg ("%s (%s) instantiated".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
@@ -115,35 +116,46 @@ public class Pluie.Yaml.Example : Yaml.Object
             }
         }
         else {
-            base.populate_from_node (name, type, node);
+            var obj = Yaml.Builder.from_node(node, type);
+             if (name == "type_object") {
+                this.set (node.name, (Yaml.ExampleChild) obj);
+            }
+            else {
+                this.set (node.name, obj);
+            }
         }
+    }
+
+    /**
+     * match delegate CastYamlObject
+     */
+    public GLib.Object cast_child_collection (string name, GLib.Object obj)
+    {
+        return (GLib.Object) ((Yaml.ExampleChild) obj);
     }
 
     /**
      *
      */
     public override Yaml.Node? populate_to_node (string name, GLib.Type type, Yaml.Node parent) {
-        Yaml.Node? node = base.populate_to_node (name, type, parent);
-        if (node == null) {
-            if (type == typeof (Yaml.ExampleStruct)) {
-                Yaml.ExampleStruct p = this.type_struct;
-                node = ExampleStruct.to_yaml_node (ref p, name);
-            }
-            else if (type == typeof (Gee.ArrayList)) {
-                node = new Yaml.Sequence (parent, name);
-                switch (name) {
-                    case "type_gee_al" :
-                        foreach (var data in this.type_gee_al) {
-                            new Yaml.Scalar (node, data.to_string ());
-                        }
-                        break;
-                    case "type_gee_alobject" :
-                        foreach (var data in this.type_gee_alobject) {
-                            Yaml.Builder.to_node (data, node, false);
-                        }
+        Yaml.Node? node = null;
+        if (type == typeof (Yaml.ExampleStruct)) {
+            Yaml.ExampleStruct p = this.type_struct;
+            node = ExampleStruct.to_yaml_node (ref p, name);
+        }
+        else if (type == typeof (Gee.ArrayList)) {
+            switch (name) {
+                case "type_gee_al" :
+                    Yaml.GeeBuilder.arraylist_to_node (this.type_gee_al, name, parent);
                     break;
-                }
+                case "type_gee_alobject" :
+                    this.collection_to_node (this.type_gee_alobject, cast_child_collection, name, parent);
+
+                break;
             }
+        }
+        else {
+            base.populate_to_node (name, type, parent);
         }
         return node;
     }

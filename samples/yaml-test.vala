@@ -61,14 +61,20 @@ int main (string[] args)
     Yaml.Example obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
     obj.type_object.method_a ();
     if (obj.type_gee_al != null) {
-        of.keyval("type_gee_al", "(%s)" .printf(obj.type_gee_al.get_type ().name ()));
+        of.keyval("type_gee_al", "(%s<%s>)" .printf(obj.type_gee_al.get_type ().name (), obj.type_gee_al.element_type.name ()));
         foreach (var v in obj.type_gee_al) {
             of.echo("       - item : %f".printf (v));
         }
-        of.keyval("type_gee_alobject", "(%s)" .printf(obj.type_gee_alobject.get_type ().name ()));
+        of.keyval("type_object", "(%s)" .printf(obj.type_object.get_type ().name ()));
+        of.echo("       - item toto : %s".printf (obj.type_object.toto));
+        of.echo("       - item tata : %s".printf (obj.type_object.tata));
+        obj.type_object.method_a ();
+
+        of.keyval("type_gee_alobject", "(%s<%s>)" .printf(obj.type_gee_alobject.get_type ().name (), obj.type_gee_alobject.element_type.name ()));
         foreach (var child in obj.type_gee_alobject) {
             of.echo("       - item toto : %s".printf (child.toto));
             of.echo("       - item tata : %s".printf (child.tata));
+            child.method_a ();
         }
     }
 

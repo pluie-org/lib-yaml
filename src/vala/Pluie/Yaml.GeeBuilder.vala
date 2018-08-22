@@ -119,12 +119,12 @@ public class Pluie.Yaml.GeeBuilder
                     case Type.DOUBLE :
                         
 //~                         .add(double.parse(child.data));
-//~                         var l = new Gee.ArrayList<double?> ();
+                        var l = new Gee.ArrayList<double?> ();
                         foreach (var child in node) {
-                            obj.sig_set_data (node.name, type, child);
-//~                             l.add(double.parse(child.data));
+//~                             obj.sig_set_data (node.name, type, child);
+                            l.add(double.parse(child.data));
                         }
-//~                         obj.set (node.name, l);
+                        obj.set (node.name, l);
                         break;
                 }
             }

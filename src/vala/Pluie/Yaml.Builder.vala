@@ -122,17 +122,19 @@ public class Pluie.Yaml.Builder
     /**
      *
      */
-    public static Yaml.Object? from_node (Yaml.Node node, Type otype = GLib.Type.INVALID)
+    public static GLib.Object? from_node (Yaml.Node node, Type otype = GLib.Type.INVALID)
     {
-        Yaml.Object? obj = null;
+        GLib.Object? obj  = null;
         try {
             Type type = node.tag != null ? type_from_tag (node.tag.value) : otype;
             if (type != Type.INVALID) {
                 Yaml.dbg_action ("vala type founded", "%s (%s)".printf (type.name (), type.to_string ()));
                 if (type.is_object ()) {
-                    obj = (Yaml.Object) GLib.Object.new (type);
-                    obj.set ("yaml_name", node.name);
-                    obj.yaml_construct ();
+                    obj = GLib.Object.new (type);
+                    if (type.is_a (typeof (Yaml.Object))) {
+                        (obj as Yaml.Object).set ("yaml_name", node.name);
+                        (obj as Yaml.Object).yaml_construct ();
+                    }
                     if (node!= null && !node.empty ()) {
                         GLib.ParamSpec?  def = null;
                         Yaml.Node?    scalar = null;
@@ -157,7 +159,9 @@ public class Pluie.Yaml.Builder
                 of.warn ("searched type not found : %s".printf (type.name ()));
             }
             else {
-                obj.yaml_init ();
+                if (type.is_a (typeof (Yaml.Object))) {
+                    (obj as Yaml.Object).yaml_init ();
+                }
             }
         }
         catch (GLib.Error e) {
@@ -169,21 +173,21 @@ public class Pluie.Yaml.Builder
     /**
      *
      */
-    public static void set_from_collection (ref Yaml.Object obj, Type parentType, Yaml.Node node, Type type)
+    public static void set_from_collection (ref GLib.Object obj, Type parentType, Yaml.Node node, Type type)
     {
         Yaml.dbg (" > set_from_collection %s (%s)".printf (node.name, type.name ()));
         if (type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type (parentType, type)) {
-            obj.populate_from_node (node.name, type, node);
+            (obj as Yaml.Object).populate_from_node (node.name, type, node);
         }
         else {
-            Dbg.error ("%s is not registered and cannot be populated".printf (type.name ()), Log.METHOD, Log.LINE);
+            of.error ("%s is not registered and cannot be populated".printf (type.name ()));
         }
     }
 
     /**
      *
      */
-    public static void set_from_scalar (ref Yaml.Object obj, string name, GLib.Type type, string data)
+    public static void set_from_scalar (ref GLib.Object obj, string name, GLib.Type type, string data)
     {
         GLib.Value v = GLib.Value(type);
         Yaml.dbg_action ("Auto setting property value %s".printf (of.c (ECHO.MICROTIME).s (type.name ())), name);
@@ -318,15 +322,22 @@ public class Pluie.Yaml.Builder
     /**
      *
      */
-    public static Yaml.Node to_node (Yaml.Object obj, Yaml.Node? parent = null, bool root = true)
+    public static Yaml.Node to_node (GLib.Object obj, Yaml.Node? parent = null, bool root = true, int? index = null, string? property_name = null)
     { 
-        var node     = new Yaml.Mapping (parent, obj.yaml_name);
+        string node_name = "";
+        if (obj.get_type ().is_a (typeof (Yaml.Object))) {
+            node_name = (obj as Yaml.Object).yaml_name;
+        }
+        else {
+            node_name = parent.ntype.is_sequence () && index != null  ? "_%d".printf (index+1) : (property_name != null ? property_name : obj.get_type ().name ());
+        }
+        var node     = new Yaml.Mapping (parent, node_name);
         string? name = null;
         foreach (var def in obj.get_class ().list_properties ()){
             name = Yaml.Builder.transform_param_name(def.name);
             if (name != null && name != "yaml_name") {
                 if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
-                    var child = obj.populate_to_node(name, def.value_type, node);
+                    var child = (obj as Yaml.Object).populate_to_node(name, def.value_type, node);
                     if (child != null) {
                         child.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(def.value_type), "v");
                         node.add (child);
