@@ -37,109 +37,6 @@ using Pluie;
  */
 public class Pluie.Yaml.GeeBuilder
 {
-
-    /**
-     *
-     */
-    public static void arraylist_from_node (ref Yaml.Object obj, Yaml.Node node, Type type)
-    {
-        Gee.ArrayList* p;
-        obj.get (node.name, out p);
-        GLib.Type? elementType = null;
-        if (p != null && (elementType = p->element_type) != null) {
-            Yaml.dbg (" arraylist_from_node %s (%s<%s>)".printf (node.name, type.name (), elementType.name ()));
-            if (!elementType.is_object () && elementType.is_fundamental ()) {
-                switch (elementType)
-                {
-                    case Type.STRING :
-                        var l = new Gee.ArrayList<string> ();
-                        foreach (var child in node) {
-                            l.add(child.data);
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.CHAR :
-                        var l = new Gee.ArrayList<int8> ();
-                        foreach (var child in node) {
-                            l.add((int8)child.data.data[0]);
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.UCHAR :
-                        var l = new Gee.ArrayList<uchar> ();
-                        foreach (var child in node) {
-                            l.add((uint8)child.data.data[0]);
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.BOOLEAN :
-                        var l = new Gee.ArrayList<bool> ();
-                        foreach (var child in node) {
-                            l.add(child.data == "1" || child.data.down () == "true");
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.INT :
-                        var l = new Gee.ArrayList<int> ();
-                        foreach (var child in node) {
-                            l.add(int.parse(child.data));
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.UINT :
-                        var l = new Gee.ArrayList<uint> ();
-                        foreach (var child in node) {
-                            l.add((uint)long.parse(child.data));
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.LONG :
-                    case Type.INT64 :
-                        var l = new Gee.ArrayList<long> ();
-                        foreach (var child in node) {
-                            l.add((long)int64.parse(child.data));
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.ULONG :
-                    case Type.UINT64 :
-                        var l = new Gee.ArrayList<ulong> ();
-                        foreach (var child in node) {
-                            l.add((ulong)uint64.parse(child.data));
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.FLOAT :
-                        var l = new Gee.ArrayList<float?> ();
-                        foreach (var child in node) {
-                            l.add((float)double.parse(child.data));
-                        }
-                        obj.set (node.name, l);
-                        break;
-                    case Type.DOUBLE :
-                        
-//~                         .add(double.parse(child.data));
-                        var l = new Gee.ArrayList<double?> ();
-                        foreach (var child in node) {
-//~                             obj.sig_set_data (node.name, type, child);
-                            l.add(double.parse(child.data));
-                        }
-                        obj.set (node.name, l);
-                        break;
-                }
-            }
-            else if (elementType.is_object ()) {
-//~                 var pg = p;
-//~                 foreach (var child in node) {
-//~                     pg.add(Yaml.Builder.from_node (child, elementType));
-//~                 }
-            }
-        }
-        else {
-            of.warn ("can't retriew Generic Type. did you forget to instanciate the list in yaml_construct () method ?");
-        }
-    }
-
     /**
      *
      */
@@ -196,7 +93,7 @@ public class Pluie.Yaml.GeeBuilder
                             break;
                     }
                 }
-                var f = new Yaml.Scalar (node, data);
+                new Yaml.Scalar (node, data);
             }
             else if (type.is_object ()) {
 

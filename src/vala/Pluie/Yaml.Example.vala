@@ -69,7 +69,7 @@ public class Pluie.Yaml.Example : Yaml.Object
 
     static construct
     {
-        Yaml.Object.register.add_type (
+        Yaml.Register.add_type (
             typeof (Yaml.Example),
             typeof (Yaml.ExampleChild),
             typeof (Yaml.ExampleStruct),
@@ -84,7 +84,7 @@ public class Pluie.Yaml.Example : Yaml.Object
     {
         this.type_gee_al       = new Gee.ArrayList<double?> ();
         this.type_gee_alobject = new Gee.ArrayList<Yaml.ExampleChild> ();
-        register.add_namespace("Gee", "GLib");
+        Yaml.Register.add_namespace("Gee", "GLib");
         Dbg.msg ("%s (%s) instantiated".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
 
@@ -101,7 +101,7 @@ public class Pluie.Yaml.Example : Yaml.Object
      */
     public override void populate_from_node (string name, GLib.Type type, Yaml.Node node) {
         if (type == typeof (Yaml.ExampleStruct)) {
-            this.type_struct = ExampleStruct.from_yaml_node (node);
+            this.type_struct = Yaml.ExampleStruct.from_yaml_node (node);
         }
         else if (type == typeof (Gee.ArrayList)) {
             foreach (var child in node) {
@@ -140,8 +140,7 @@ public class Pluie.Yaml.Example : Yaml.Object
     public override Yaml.Node? populate_to_node (string name, GLib.Type type, Yaml.Node parent) {
         Yaml.Node? node = null;
         if (type == typeof (Yaml.ExampleStruct)) {
-            Yaml.ExampleStruct p = this.type_struct;
-            node = ExampleStruct.to_yaml_node (ref p, name);
+            node = this.type_struct.to_yaml_node (name);
         }
         else if (type == typeof (Gee.ArrayList)) {
             switch (name) {
@@ -149,7 +148,7 @@ public class Pluie.Yaml.Example : Yaml.Object
                     Yaml.GeeBuilder.arraylist_to_node (this.type_gee_al, name, parent);
                     break;
                 case "type_gee_alobject" :
-                    this.collection_to_node (this.type_gee_alobject, cast_child_collection, name, parent);
+                    Yaml.Object.collection_to_node (this.type_gee_alobject, name, parent);
 
                 break;
             }

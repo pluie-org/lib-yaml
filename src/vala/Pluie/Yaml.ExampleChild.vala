@@ -31,12 +31,12 @@
 /**
  * a test class to implements yamlize
  */
-public class Pluie.Yaml.ExampleChild : GLib.Object
+public class Pluie.Yaml.ExampleChild : Yaml.Object
 {
-    public string  toto   { get; set; }
-    public string  tata   { get; set; }
-    public int     titi   { get; set; }
-    public bool    tutu   { get; set; }
+    public string   toto   { get; set; }
+    public string   tata   { get; set; }
+    public int      titi   { get; set; }
+    public bool     tutu   { get; set; }
 
     public void method_a ()
     {

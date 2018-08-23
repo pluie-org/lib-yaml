@@ -57,7 +57,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     {
         register = new Yaml.Register();
         yaml_tag = new Tag (typeof (Pluie.Yaml.Object).name (), "v");
-        register.add_namespace("Pluie", "Pluie.Yaml");
+        Yaml.Register.add_namespace("Pluie", "Pluie.Yaml");
     }
 
     /**
@@ -110,20 +110,18 @@ public abstract class Pluie.Yaml.Object : GLib.Object
         return node;
     }
 
-    public delegate GLib.Object CastYamlObject (string name, GLib.Object obj);
-
     /**
      *
      */
-    public virtual Yaml.Node? collection_to_node (Gee.Collection list, CastYamlObject castYamlObject, string name, Yaml.Node? parent = null)
+    public static Yaml.Node? collection_to_node (Gee.Collection list, string name, Yaml.Node? parent = null)
     {
         var node = new Yaml.Sequence (parent, name);
-        node.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(list.get_type ()), "v");
+        node.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(list.get_type ()), "v");
         var it = list.iterator ();
         var i  = 0;
         while (it.next ()) {
             Yaml.Builder.to_node (
-                castYamlObject(name, (GLib.Object) it.get ()), 
+                (GLib.Object) it.get (),
                 node, 
                 false,
                 i++

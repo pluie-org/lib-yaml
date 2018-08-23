@@ -77,7 +77,7 @@ public class Pluie.Yaml.Builder
     }
 
     /**
-     * retiew GLib.Type related to specified tag value.
+     * retriew GLib.Type related to specified tag value.
      * Type may not be registered yet
      */
     public static Type? type_from_tag (string tagValue)
@@ -176,7 +176,7 @@ public class Pluie.Yaml.Builder
     public static void set_from_collection (ref GLib.Object obj, Type parentType, Yaml.Node node, Type type)
     {
         Yaml.dbg (" > set_from_collection %s (%s)".printf (node.name, type.name ()));
-        if (type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type (parentType, type)) {
+        if (type.is_a (typeof (Yaml.Object)) || Yaml.Register.is_registered_type (parentType, type)) {
             (obj as Yaml.Object).populate_from_node (node.name, type, node);
         }
         else {
@@ -336,10 +336,10 @@ public class Pluie.Yaml.Builder
         foreach (var def in obj.get_class ().list_properties ()){
             name = Yaml.Builder.transform_param_name(def.name);
             if (name != null && name != "yaml_name") {
-                if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Object.register.is_registered_type(obj.get_type (), def.value_type)) {
+                if (def.value_type.is_a (typeof (Yaml.Object)) || Yaml.Register.is_registered_type(obj.get_type (), def.value_type)) {
                     var child = (obj as Yaml.Object).populate_to_node(name, def.value_type, node);
                     if (child != null) {
-                        child.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(def.value_type), "v");
+                        child.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(def.value_type), "v");
                         node.add (child);
                     }
                 }
@@ -348,8 +348,7 @@ public class Pluie.Yaml.Builder
                     obj.get (name, out enumval);
                     string data = enumval.value.to_string ();
                     var n = new Yaml.Mapping.with_scalar (node, name, (string) data);
-                    n.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(def.value_type), "v");
-
+                    n.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(def.value_type), "v");
                 }
                 else if (def.value_type.is_fundamental ()) {
                     string data = Yaml.Builder.get_basic_type_value(obj, def.value_type, name);
@@ -362,7 +361,7 @@ public class Pluie.Yaml.Builder
                 }
             }
         }
-        node.tag = new Yaml.Tag (Yaml.Object.register.resolve_namespace_type(obj.get_type ()), "v");
+        node.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(obj.get_type ()), "v");
         if (root) {
             var rootNode = new Yaml.Root();
             rootNode.add (node);

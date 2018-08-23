@@ -33,39 +33,92 @@ using Pluie;
 using Gee;
 
 /**
- * a class registering type which could be populated
+ * A Register class responsible to register owner types and related types lists
+ * 
+ * The register also manage full namespace resolving for the yaml tags generation <<BR>>
+ * (from Yaml.Object to Yaml.Node)
+ * 
+ * The registered types means that they can (must) be populated from Yaml.Node
+ * to Yaml.Object or the opposite.<<BR>>
+ * See classes Yaml.Builder & Yaml.Object for more details about that.
  */
-public class Pluie.Yaml.Register : GLib.Object
+public class Pluie.Yaml.Register
 {
     /**
      *
      */
-    public static Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> rtype         { get; internal set; }
+    static Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> rtype;
     /**
      *
      */
-    public static Gee.ArrayList<string>                       namespaces    { get; internal set; }
+    static Gee.ArrayList<string>                       namespaces;
+    /**
+     * 
+     */
+    static Gee.HashMap<Quark, string>                  ns_resolved;
 
     /**
      *
      */
     static construct {
-        Yaml.Register.rtype      = new Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> ();
-        Yaml.Register.namespaces = new Gee.ArrayList<string> ();
+        Yaml.Register.rtype       = new Gee.HashMap<Type, Gee.ArrayList<GLib.Type>> ();
+        Yaml.Register.namespaces  = new Gee.ArrayList<string> ();
+        Yaml.Register.ns_resolved = new Gee.HashMap<Quark, string> ();
     }
 
     /**
      *
      */
-    private Gee.ArrayList<GLib.Type> init_type_list ()
+    internal Register ()
     {
-        return new Gee.ArrayList<GLib.Type> ();
     }
 
     /**
-     *
+     * add multiple type to specified owner type
+     * @param owner_type the owner type to registering types
      */
-    public bool add_namespace (string name, ...)
+    public static bool add_type (GLib.Type owner_type, ...)
+    {
+        bool done = true;
+        if (!is_registered (owner_type)) {
+            rtype.set (owner_type, init_type_list ());
+        }
+        var l = va_list();
+        while (done) {
+            GLib.Type? t = l.arg<GLib.Type> ();
+            if (t == null || t == Type.INVALID) {
+                break;
+            }
+            Yaml.dbg ("adding to %s type %s".printf (owner_type.name (), t.name ()));
+            done = done && rtype.get (owner_type).add (t);
+        }
+        return done;
+    }
+
+    /**
+     * check if specified owner_type is registered
+     * @param owner_type the owner type to check
+     */
+    public static bool is_registered (GLib.Type owner_type)
+    {
+        return rtype.has_key (owner_type);
+    }
+
+    /**
+     * check if specified type is registered for specified owner_type
+     * @param owner_type the owner type to check
+     * @param type the type presumably belonging to owner type
+     */
+    public static bool is_registered_type (GLib.Type owner_type, GLib.Type type)
+    {
+        return is_registered (owner_type) && rtype.get (owner_type).contains (type);
+    }
+
+    /**
+     * add one or multiple namespace for tag resolution
+     * @param name a namespace to register
+     */
+    public static bool add_namespace (string name, ...)
     {
         var l    = va_list();
         Yaml.dbg ("adding namespace %s".printf (name));
@@ -84,78 +137,74 @@ public class Pluie.Yaml.Register : GLib.Object
     }
 
     /**
-     *
+     * resolve full namespace for specified type
+     * @param type the type to retriew his full namespace
+     * @return the full namespace
      */
-    public string resolve_namespace_type (GLib.Type type)
+    public static string resolve_namespace_type (GLib.Type type)
     {
-        var name = type.name ();
-        try {
-            Regex reg = new Regex ("([A-Z]{1}[a-z]+)");
-            var d  = reg.split (type.name (), 0);
-            var rn = "";
-            var gb = "";
-            for (var i = 1; i < d.length; i+=2) {
-                rn += d[i];
-                if (namespaces.contains (rn)) {
-                    rn += ".";
-                    gb += d[i];
+        if (!is_resolved_ns (type)) {
+            var name = type.name ();
+            try {
+                Regex reg = new Regex ("([A-Z]{1}[a-z]+)");
+                var d  = reg.split (type.name (), 0);
+                var rn = "";
+                var gb = "";
+                for (var i = 1; i < d.length; i+=2) {
+                    rn += d[i];
+                    if (namespaces.contains (rn)) {
+                        rn += ".";
+                        gb += d[i];
+                    }
                 }
+                // case ENUM which ends with dot
+                if (rn.substring(-1) == ".") {
+                    rn = name.splice (0, gb.length, rn);
+                }
+                name = rn;
             }
-            // case ENUM which ends with dot
-            if (rn.substring(-1) == ".") {
-                rn = name.splice (0, gb.length, rn);
+            catch (GLib.RegexError e) {
+                of.error (e.message);
             }
-            name = rn;
+            var serial = get_serial (type);
+            Yaml.dbg ("resolve_namespace_type %u (%s) => %s".printf (serial, type.name (), name));  
+            ns_resolved.set (serial, name);
         }
-        catch (GLib.RegexError e) {
-            of.error (e.message);
-        }
-        Yaml.dbg ("resolve_namespace_type %s => %s".printf (type.name (), name));  
-        return name;
+        return get_resolved_ns (type);
     }
 
     /**
      *
      */
-    public Gee.ArrayList<GLib.Type>? get_type_list (GLib.Type type)
+    private static Gee.ArrayList<GLib.Type> init_type_list ()
     {
-        return rtype.get (type);
+        return new Gee.ArrayList<GLib.Type> ();
     }
 
     /**
-     *
+     * check if full namespace is already resolved for specified type
+     * @param type the type to check
      */
-    public bool add_type (GLib.Type owntype, ...)
+    private static bool is_resolved_ns (GLib.Type type)
     {
-        bool done = true;
-        if (!this.is_registered (owntype)) {
-            rtype.set (owntype, this.init_type_list ());
-        }
-        var l = va_list();
-        while (done) {
-            GLib.Type? t = l.arg<GLib.Type> ();
-            if (t == null || t == Type.INVALID) {
-                break;
-            }
-            Yaml.dbg ("adding to %s type %s".printf (owntype.name (), t.name ()));
-            done = done && rtype.get (owntype).add (t);
-        }
-        return done;
+        return ns_resolved.has_key (get_serial (type));
     }
 
     /**
-     *
+     * get Quark related to specified type
      */
-    public bool is_registered (GLib.Type type)
+    private static Quark get_serial (Type type)
     {
-        return rtype.has_key (type);
+        return Quark.from_string (type.name ());
     }
 
     /**
-     *
+     * retriew full namespace value for specified type
+     * @param type the type to retriew his full namespace
+     * @return the full namespace for specified type
      */
-    public bool is_registered_type (GLib.Type type, GLib.Type checktype)
+    private static string get_resolved_ns (GLib.Type type)
     {
-        return this.is_registered (type) && rtype.get (type).contains (checktype);
+        return is_resolved_ns (type) ? ns_resolved.get (get_serial (type)) : type.name ();
     }
 }

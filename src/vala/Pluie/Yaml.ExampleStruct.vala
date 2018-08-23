@@ -50,7 +50,7 @@ public struct Pluie.Yaml.ExampleStruct
      */
     public static ExampleStruct from_yaml_node (Yaml.Node node)
     {
-        var s = ExampleStruct ();
+        ExampleStruct s = {};
         foreach (var child in node) {
             var v = child.val (typeof (uint));
             switch (child.name) {
@@ -65,12 +65,12 @@ public struct Pluie.Yaml.ExampleStruct
     /**
      *
      */
-    public static Yaml.Node to_yaml_node (ref ExampleStruct self, string name)
+    public Yaml.Node to_yaml_node (string name)
     {
         var node = new Yaml.Mapping (null, name);
-        new Yaml.Mapping.with_scalar (node, "red"  , self.red.to_string ());
-        new Yaml.Mapping.with_scalar (node, "green", self.green.to_string ());
-        new Yaml.Mapping.with_scalar (node, "blue" , self.blue.to_string ());
+        new Yaml.Mapping.with_scalar (node, "red"  , this.red.to_string ());
+        new Yaml.Mapping.with_scalar (node, "green", this.green.to_string ());
+        new Yaml.Mapping.with_scalar (node, "blue" , this.blue.to_string ());
         return node;
     }
 
