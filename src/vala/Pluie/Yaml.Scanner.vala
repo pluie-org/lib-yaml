@@ -126,7 +126,7 @@ public class Pluie.Yaml.Scanner
     {
         var f = GLib.File.new_for_path (this.path);
         try {
-            f.delete ();
+//~             f.delete ();
         }
         catch (GLib.Error e) {
             of.error (e.message);

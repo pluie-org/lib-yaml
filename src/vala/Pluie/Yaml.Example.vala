@@ -145,10 +145,10 @@ public class Pluie.Yaml.Example : Yaml.Object
         else if (type == typeof (Gee.ArrayList)) {
             switch (name) {
                 case "type_gee_al" :
-                    Yaml.GeeBuilder.arraylist_to_node (this.type_gee_al, name, parent);
+                    Yaml.GeeBuilder.fundamental_arraylist_to_node (this.type_gee_al, name, parent);
                     break;
                 case "type_gee_alobject" :
-                    Yaml.Object.collection_to_node (this.type_gee_alobject, name, parent);
+                    Yaml.Object.objects_collection_to_node (this.type_gee_alobject, name, parent);
 
                 break;
             }

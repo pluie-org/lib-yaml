@@ -29,24 +29,47 @@
  */
 
 using GLib;
-using Pluie;
 using Gee;
+using Pluie;
 
-/**
- * a class representing a sequence node
- */
-public class Pluie.Yaml.Sequence : Yaml.Node
+int main (string[] args)
 {
-    public bool close_block { get; internal set; default = false; }
+    Echo.init(false);
 
-    /**
-     * default Yaml.Node constructor
-     * @param parent the parent node
-     * @param name the node name
-     */
-    public Sequence (Yaml.Node? parent = null, string? name = null)
-    {
-        base (parent, NODE_TYPE.SEQUENCE, name);
-        this.list = new ArrayList<Yaml.Node> ();
+    var path     = Yaml.DATA_PATH + "/tag.yml";
+    var done     = false;
+
+    of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
+    Pluie.Yaml.DEBUG = true;
+    var config = new Yaml.Config (path, true);
+    var root   = config.root_node () as Yaml.Root;
+    if ((done = root != null)) {
+        root.display_childs ();
+
+        
+        of.action("Yaml.Node", "to_yaml_string");
+        string yaml = root.to_yaml_string ();
+        print (yaml);
+        try {
+            // an output file in the current working directory
+            var file = File.new_for_path ( "./tag-generated.yml");
+            // delete if file already exists
+            if (file.query_exists ()) {
+                file.delete ();
+            }
+            var dos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION));
+            uint8[] data = yaml.data;
+            long written = 0;
+            while (written < data.length) { 
+                // sum of the bytes of 'text' that already have been written to the stream
+                written += dos.write (data[written:data.length]);
+            }
+        } catch (Error e) {
+            stderr.printf ("%s\n", e.message);
+            return 1;
+        }
+
     }
+
+    return (int) done;
 }

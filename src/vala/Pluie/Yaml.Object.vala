@@ -113,14 +113,15 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     /**
      *
      */
-    public static Yaml.Node? collection_to_node (Gee.Collection list, string name, Yaml.Node? parent = null)
+    public static Yaml.Node? objects_collection_to_node (Gee.Collection list, string name, Yaml.Node? parent = null)
     {
+        of.echo (Log.METHOD);
         var node = new Yaml.Sequence (parent, name);
         node.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(list.get_type ()), "v");
         var it = list.iterator ();
         var i  = 0;
         while (it.next ()) {
-            Yaml.Builder.to_node (
+            var s = Yaml.Builder.to_node (
                 (GLib.Object) it.get (),
                 node, 
                 false,

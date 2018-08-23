@@ -63,17 +63,22 @@ int main (string[] args)
     if (obj.type_gee_al != null) {
         of.keyval("type_gee_al", "(%s<%s>)" .printf(obj.type_gee_al.get_type ().name (), obj.type_gee_al.element_type.name ()));
         foreach (var v in obj.type_gee_al) {
-            of.echo("       - item : %f".printf (v));
+            of.echo("       - item : %g".printf (v));
         }
         of.keyval("type_object", "(%s)" .printf(obj.type_object.get_type ().name ()));
-        of.echo("       - item toto : %s".printf (obj.type_object.toto));
-        of.echo("       - item tata : %s".printf (obj.type_object.tata));
+        of.keyval("    toto"     , "%s (string)" .printf(obj.type_object.toto));
+        of.keyval("    tapa"     , "%s (string)" .printf(obj.type_object.tata));
+        of.keyval("    titi"     , "%d (int)"    .printf(obj.type_object.titi));
+        of.keyval("    tutu"     , "%s (bool)"   .printf(obj.type_object.tutu.to_string ()));
         obj.type_object.method_a ();
 
         of.keyval("type_gee_alobject", "(%s<%s>)" .printf(obj.type_gee_alobject.get_type ().name (), obj.type_gee_alobject.element_type.name ()));
         foreach (var child in obj.type_gee_alobject) {
-            of.echo("       - item toto : %s".printf (child.toto));
-            of.echo("       - item tata : %s".printf (child.tata));
+            of.echo("        == entry (%s) ==".printf(child.get_type ().name ()));
+            of.keyval("    toto"     , "%s (string)" .printf(child.toto));
+            of.keyval("    tapa"     , "%s (string)" .printf(child.tata));
+            of.keyval("    titi"     , "%d (int)"    .printf(child.titi));
+            of.keyval("    tutu"     , "%s (bool)"   .printf(child.tutu.to_string ()));
             child.method_a ();
         }
     }

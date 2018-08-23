@@ -282,7 +282,7 @@ public class Pluie.Yaml.Builder
             case Type.DOUBLE :
                 double d;
                 obj.get (name, out d);
-                v = "%f".printf (d);
+                v = "%g".printf (d);
                 break;
             case Type.FLOAT :
                 float f;

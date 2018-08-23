@@ -170,6 +170,7 @@ public class Pluie.Yaml.Register
             Yaml.dbg ("resolve_namespace_type %u (%s) => %s".printf (serial, type.name (), name));  
             ns_resolved.set (serial, name);
         }
+        of.echo ("resolve_namespace_type %s => %s".printf (type.name (), get_resolved_ns (type)));  
         return get_resolved_ns (type);
     }
 

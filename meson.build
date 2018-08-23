@@ -68,6 +68,7 @@ sources = [
     'src/vala/Pluie/Yaml.Builder.vala',
     'src/vala/Pluie/Yaml.Collection.vala',
     'src/vala/Pluie/Yaml.Config.vala',
+    'src/vala/Pluie/Yaml.Dumper.vala',
     'src/vala/Pluie/Yaml.Event.vala',
     'src/vala/Pluie/Yaml.Example.vala',
     'src/vala/Pluie/Yaml.ExampleChild.vala',

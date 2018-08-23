@@ -78,6 +78,11 @@ public class Pluie.Yaml.Processor
     string?                           tagHandle;
 
     /**
+     * current tag handle
+     */
+    Yaml.Event?                        nextValueEvt;
+
+    /**
      * Events list
      */
     public Gee.ArrayList<Yaml.Event>  events           { get; internal set; }
@@ -164,6 +169,7 @@ public class Pluie.Yaml.Processor
         this.reset ();
         for (var has_next = this.iterator.next (); has_next; has_next = this.iterator.next ()) {
             this.event = this.iterator.get ();
+            Yaml.dbg ("Processing event %s".printf (this.event.evtype.infos ()));
             if (this.event.evtype.is_tag_directive ()) {
                 this.on_tag_directive ();
             }
@@ -220,6 +226,7 @@ public class Pluie.Yaml.Processor
         this.keyTag       = null;
         this.valueTag     = null;
         this.beginFlowSeq = false;
+        this.nextValueEvt = null;
     }
 
     /**
@@ -256,6 +263,8 @@ public class Pluie.Yaml.Processor
         var e = this.iterator.get ();
         if (e != null && e.evtype.is_value ()) {
             evt = this.next_event ();
+            this.nextValueEvt = evt;
+            of.echo ("next value event is %s".printf (evt.evtype.infos ()));
         }
         return evt;
     }
@@ -282,10 +291,31 @@ public class Pluie.Yaml.Processor
      */
     private void on_block_end ()
     {
-        this.parent_node = this.prev_node.parent != null && this.prev_node.parent != this.root 
-            ? this.prev_node.parent.parent 
+        of.echo ("    > [ ON BLOCK END ]");
+        if (!this.prev_node.ntype.is_collection ()) {
+            of.echo ("     *** prev not a collection deal with parent");
+            this.prev_node = this.prev_node.parent;
+        }
+        of.echo ("         PREV   WAS %s (%s)".printf (this.prev_node.ntype.infos (), this.prev_node.name));
+        of.echo ("         PARENT WAS %s (%s)".printf (this.parent_node.ntype.infos (), this.parent_node.name));
+        bool isSequenceWithBlock = this.prev_node.ntype.is_sequence () && !this.prev_node.empty() && this.prev_node.first ().ntype.is_collection ();
+        of.echo ("      !! isSequenceWithBlock ? %s".printf (isSequenceWithBlock.to_string ()));
+        if (!isSequenceWithBlock || (isSequenceWithBlock && (this.prev_node as Yaml.Sequence).close_block)) {
+            of.echo ("      PREV IS NOT A SEQUENCE OR !! isSequenceWithBlock ? %s".printf (isSequenceWithBlock.to_string ()));
+            this.parent_node = this.prev_node.parent != null && this.prev_node.parent != this.root 
+            ? this.prev_node.parent
             : this.root;
-        this.prev_node   = this.parent_node;
+            this.prev_node   = this.parent_node;
+        }
+        if (isSequenceWithBlock) {
+            var seq = this.prev_node as Yaml.Sequence;
+            if (seq != null) {
+                seq.close_block = true;
+            }
+        }
+        of.echo ("         PREV   IS  %s (%s)".printf (this.prev_node.ntype.infos (), this.prev_node.name));
+        of.echo ("         PARENT IS  %s (%s)".printf (this.parent_node.ntype.infos (), this.parent_node.name));
+        of.echo ("    < [ ON BLOCK END ]");
     }
 
     /**
@@ -294,7 +324,9 @@ public class Pluie.Yaml.Processor
     private void on_entry ()
     {
         this.event = this.next_event();
-        if (this.event.evtype.is_mapping_start ()) {
+        of.echo ("  >>> ON ENTRY : next value event is %s".printf (this.nextValueEvt.evtype.infos ()));
+        if (this.event.evtype.is_mapping_start () && this.nextValueEvt.evtype.is_mapping_start ()) {
+            of.echo ("  THE mapping start");
             this.on_mapping_start (true);
         }
         else if (this.event.evtype.is_scalar ()) {
@@ -420,6 +452,7 @@ public class Pluie.Yaml.Processor
         if (entry) {
             this.ckey = "_%d".printf(this.parent_node.count());
         }
+        of.echo ("ckey : %s".printf (this.ckey));
         this.node   = new Yaml.Mapping (this.parent_node, this.ckey);
         this.change = true;
     }
@@ -446,6 +479,10 @@ public class Pluie.Yaml.Processor
             Yaml.dbg (this.node.name);
         }
         if (this.change) {
+            if (this.node.parent.ntype.is_sequence ()) {
+                var seq = this.node.parent as Yaml.Sequence;
+                if (seq != null) seq.close_block = false;
+            }
             Yaml.dbg_action ("on change", this.node.name != null ? this.node.name : this.node.data);
             if (this.keyTag != null) {
                 Yaml.dbg_action ("setting tag", this.keyTag.@value);
@@ -460,11 +497,15 @@ public class Pluie.Yaml.Processor
                 }
             }
             if (this.node.ntype.is_collection () && (this.node.empty() || (!this.node.first().ntype.is_scalar ()))) {
+                of.echo ("   => SET *** **parent %s (%s) TO node %s (%s) ****".printf (this.parent_node.ntype.infos (), this.parent_node.name, this.node.ntype.infos (), this.node.name));
+                of.echo ("   => CURNODE %s (%s) has parent : %s (%s) ****".printf (this.node.ntype.infos (), this.node.name, this.node.parent.ntype.infos (), this.node.parent.name));
                 this.parent_node = this.node;
             }
             else {
+                of.echo ("   => SET parent %s (%s) TO node %s (%s) ====".printf (this.parent_node.ntype.infos (), this.parent_node.name, this.node.parent.ntype.infos (), this.node.parent.name));
                 this.parent_node = this.node.parent;
             }
+            of.echo ("   => SET prev_node %s (%s) TO node %s (%s) ====".printf (this.prev_node.ntype.infos (), this.prev_node.name, this.node.ntype.infos (), this.node.name));
             this.prev_node = this.node;
             this.tagHandle = null;
             this.keyTag    = null;

@@ -103,4 +103,16 @@ public abstract class Pluie.Yaml.AbstractNode : GLib.Object
         return "";
     }
  
+    /**
+     * get a yaml presentation of current Yaml.Node
+     */
+    public string to_yaml_string (
+        int indent         = Yaml.Dumper.DEFAULT_INDENT, 
+        bool show_doc      = Yaml.Dumper.SHOW_DOC, 
+        bool show_tags     = Yaml.Dumper.SHOW_TAGS,
+        bool show_fullkeys = Yaml.Dumper.SHOW_FULL_KEYS
+    )
+    {
+        return Yaml.Dumper.dump ((Yaml.Node) this, indent, show_doc, show_tags);
+    }
 }

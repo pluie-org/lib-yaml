@@ -32,6 +32,8 @@ namespace Pluie
 {
     namespace Yaml
     {
+        const string YAML_VERSION          = "1.2";
+
         public static bool DEBUG           = false;
 
         public static bool DBG_SHOW_INDENT = true;

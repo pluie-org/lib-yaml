@@ -40,14 +40,15 @@ public class Pluie.Yaml.GeeBuilder
     /**
      *
      */
-    public static Yaml.Node? arraylist_to_node (Gee.ArrayList* o, string property_name, Yaml.Node parent, bool is_char = false)
+    public static Yaml.Node? fundamental_arraylist_to_node (Gee.ArrayList* o, string property_name, Yaml.Node parent, bool is_char = false)
     {
         Yaml.dbg_action ("prop %s (type %s) has element type :".printf (property_name, o->get_type ().name ()), o->element_type.name ());
+        Yaml.Node? node = null;
         var type = o->element_type;
-        var node = new Yaml.Sequence (parent, property_name);
-        var it = o->iterator();
-        while (it.next ()) {
-            if (!type.is_object () && type.is_fundamental ()) {
+        if (!type.is_object () && type.is_fundamental ()) {
+            node = new Yaml.Sequence (parent, property_name);
+            var it = o->iterator();
+            while (it.next ()) {
                 string data = "";
                 if (is_char && (type == typeof (unichar) || type == typeof (uchar))) {
                     void* d = (void*) it.get ();   
@@ -85,8 +86,8 @@ public class Pluie.Yaml.GeeBuilder
                             data = f.to_string ();
                             break;
                         case Type.DOUBLE :
-                            double* d = (double*) it.get ();
-                            data = d.to_string ();
+                            var d = (double*) it.get ();
+                            data  = "%g".printf (double.parse(d.to_string ()));
                             break;
                         default :
                             data = (string) it.get ();
@@ -95,9 +96,9 @@ public class Pluie.Yaml.GeeBuilder
                 }
                 new Yaml.Scalar (node, data);
             }
-            else if (type.is_object ()) {
-
-            }
+        }
+        else {
+            of.error ("in %s : Gee.ArrayList.element_type (%s) is not a fundamental type".printf (Log.METHOD, type.name ()));
         }
         return node;
     }

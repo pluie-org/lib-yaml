@@ -95,7 +95,7 @@ function build.sample()
     local     f="$(basename $1)"
     local    fx="${f:0:-5}"
     local state="FAILED"
-    local   cmd="valac -v --pkg gee-0.8 --pkg pluie-echo-0.2 --pkg $lib $1 -o ./bin/$fx"
+    local   cmd="valac -v --pkg gee-0.8 --pkg gio-2.0 --pkg pluie-echo-0.2 --pkg $lib $1 -o ./bin/$fx"
     build.title "$f SAMPLE BUILD"
     echo -e "\n$cmd"
     $cmd
