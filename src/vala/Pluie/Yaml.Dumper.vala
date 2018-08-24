@@ -76,8 +76,8 @@ public class Pluie.Yaml.Dumper
     /**
      * get a gracefull yaml presentation of current Yaml.Node
      * @param node the node to dump
-     * @param flag indicating if enable printing colors
      * @param show_line flag indicating if line number must be print
+     * @param show_color flag indicating if enable printing colors
      * @param show_tags flag indicating if tags must be print
      * @param show_doc flag indicating if the document start must be print
      * @param indent number of space for indentation

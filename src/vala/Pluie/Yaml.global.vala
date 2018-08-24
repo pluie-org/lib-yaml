@@ -152,10 +152,15 @@ namespace Pluie
                 var writter = new Io.Writter (path);
                 if (writter.write (zdata)) {
                     var file = File.new_for_path (dpath);
-                    convert (writter.file, file, new ZlibDecompressor (ZFORMAT));
-                    var config = new Yaml.Config (dpath);
-                    obj = config.root_node ();
-                    writter.delete_file ();
+                    try {
+                        convert (writter.file, file, new ZlibDecompressor (ZFORMAT));
+                        var config = new Yaml.Config (dpath);
+                        obj = config.root_node ();
+                        writter.delete_file ();
+                    }
+                    catch(GLib.Error e) {
+                        of.error (e.message);
+                    }
                 }
             }
             return obj;

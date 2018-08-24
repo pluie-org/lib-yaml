@@ -83,7 +83,6 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     /**
      * actions to execute before adding the specified child bode
      * @param child the Yaml.Node child to add
-     * @throws Yaml.AddNodeError
      */
     protected virtual void before_add (Yaml.Node child) throws Yaml.AddNodeError
     {
