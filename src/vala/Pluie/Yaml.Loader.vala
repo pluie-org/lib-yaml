@@ -38,7 +38,7 @@ using Pluie;
 public class Pluie.Yaml.Loader
 {
     /**
-     * Scanner 
+     * Yaml.Scanner used to retriew yaml events
      */
     Yaml.Scanner    scanner     { public get; internal set; }
 
@@ -53,15 +53,16 @@ public class Pluie.Yaml.Loader
     Io.Reader       reader;
 
     /**
+     * default constructor of Yaml.Loader
      * @param path the path of file to parse
-     * @param displayFile display original file
+     * @param display_file display original file
      * @param displayNode display corresponding Yaml Node Graph
      */
-    public Loader (string path, bool displayFile = false, bool displayNode = false )
+    public Loader (string path, bool display_file = false, bool displayNode = false )
     {
         this.reader  = new Io.Reader (path);
         this.scanner = new Yaml.Scanner (path);
-        if (displayFile) this.displayFile ();
+        if (display_file) this.display_file ();
 
         if ((this.done = this.scanner.run())) {
             if (displayNode) {
@@ -73,7 +74,7 @@ public class Pluie.Yaml.Loader
         else {
             var evt = this.scanner.get_error_event ();
             of.error ("line %d (%s)".printf (evt.line, evt.data["error"]));
-            this.displayFile (evt.line);
+            this.display_file (evt.line);
         }
     }
 
@@ -87,8 +88,9 @@ public class Pluie.Yaml.Loader
 
     /**
      * display original file
+     * @param errorLine  highlight error line
      */
-    public void displayFile (int errorLine = 0)
+    public void display_file (int errorLine = 0)
     {
         of.action (errorLine == 0 ? "Reading file" : "Invalid Yaml File", this.reader.path);
         of.echo ();

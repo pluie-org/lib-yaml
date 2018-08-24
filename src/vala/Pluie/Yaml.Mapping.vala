@@ -43,7 +43,9 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     Gee.ArrayList<string>?              keys       { internal get; internal set; default = null; }
 
     /**
-     *
+     * default Yaml.Mapping constructor
+     * @param parent the parent node
+     * @param name the node name
      */
     public Mapping (Yaml.Node? parent = null, string? name = null)
     {
@@ -52,7 +54,10 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     }
 
     /**
-     *
+     * Yaml.Mapping constructor as single pair node with scalar data
+     * @param parent the parent node
+     * @param name the node name
+     * @param data scalar data
      */
     public Mapping.with_scalar (Yaml.Node? parent = null, string? name = null, string? data = null)
     {
@@ -62,8 +67,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     }
 
     /**
-     * add a child node to current collection (mapping or sequence) node
-     * @param child the Yaml.Node child to add
+     * {@inheritDoc}
      */
     protected override void before_add (Yaml.Node child) throws Yaml.AddNodeError
     {
@@ -84,8 +88,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     }
 
     /**
-     * add a child node to current collection (mapping or sequence) node
-     * @param child the Yaml.Node child to add
+     * {@inheritDoc}
      */
     protected override void on_added (Yaml.Node child)
     {
@@ -99,9 +102,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     }
 
     /**
-     * add a child node to current collection (mapping or sequence) node
-     * @param child the Yaml.Node child to add
-     * @param levelUpdate flag indicating if update level is needed
+     * {@inheritDoc}
      */
     protected override void on_removed (Yaml.Node child, bool levelUpdate = true)
     {
@@ -112,9 +113,9 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     }
 
     /**
-     * retriew a child node throught specifiyed index
+     * retriew a child node throught specifiyed name
      * @param name name of searched child
-     * @return the child node
+     * @return the matching child node
      */
     public new Yaml.Node? item (string name)
     {
@@ -129,8 +130,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     }
 
     /**
-     * clone current node
-     * @param name the overrinding name
+     * {@inheritDoc}
      */
     public override Yaml.Node clone_node (string? name = null)
     {
@@ -145,7 +145,7 @@ public class Pluie.Yaml.Mapping : Yaml.Node
     }
 
     /**
-     *
+     * get a collection of chils name
      */
     public Gee.ArrayList<string>? child_names ()
     {

@@ -96,15 +96,11 @@ int main (string[] args)
         for (var i = 0; i < zdata.length; i++) {
             print ("%02x", zdata[i]);
         }
-        of.echo ("");
         of.action ("Deserialize zdata from", obj.yaml_name);
-        message ("*");
         root = Yaml.deserialize (zdata);
-        message ("*");
         root.display_childs ();
         of.action ("Yaml build first child", obj.yaml_name);
         obj  = (Yaml.Example) Yaml.Builder.from_node (root.first ());
-        message ("*");
         test_object (obj);
 
     }

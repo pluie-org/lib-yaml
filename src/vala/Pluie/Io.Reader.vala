@@ -143,7 +143,7 @@ public class Pluie.Io.Reader
     }
 
     /**
-     * 
+     * get content of loaded file
      */
     public string? get_contents ()
     {

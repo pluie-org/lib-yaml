@@ -29,6 +29,10 @@
  */
 
 using GLib;
+
+/**
+ * basic class to read file by chunk
+ */
 class Pluie.Io.InputChunkStream : Object
 {
     protected ulong      chunk_index;
@@ -36,7 +40,12 @@ class Pluie.Io.InputChunkStream : Object
     protected uint8      buffer_size;
     protected uint8[]    buffer;
     protected FileStream fs;
-  
+
+    /**
+     * default constructor
+     * @param path the path to read
+     * @param chunk_size the chunk size
+     */
     public InputChunkStream (string path, uint8 chunk_size)
     {
         this.chunk_size  = chunk_size;
@@ -44,6 +53,10 @@ class Pluie.Io.InputChunkStream : Object
         this.fs          = FileStream.open (path, "r");
         this.chunk_index = 0;
     }
+
+    /**
+     * indicate if end of file of readed file is reached
+     */
     public bool eof ()
     {
         bool stop = this.fs.eof ();
@@ -52,6 +65,10 @@ class Pluie.Io.InputChunkStream : Object
         }
         return stop;
     }
+
+    /**
+     * read chunk_size
+     */
     public unowned uint8[] read ()
     {
         if (!this.eof ()) {
@@ -60,18 +77,34 @@ class Pluie.Io.InputChunkStream : Object
         }
         return this.buffer;
     }
+
+    /**
+     * retriew the buffer size (chunk_size)
+     */
     public unowned uint8 get_buffer_size ()
     {
         return this.buffer_size;
     }
+
+    /**
+     * retriew content of buffer
+     */
     public unowned uint8[] get_buffer ()
     {
         return this.buffer;
     }
+
+    /**
+     * retriew chunk index
+     */
     public ulong get_chunk_index ()
     {
         return this.chunk_index-1;
     }
+
+    /**
+     * retriew chunk size
+     */
     public uint8 get_chunk_size ()
     {
         return this.chunk_size;

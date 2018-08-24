@@ -341,7 +341,7 @@ public class Yaml.Example : Yaml.Object
 {
     static construct
     {
-        Yaml.Object.register.add_type (
+        Yaml.Register.add_type (
             typeof (Yaml.Example),       // owned type
             typeof (Yaml.ExampleStruct), // property type
             typeof (Gee.ArrayList)       // property type
@@ -421,10 +421,7 @@ Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
         // non Yaml.Object type & registered type
         if (node == null) {
             if (type == typeof (Yaml.ExampleStruct)) {
-                node = new Yaml.Mapping (null, name);
-                new Yaml.Mapping.with_scalar (node, "red"  , this.type_struct.red.to_string ());
-                new Yaml.Mapping.with_scalar (node, "green", this.type_struct.green.to_string ());
-                new Yaml.Mapping.with_scalar (node, "blue" , this.type_struct.blue.to_string ());
+                node = this.type_struct.to_yaml_node (name);
             }
             else if (type == typeof (Gee.ArrayList)) {
                 node = new Yaml.Sequence (null, name);
@@ -436,6 +433,10 @@ Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
         return node;
     }
 ```
+
+### Serialize/Deserialize
+
+
 
 -------------------
 
@@ -454,6 +455,8 @@ see samples files in ./samples directory
 * ~~add docker image~~
 * ~~transform Yaml.Node nodes to Yaml.Object objects~~
 * ~~transform Yaml.Object objects to Yaml.Node nodes~~
+* ~~dumper~~
+* ~~serialize/deserialize~~
 * manage tag directives & tag (partially done)
 * improve doc
-* dumper
+

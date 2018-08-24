@@ -33,27 +33,33 @@ using Pluie;
 using Gee;
 
 /**
- * a class representing a mapping node
+ * a class representing a Yaml Root Node
  */
 public class Pluie.Yaml.Root : Yaml.Mapping
 {
     /**
-     * Tags map definition
+     * Tags directives
      */
     public Gee.HashMap<string, string>    tag_directives { get; internal set; }
 
     /**
-     *
+     * @param name the name of the root node
      */
-    public Root (string? name = "PluieYamlRoot")
+    public Root (string? name = "PluieYamlRoot", bool add_directive = false, Yaml.Node? child = null)
     {
         base (null, name);
         this.ntype = Yaml.NODE_TYPE.ROOT;
         this.tag_directives = new Gee.HashMap<string, string> ();
+        if (add_directive) {
+            this.tag_directives["!%s!".printf (Yaml.YAML_VALA_PREFIX)] = Yaml.YAML_VALA_DIRECTIVE;
+        }
+        if (child != null) {
+            this.add (child);
+        }
     }
 
     /**
-     *
+     * get tag directives formatted for colorized output
      */
     public string get_display_tag_directives ()
     {

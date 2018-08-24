@@ -33,7 +33,8 @@ using Gee;
 using Pluie;
 
 /**
- * Yaml Event class
+ * Yaml Event class populated by {@link Yaml.Scanner} and treat by the {@link Yaml.Processor} to
+ * build a {@link Yaml.Node} from a yaml.file
  */
 public class Pluie.Yaml.Event
 {

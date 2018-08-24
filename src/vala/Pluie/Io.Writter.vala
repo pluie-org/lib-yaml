@@ -33,7 +33,7 @@ using Gee;
 using Pluie;
 
 /**
- * basic writer
+ * basic writter class
  */
 public class Pluie.Io.Writter
 {
@@ -42,7 +42,7 @@ public class Pluie.Io.Writter
      */
     public string   path      { get; internal set; }
     /**
-     *
+     * current file
      */
     public File     file      { get; internal set; }
     /**
@@ -51,15 +51,19 @@ public class Pluie.Io.Writter
     DataOutputStream stream;
 
     /**
-     * construct a reader
-     * by adding {@link Io.StreamLineMark}
-     * @param path the path to load
+     * construct a writter
+     * @param path the path to write
+     * @param delete_if_exists flag indicating if existing file must be removed first
      */
-    public Writter (string path)
+    public Writter (string path, bool delete_if_exists = false)
     {
-        this.path   = path;
-        this.file   = File.new_for_path (path);
+        this.path = path;
+        this.file = File.new_for_path (path);
         try {
+            if (delete_if_exists) {
+                this.delete_file(this.file);
+            }
+            this.file   = File.new_for_path (path);
             this.stream = new DataOutputStream(file.create (FileCreateFlags.NONE));
             if (!file.query_exists ()) {
                 of.error ("cannot create file '%s'".printf (path));
@@ -71,25 +75,42 @@ public class Pluie.Io.Writter
     }
 
     /**
-     * read current stream by line
-     * @param mark a mark used to operate possible future rewind
-     * @return current readed line
+     * write specified data to current file
+     * @param data the data to write
+     * @param written the written data size
      */
-    public bool write (uint8[] data)
+    public bool write (uint8[] data, out long? written = null)
+    {
+        bool done = false;
+        long w = 0;
+        try {
+            while (w < data.length) { 
+                // sum of the bytes that already have been written to the stream
+                w += stream.write (data[w:data.length]);
+            }
+            done = w == data.length;
+        }
+        catch (GLib.Error e) {
+            of.error (e.message);
+        }
+        written = w;
+        return done;
+    }
+
+    /**
+     * delete current or specified file
+     * @param file the file to delete (current file if null)
+     */
+    public bool delete_file(File? file = null)
     {
         bool done = false;
         try {
-            long written = 0;
-            while (written < data.length) { 
-                // sum of the bytes that already have been written to the stream
-                written += stream.write (data[written:data.length]);
-            }
-            done = written == data.length;
+            ((file == null) ? this.file : file).delete ();
+            done = true;
         }
         catch (GLib.Error e) {
             of.error (e.message);
         }
         return done;
     }
-
 }

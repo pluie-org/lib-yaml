@@ -49,24 +49,15 @@ int main (string[] args)
         
         of.action("Yaml.Node", "to_yaml_string");
         string yaml = root.to_yaml_string ();
+        string genpath = "./tag-generated.yml";
         try {
-            string genpath = "./tag-generated.yml";
-            // an output file in the current working directory
-            var file = File.new_for_path (genpath);
-            // delete if file already exists
-            if (file.query_exists ()) {
-                file.delete ();
-            }
-            var dos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION));
-            uint8[] data = yaml.data;
+            var writter = new Io.Writter (genpath, true);
             long written = 0;
-            while (written < data.length) { 
-                // sum of the bytes of 'text' that already have been written to the stream
-                written += dos.write (data[written:data.length]);
-            }
+            writter.write (yaml.data, out written);
             of.echo ("write %ld bytes in `%s`".printf ((long) written, genpath));
             Yaml.Dumper.show_yaml_string (root, true, true, true);
-        } catch (Error e) {
+        }
+        catch (Error e) {
             stderr.printf ("%s\n", e.message);
             return 1;
         }

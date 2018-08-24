@@ -48,7 +48,8 @@ public class Pluie.Yaml.Scalar : Yaml.Node
     public Scalar (Yaml.Node ? parent = null, string? data = null)
     {
         base (parent, NODE_TYPE.SCALAR);
-        this.data = data;
+        this.container = false;
+        this.data      = data;
     }
 
     /**

@@ -38,14 +38,15 @@ using Pluie;
 public interface Pluie.Yaml.Collection
 {
     /**
-     * retriew the child at index
-     * @param   index index of seached child
+     * retriew a child node throught specifiyed index
+     * @param index index of searched child
+     * @return the matching child node
      */
     public abstract Yaml.Node? item (int index);
 
     /**
-     * check if contains specifyed child node
-     * @param   child the child to check 
+     * check if current node contains the specifiyed child node
+     * @param child the child to check 
      */
     public abstract bool contains (Yaml.Node child);
 
@@ -67,23 +68,25 @@ public interface Pluie.Yaml.Collection
 
     /**
      * retriew the first child
+     * @return the first child node
      */
     public abstract Yaml.Node? first ();
 
     /**
      * retriew the last child
+     * @return the last child node
      */
     public abstract Yaml.Node? last ();
 
     /**
      * retriew the next sibling of specifiyed child node
-     * @param   child the the reference child node
+     * @param child the the reference child node
      */
     public abstract Yaml.Node? child_next_sibling (Yaml.Node child);
 
     /**
      * retriew the previous sibling of specifiyed child node
-     * @param   child the the reference child node
+     * @param child the the reference child node
      */
     public abstract Yaml.Node? child_previous_sibling (Yaml.Node child);
 

@@ -29,12 +29,12 @@
  */
 
 /**
- * a class to manage Yaml configuration files
+ * Yaml.Config class to manage Yaml configuration files
  */
 public class Pluie.Yaml.Config
 {
     /**
-     *
+     * special char use in imports clause & imports var
      */
     const char                  IMPORTS_SPE = '^';
 
@@ -46,7 +46,7 @@ public class Pluie.Yaml.Config
     /**
      *
      */
-    public bool                 displayFile     { get; internal set; }
+    public bool                 display_file    { get; internal set; }
 
     /**
      * Yaml Loader
@@ -70,14 +70,17 @@ public class Pluie.Yaml.Config
 
     /**
      * construct a Yaml Config for specifiyed path
+     * @param path the yaml path file to load
+     * @param display_file flag to display file
+     * @param mode Yaml.FIND_MODE to apply to finder
      */
-    public Config (string? path = null, bool displayFile = false, Yaml.FIND_MODE mode = Yaml.FIND_MODE.DOT)
+    public Config (string? path = null, bool display_file = false, Yaml.FIND_MODE mode = Yaml.FIND_MODE.DOT)
     {
         Yaml.MODE          = mode;
         this.path          = path;
-        this.displayFile   = displayFile;
+        this.display_file  = display_file;
         if (this.path != null) {
-            this.loader = new Yaml.Loader (this.path, displayFile, false);
+            this.loader = new Yaml.Loader (this.path, display_file, false);
             Yaml.Node? root = this.loader.get_nodes ();
             if (root != null) {
                 this.finder = new Yaml.Finder(root);
@@ -88,6 +91,7 @@ public class Pluie.Yaml.Config
 
     /**
      * find node matching specifiyed keyPath
+     * see {@link Yaml.Finder} for precisions
      */
     public new Yaml.Node? get (string keyPath)
     {
@@ -99,7 +103,7 @@ public class Pluie.Yaml.Config
     }
 
     /**
-     *
+     * retriew the corresponding Yaml.Root node for loaded yaml file
      */
     public Yaml.Root root_node ()
     {
@@ -107,7 +111,7 @@ public class Pluie.Yaml.Config
     }
 
     /**
-     * find node matching specifiyed keyPath
+     *
      */
     protected void get_imports ()
     {
@@ -138,7 +142,7 @@ public class Pluie.Yaml.Config
         Yaml.Node? n    = null;
         Yaml.Config?  conf = null;
         foreach(var entry in this.paths.entries) {
-            conf = new Yaml.Config(entry.value, this.displayFile);
+            conf = new Yaml.Config(entry.value, this.display_file);
             sub  = conf.loader.get_nodes ();
             n    = new Yaml.Mapping (root, entry.key);
             foreach(var subnode in sub.list) {

@@ -33,6 +33,8 @@ namespace Pluie
     namespace Yaml
     {
         const string YAML_VERSION          = "1.2";
+        const string YAML_VALA_PREFIX      = "v";
+        const string YAML_VALA_DIRECTIVE   = "tag:pluie.org,2018:vala/";
 
         public static bool DEBUG           = false;
 
@@ -103,7 +105,7 @@ namespace Pluie
         /**
          *
          */
-        public static uint8[] serialize (GLib.Object? obj)
+        public static uint8[] serialize (GLib.Object? obj, string? dest = null)
         {
             Array<uint8> a = new Array<uint8> ();
             if (obj != null) {
@@ -112,15 +114,20 @@ namespace Pluie
                     var content = node.to_yaml_string ();
                     var date    = new GLib.DateTime.now_local ().format ("%s");
                     var path    = Path.build_filename (Environment.get_tmp_dir (), "pluie-yaml-%s-%s.source".printf (date, node.uuid));
+                    var dpath   = dest == null ? path + ".gz" : dest;
                     var writter = new Io.Writter (path);
                     if (writter.write (content.data)) {
                         try {
-                            var gzfile = File.new_for_path (path + ".gz");
+                            var gzfile = File.new_for_path (dpath);
                             convert (writter.file, gzfile, new ZlibCompressor (ZFORMAT));
-                            var reader = new Io.InputChunkStream(path + ".gz", 80);
+                            var reader = new Io.InputChunkStream(dpath, 80);
                             while (!reader.eof ()) {
                                 var b = reader.read ();
                                 a.append_vals (b, reader.get_buffer_size ());
+                            }
+                            writter.delete_file ();
+                            if (dest == null) {
+                                writter.delete_file (gzfile);
                             }
                         }
                         catch (GLib.Error e) {
@@ -148,6 +155,7 @@ namespace Pluie
                     convert (writter.file, file, new ZlibDecompressor (ZFORMAT));
                     var config = new Yaml.Config (dpath);
                     obj = config.root_node ();
+                    writter.delete_file ();
                 }
             }
             return obj;

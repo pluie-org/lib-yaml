@@ -37,7 +37,7 @@ using Gee;
  */
 public class Pluie.Yaml.Sequence : Yaml.Node
 {
-    public bool close_block { get; internal set; default = false; }
+    internal bool close_block { internal get; internal set; default = false; }
 
     /**
      * default Yaml.Node constructor

@@ -89,6 +89,16 @@ public abstract class Pluie.Yaml.AbstractNode : GLib.Object
         return node != null && node.uuid == this.uuid;
     }
 
+    /**
+     * get a presentation string of current Yaml.Node
+     * @param withIndent display indentation formating
+     * @param withParent display parent node name
+     * @param withUuid display node uuid
+     * @param withCount display number of childs
+     * @param withRefCount display number of reference
+     * @param withTag display tag information
+     * @param withType display node type
+     */
     public virtual string to_string (
         bool withIndent   = Yaml.DBG_SHOW_INDENT, 
         bool withParent   = Yaml.DBG_SHOW_PARENT, 
@@ -104,7 +114,12 @@ public abstract class Pluie.Yaml.AbstractNode : GLib.Object
     }
  
     /**
-     * get a yaml presentation of current Yaml.Node
+     * get a gracefull yaml presentation of current Yaml.Node
+     * @param indent number of space for indentation
+     * @param show_doc flag indicating if the document start must be print
+     * @param show_tags flag indicating if tags must be print
+     * @param show_fullkeys flag indicating if full key definition must be print
+     *
      */
     public string to_yaml_string (
         int indent         = Yaml.Dumper.DEFAULT_INDENT, 

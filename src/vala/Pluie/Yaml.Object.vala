@@ -31,22 +31,22 @@ using GLib;
 using Gee;
 
 /**
- * Yaml.Object bqse class which can be transform to a Yaml.Node structure
+ * Yaml.Object base class which can be transform to a Yaml.Node structure
  */
 public abstract class Pluie.Yaml.Object : GLib.Object
 {
     /**
-     *
+     * Yaml node name
      */
     public string               yaml_name { get; internal set; }
 
     /**
-     *
+     * associated Yaml.Register for tag resolution (full namespace names)
      */
     public static Yaml.Register register  { get; private set; }
 
     /**
-     *
+     * Yaml.Tag definition
      */
     public static Yaml.Tag      yaml_tag  { get; internal set; }
 
@@ -69,7 +69,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     }
 
     /**
-     *
+     * default constructor
      */
     public virtual void yaml_construct ()
     {
@@ -77,7 +77,8 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     }
 
     /**
-     *
+     * initialization method called by Yaml.Builder after instantiation
+     * and after properties has been populated
      */
     public virtual void yaml_init ()
     {
@@ -85,7 +86,10 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     }
 
     /**
-     *
+     * build property name from a Yaml.Node
+     * @param name name the property to build
+     * @param type type the property type
+     * @param node the Yaml.Node source
      */
     public virtual signal void populate_from_node (string name, GLib.Type type, Yaml.Node node) {
         if (type.is_a(typeof (Yaml.Object))) {
@@ -98,7 +102,11 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     }
 
     /**
-     *
+     * convert property name to a Yaml.node
+     * @param name name of the property to build
+     * @param type type of the property to build
+     * @param parent parent node of the property
+     * @return the resulting Yaml.Node
      */
     public virtual signal Yaml.Node? populate_to_node (string name, GLib.Type type, Yaml.Node parent) {
         Yaml.Node? node = null;
@@ -111,7 +119,11 @@ public abstract class Pluie.Yaml.Object : GLib.Object
     }
 
     /**
-     *
+     * build an object collection (Gee.Collection) to a Yaml.Node
+     * @param list the gee collection to transform
+     * @param name name of collection sequence node
+     * @param parent parent node of the collection
+     * @return the resulting Yaml.Node
      */
     public static Yaml.Node? objects_collection_to_node (Gee.Collection list, string name, Yaml.Node? parent = null)
     {
@@ -121,7 +133,7 @@ public abstract class Pluie.Yaml.Object : GLib.Object
         var it = list.iterator ();
         var i  = 0;
         while (it.next ()) {
-            var s = Yaml.Builder.to_node (
+            Yaml.Builder.to_node (
                 (GLib.Object) it.get (),
                 node, 
                 false,

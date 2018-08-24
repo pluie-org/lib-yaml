@@ -277,7 +277,7 @@ public class Pluie.Yaml.Processor
     }
 
     /**
-     * retriew the next Yaml Value Event
+     * retriew the next Yaml Value Event without use of iterator
      */
     private Yaml.Event? get_next_value_event ()
     {
@@ -318,19 +318,27 @@ public class Pluie.Yaml.Processor
     /**
      *
      */
+    private bool is_entry_nested_block (Yaml.Node node)
+    {
+        return node.ntype.is_sequence () && !node.empty() && node.first ().ntype.is_collection ();
+    }
+
+    /**
+     *
+     */
     private void on_block_end ()
     {
         if (!this.prev_node.ntype.is_collection ()) {
             this.prev_node = this.prev_node.parent;
         }
-        bool isSequenceWithBlock = this.prev_node.ntype.is_sequence () && !this.prev_node.empty() && this.prev_node.first ().ntype.is_collection ();
-        if (!isSequenceWithBlock || (isSequenceWithBlock && (this.prev_node as Yaml.Sequence).close_block)) {
+        bool is_nested = this.is_entry_nested_block (this.prev_node);
+        if (!is_nested || (is_nested && (this.prev_node as Yaml.Sequence).close_block)) {
             this.parent_node = this.prev_node.parent != null && this.prev_node.parent != this.root 
             ? this.prev_node.parent
             : this.root;
             this.prev_node   = this.parent_node;
         }
-        if (isSequenceWithBlock) {
+        if (is_nested) {
             var seq = this.prev_node as Yaml.Sequence;
             if (seq != null) {
                 seq.close_block = true;
@@ -345,6 +353,7 @@ public class Pluie.Yaml.Processor
     {
         this.event = this.next_event();
         Yaml.Event? e = null;
+        // look up for sequence enrty nested block
         e = get_next_value_event ();
         if (this.event.evtype.is_mapping_start () && (e!= null && !e.evtype.is_mapping_start ())) {
             this.on_mapping_start (true);

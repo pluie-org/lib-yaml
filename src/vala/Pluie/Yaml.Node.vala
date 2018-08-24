@@ -31,7 +31,7 @@ using GLib;
 using Gee;
 
 /**
- * a class representing a node
+ * a class representing a yaml node no matter was his type
  */
 public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 {
@@ -81,8 +81,9 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * add a child node to current collection (mapping or sequence) node
+     * actions to execute before adding the specified child bode
      * @param child the Yaml.Node child to add
+     * @throws Yaml.AddNodeError
      */
     protected virtual void before_add (Yaml.Node child) throws Yaml.AddNodeError
     {
@@ -90,7 +91,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * add a child node to current collection (mapping or sequence) node
+     * actions to execute after adding the specified child bode
      * @param child the Yaml.Node child to add
      */
     protected virtual void on_added (Yaml.Node child)
@@ -100,7 +101,8 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 
     /**
      * remove a child
-     * @param child  the child to remove
+     * @param child the child to remove
+     * @param levelUpdate flag indacting if level must be updated
      */
     public bool remove_child (Yaml.Node child, bool levelUpdate = true)
     {
@@ -114,8 +116,9 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * add a child node to current collection (mapping or sequence) node
-     * @param child the Yaml.Node child to add
+     * action to exectuing after removing the specified child node
+     * @param child the Yaml.Node child to remove
+     * @param levelUpdate flag indacting if level must be updated for removed child
      */
     protected virtual void on_removed (Yaml.Node child, bool levelUpdate = true)
     {
@@ -126,9 +129,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * retriew a child node throught specifiyed index
-     * @param index index of searched child
-     * @return the child node
+     * {@inheritDoc}
      */
     public virtual Yaml.Node? item (int index)
     {
@@ -136,37 +137,35 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * check if current node contains the specifiyed child node
-     * @param   child the child to check 
+     * {@inheritDoc}
      */
     public bool contains (Yaml.Node child) {
         return !this.empty () && this.list.contains (child);
     }
 
     /**
-     * count childnodes
+     * {@inheritDoc}
      */
     public override int count () {
         return !this.empty () ? this.list.size : 0;
     }
 
     /**
-     * check if empty
+     * {@inheritDoc}
      */
     public bool empty () {
         return this.list == null || this.list.size == 0;
     }
 
     /**
-     * get an iterator
+     * {@inheritDoc}
      */
     public Gee.Iterator<Yaml.Node> iterator () {
         return this.list.iterator ();
     }
 
     /**
-     * retriew the first child node
-     * @return the first child node
+     * {@inheritDoc}
      */
     public virtual Yaml.Node? first ()
     {
@@ -174,8 +173,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * retriew the last child node
-     * @return the last child node
+     * {@inheritDoc}
      */
     public Yaml.Node? last ()
     {
@@ -198,7 +196,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     *
+     * {@inheritDoc}
      */
     public Yaml.Node? child_next_sibling (Yaml.Node child)
     {
@@ -206,15 +204,15 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     *
+     * {@inheritDoc}
      */
     public Yaml.Node? child_previous_sibling (Yaml.Node child)
     {
         return this.child_sibling (child, false);
     }
 
-    /*
-     *
+    /**
+     * update nested indention node level and propagate approprietly level to all childs
      */
     public virtual void update_level()
     {
@@ -227,8 +225,9 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * clone current node
-     * @param name the name of clone
+     * clone current node (with all his children)
+     * @param name the name of the clone
+     * @return the cloned node with cloned childs
      */
     public virtual Yaml.Node clone_node (string? name = null)
     {
@@ -243,16 +242,16 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
     }
 
     /**
-     * clone current node
-     * @param name the name of clone
+     *
      */
-    public virtual Yaml.Node get_cloned_instance (string? name = null)
+    internal virtual Yaml.Node get_cloned_instance (string? name = null)
     {
         return new Yaml.Node (null, this.ntype, name);
     }
 
     /**
-     *
+     * retriew the GLib.Value initialized with specified type (only) for single pair node
+     * return the pair value
      */
     public GLib.Value val (GLib.Type type)
     {
@@ -265,6 +264,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 
     /**
      * display childs
+     * @param withTitle display a title before the childs node presentation
      */
     public void display_childs (bool withTitle = true)
     {
@@ -282,6 +282,13 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
 
     /**
      * get a presentation string of current Yaml.Node
+     * @param withIndent display indentation formating
+     * @param withParent display parent node name
+     * @param withUuid display node uuid
+     * @param withCount display number of childs
+     * @param withRefCount display number of reference
+     * @param withTag display tag information
+     * @param withType display node type
      */
     public override string to_string (
         bool withIndent   = Yaml.DBG_SHOW_INDENT, 

@@ -33,36 +33,36 @@ using Gee;
 using Pluie;
 
 /**
- * interface representing a collection node
+ * a Yaml.Dumper to dump a Yaml.Node to his file representation
  */
 public class Pluie.Yaml.Dumper
 {
     /**
-     *
+     * default number space indentation to apply for all nodes. default : 4
      */
     public static int  DEFAULT_INDENT { get; internal set; default = 4; }
     /**
-     *
+     * flag indicating if the document start must be print
      */
     public static bool SHOW_DOC       { get; internal set; default = true; }
     /**
-     *
+     * flag indicating if tags must be print
      */
     public static bool SHOW_TAGS      { get; internal set; default = true; }
     /**
-     *
+     * flag indicating if full key definition must be print
      */
     public static bool SHOW_FULL_KEYS { get; internal set; default = false; }
     /**
-     *
+     * flag indicating if enable printing colors
      */
     static bool        SHOW_COLOR     { get; internal set; default = false; }
     /**
-     *
+     * flag indicating if line number must be print
      */
     static bool        SHOW_LINE      { get; internal set; default = false; }
     /**
-     *
+     * a line counter
      */
     static int         line           { get; internal set; default = 0; }
 
@@ -75,6 +75,13 @@ public class Pluie.Yaml.Dumper
 
     /**
      * get a gracefull yaml presentation of current Yaml.Node
+     * @param node the node to dump
+     * @param flag indicating if enable printing colors
+     * @param show_line flag indicating if line number must be print
+     * @param show_tags flag indicating if tags must be print
+     * @param show_doc flag indicating if the document start must be print
+     * @param indent number of space for indentation
+     * @param show_fullkeys flag indicating if full key definition must be print
      */
     public static void show_yaml_string (
         Yaml.Node? node, 
@@ -96,7 +103,12 @@ public class Pluie.Yaml.Dumper
     }
 
     /**
-     * get a yaml presentation of current Yaml.Node
+     * get a yaml presentation of specified Yaml.Node
+     * @param node the node to dump
+     * @param indent number of space for indentation
+     * @param show_doc flag indicating if the document start must be print
+     * @param show_tags flag indicating if tags must be print
+     * @param show_fullkeys flag indicating if full key definition must be print
      */
     public static string dump (
         Yaml.Node? node, 

@@ -88,7 +88,7 @@ public abstract class Pluie.Yaml.AbstractChild : Yaml.AbstractNode
     }
 
     /**
-     * check if first chikd
+     * check if last chikd
      */
     public bool is_last ()
     {
@@ -96,7 +96,7 @@ public abstract class Pluie.Yaml.AbstractChild : Yaml.AbstractNode
     }
 
     /**
-     * check if first chikd
+     * get nextt sibling node
      */
     public Yaml.Node? next_sibling ()
     {
@@ -104,7 +104,7 @@ public abstract class Pluie.Yaml.AbstractChild : Yaml.AbstractNode
     }
 
     /**
-     * check if first chikd
+     * get previous sibling node
      */
     public Yaml.Node? previous_sibling ()
     {
@@ -124,6 +124,9 @@ public abstract class Pluie.Yaml.AbstractChild : Yaml.AbstractNode
         return done;
     }
 
+    /**
+     * coutn childs. return 0
+     */
     public virtual int count ()
     {
         return 0;
