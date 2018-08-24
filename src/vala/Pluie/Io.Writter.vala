@@ -32,46 +32,64 @@ using GLib;
 using Gee;
 using Pluie;
 
-int main (string[] args)
+/**
+ * basic writer
+ */
+public class Pluie.Io.Writter
 {
-    Echo.init(false);
+    /**
+     * current file path
+     */
+    public string   path      { get; internal set; }
+    /**
+     *
+     */
+    public File     file      { get; internal set; }
+    /**
+     * stream used to read the file
+     */
+    DataOutputStream stream;
 
-    var path     = Yaml.DATA_PATH + "/tag.yml";
-    var done     = false;
-
-    of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.DEBUG = false;
-    var config = new Yaml.Config (path, true);
-    var root   = config.root_node () as Yaml.Root;
-    if ((done = root != null)) {
-        root.display_childs ();
-
-        
-        of.action("Yaml.Node", "to_yaml_string");
-        string yaml = root.to_yaml_string ();
+    /**
+     * construct a reader
+     * by adding {@link Io.StreamLineMark}
+     * @param path the path to load
+     */
+    public Writter (string path)
+    {
+        this.path   = path;
+        this.file   = File.new_for_path (path);
         try {
-            string genpath = "./tag-generated.yml";
-            // an output file in the current working directory
-            var file = File.new_for_path (genpath);
-            // delete if file already exists
-            if (file.query_exists ()) {
-                file.delete ();
+            this.stream = new DataOutputStream(file.create (FileCreateFlags.NONE));
+            if (!file.query_exists ()) {
+                of.error ("cannot create file '%s'".printf (path));
             }
-            var dos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION));
-            uint8[] data = yaml.data;
-            long written = 0;
-            while (written < data.length) { 
-                // sum of the bytes of 'text' that already have been written to the stream
-                written += dos.write (data[written:data.length]);
-            }
-            of.echo ("write %ld bytes in `%s`".printf ((long) written, genpath));
-            Yaml.Dumper.show_yaml_string (root, true, true, true);
-        } catch (Error e) {
-            stderr.printf ("%s\n", e.message);
-            return 1;
         }
-
+        catch (GLib.Error e) {
+            of.error (e.message);
+        }
     }
 
-    return (int) done;
+    /**
+     * read current stream by line
+     * @param mark a mark used to operate possible future rewind
+     * @return current readed line
+     */
+    public bool write (uint8[] data)
+    {
+        bool done = false;
+        try {
+            long written = 0;
+            while (written < data.length) { 
+                // sum of the bytes that already have been written to the stream
+                written += stream.write (data[written:data.length]);
+            }
+            done = written == data.length;
+        }
+        catch (GLib.Error e) {
+            of.error (e.message);
+        }
+        return done;
+    }
+
 }

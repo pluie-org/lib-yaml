@@ -101,9 +101,9 @@ public class Pluie.Yaml.Config
     /**
      *
      */
-    public Yaml.Node root_node ()
+    public Yaml.Root root_node ()
     {
-        return this.finder.context;
+        return this.finder.context as Yaml.Root;
     }
 
     /**

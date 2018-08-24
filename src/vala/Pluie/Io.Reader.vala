@@ -142,4 +142,18 @@ public class Pluie.Io.Reader
         return this.readable;
     }
 
+    /**
+     * 
+     */
+    public string? get_contents ()
+    {
+        string? read = null;
+        try {
+            FileUtils.get_contents (this.path, out read);
+        }
+        catch(GLib.Error e) {
+            of.error (e.message);
+        }
+        return read;
+    }
 }

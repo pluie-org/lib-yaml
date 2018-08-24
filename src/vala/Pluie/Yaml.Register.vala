@@ -116,6 +116,7 @@ public class Pluie.Yaml.Register
 
     /**
      * add one or multiple namespace for tag resolution
+     * namespace value ar same as in vala source code (so with dot separator)
      * @param name a namespace to register
      */
     public static bool add_namespace (string name, ...)

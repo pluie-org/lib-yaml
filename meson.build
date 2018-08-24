@@ -61,7 +61,9 @@ configure_file(
 sources = [
     'build/install.vala',
     'src/vala/Pluie/Io.Reader.vala',
+    'src/vala/Pluie/Io.InputChunkStream.vala',
     'src/vala/Pluie/Io.StreamLineMark.vala',
+    'src/vala/Pluie/Io.Writter.vala',
     'src/vala/Pluie/Yaml.global.vala',
     'src/vala/Pluie/Yaml.AbstractChild.vala',
     'src/vala/Pluie/Yaml.AbstractNode.vala',

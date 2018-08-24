@@ -87,6 +87,72 @@ namespace Pluie
             MAPPING_NOT_SINGLE_PAIR
         }
 
+        private const ZlibCompressorFormat ZFORMAT = ZlibCompressorFormat.GZIP;
+
+        /**
+         *
+         */
+        private void convert (File source, File dest, Converter converter) throws Error {
+            var src_stream = source.read ();
+            var dst_stream = dest.replace (null, false, 0);
+            var conv_stream = new ConverterOutputStream (dst_stream, converter);
+            // 'splice' pumps all data from an InputStream to an OutputStream
+            conv_stream.splice (src_stream, 0);
+        }
+
+        /**
+         *
+         */
+        public static uint8[] serialize (GLib.Object? obj)
+        {
+            Array<uint8> a = new Array<uint8> ();
+            if (obj != null) {
+                var node = obj.get_type ().is_a (typeof (Yaml.Node)) ? obj as Yaml.Node : Yaml.Builder.to_node (obj);
+                if (node != null) {
+                    var content = node.to_yaml_string ();
+                    var date    = new GLib.DateTime.now_local ().format ("%s");
+                    var path    = Path.build_filename (Environment.get_tmp_dir (), "pluie-yaml-%s-%s.source".printf (date, node.uuid));
+                    var writter = new Io.Writter (path);
+                    if (writter.write (content.data)) {
+                        try {
+                            var gzfile = File.new_for_path (path + ".gz");
+                            convert (writter.file, gzfile, new ZlibCompressor (ZFORMAT));
+                            var reader = new Io.InputChunkStream(path + ".gz", 80);
+                            while (!reader.eof ()) {
+                                var b = reader.read ();
+                                a.append_vals (b, reader.get_buffer_size ());
+                            }
+                        }
+                        catch (GLib.Error e) {
+                            of.error (e.message);
+                        }
+                    }
+                }
+            }
+            return a.data;
+        }
+
+        /**
+         *
+         */
+        public static Yaml.Root deserialize (uint8[] zdata)
+        {
+            Yaml.Root? obj = null;
+            if (zdata.length > 0) {
+                var date    = new GLib.DateTime.now_local ().format ("%s");
+                var path    = Path.build_filename (Environment.get_tmp_dir (), "pluie-yaml-%s.gz".printf (date));
+                var dpath   = Path.build_filename (Environment.get_tmp_dir (), "pluie-yaml-%s.source".printf (date));
+                var writter = new Io.Writter (path);
+                if (writter.write (zdata)) {
+                    var file = File.new_for_path (dpath);
+                    convert (writter.file, file, new ZlibDecompressor (ZFORMAT));
+                    var config = new Yaml.Config (dpath);
+                    obj = config.root_node ();
+                }
+            }
+            return obj;
+        }
+
         /**
          * haxadecimal sequence
          */

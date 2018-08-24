@@ -56,11 +56,11 @@ public class Pluie.Yaml.Dumper
     /**
      *
      */
-    public static bool SHOW_COLORS    { get; internal set; default = false; }
+    static bool        SHOW_COLOR     { get; internal set; default = false; }
     /**
      *
      */
-    public static bool SHOW_LINE      { get; internal set; default = false; }
+    static bool        SHOW_LINE      { get; internal set; default = false; }
     /**
      *
      */
@@ -86,16 +86,11 @@ public class Pluie.Yaml.Dumper
         bool show_fullkeys = Yaml.Dumper.SHOW_FULL_KEYS
     )
     {
-        bool prev1  = SHOW_LINE;
-        bool prev2  = SHOW_COLORS;
-        bool prev3  = SHOW_TAGS;
         SHOW_LINE   = show_line;
-        SHOW_COLORS = show_color;
-        SHOW_TAGS   = show_tags;
-        string yaml = dump (node, indent, show_doc, show_tags, show_fullkeys, show_color);
-        SHOW_LINE   = prev1;
-        SHOW_COLORS = prev2;
-        SHOW_TAGS   = prev3;
+        SHOW_COLOR  = show_color;
+        string yaml = dump (node, indent, show_doc, show_tags, show_fullkeys);
+        SHOW_LINE   = false;
+        SHOW_COLOR  = false;
         of.action ("Yaml string representation for", node!= null ? node.name : "null");
         print ("%s%s%s", "\n", yaml, "\n");
     }
@@ -108,8 +103,7 @@ public class Pluie.Yaml.Dumper
         int indent         = Yaml.Dumper.DEFAULT_INDENT,
         bool show_doc      = Yaml.Dumper.SHOW_DOC,
         bool show_tags     = Yaml.Dumper.SHOW_TAGS,
-        bool show_fullkeys = Yaml.Dumper.SHOW_FULL_KEYS,
-        bool show_colors   = Yaml.Dumper.SHOW_COLORS
+        bool show_fullkeys = Yaml.Dumper.SHOW_FULL_KEYS
     )
     {
         var yaml = new StringBuilder("");
@@ -118,7 +112,7 @@ public class Pluie.Yaml.Dumper
                 line = 0;
                 yaml_root (ref yaml, node as Yaml.Root, show_doc);
                 foreach (var child in node) {
-                    yaml.append (Yaml.Dumper.dump (child, indent, show_doc, show_tags, show_fullkeys, show_colors));
+                    yaml.append (Yaml.Dumper.dump (child, indent, show_doc, show_tags, show_fullkeys));
                 }
             }
             else if (node.ntype.is_single_pair ()) {
@@ -128,7 +122,7 @@ public class Pluie.Yaml.Dumper
             else if (node.ntype.is_collection ()) {
                 yaml_key (ref yaml, node, indent, show_tags);
                 foreach (var child in node) {
-                    yaml.append (Yaml.Dumper.dump (child, indent, show_doc, show_tags, show_fullkeys, show_colors));
+                    yaml.append (Yaml.Dumper.dump (child, indent, show_doc, show_tags, show_fullkeys));
                 }
             }
             else if (node.ntype.is_scalar ()) {
@@ -156,12 +150,12 @@ public class Pluie.Yaml.Dumper
     private static void yaml_tag (ref StringBuilder yaml, Yaml.Node node, bool show_tags)
     {
         if (node.tag != null && show_tags) {
-            if (SHOW_COLORS) yaml.append (of.c (ECHO.COMMAND).to_string ());
+            if (SHOW_COLOR) yaml.append (of.c (ECHO.COMMAND).to_string ());
             yaml.append ("!%s!%s".printf (
                 node.tag.handle, 
                 node.tag.value
             ));
-            yaml.append ("%s ".printf (SHOW_COLORS ? Color.off () : ""));
+            yaml.append ("%s ".printf (SHOW_COLOR ? Color.off () : ""));
         }
     }
 
@@ -193,7 +187,7 @@ public class Pluie.Yaml.Dumper
         else if (!node.is_first ()) {
             yaml_indent (ref yaml, node, indent, true);
         }
-        if (node.parent != null && node.parent.ntype.is_sequence ()) yaml.append (!SHOW_COLORS ? "- " : of.c (ECHO.DATE).s ("- "));
+        if (node.parent != null && node.parent.ntype.is_sequence ()) yaml.append (!SHOW_COLOR ? "- " : of.c (ECHO.DATE).s ("- "));
         if (wrapseq) {
             if (Yaml.DEBUG) of.warn ("node %s wrapseq ? %s".printf (node.name, wrapseq.to_string ()));
         }
@@ -205,8 +199,8 @@ public class Pluie.Yaml.Dumper
             }
             len = (!show_tags || (node.tag == null && !node.ntype.is_collection ()) &&  len > 0) ? len +1 - node.name.length : 0;
             yaml.append("%s%s%s".printf(
-                !SHOW_COLORS ? @"%s%$(len)s ".printf (node.name, " ") : of.c (node.ntype.is_collection() ? ECHO.TIME : ECHO.OPTION).s(@"%s%$(len)s".printf (node.name, " ")), 
-                !SHOW_COLORS ? ":"       : of.c (ECHO.DATE).s(":"),
+                !SHOW_COLOR ? @"%s%$(len)s ".printf (node.name, " ") : of.c (node.ntype.is_collection() ? ECHO.TIME : ECHO.OPTION).s(@"%s%$(len)s".printf (node.name, " ")), 
+                !SHOW_COLOR ? ":"       : of.c (ECHO.DATE).s(":"),
                 node.ntype.is_collection () ? "\n" : " "
             ));
         }
@@ -218,10 +212,10 @@ public class Pluie.Yaml.Dumper
     private static void yaml_scalar (ref StringBuilder yaml, Yaml.Node node, int indent, bool show_tags)
     {
         if (!(node.parent !=null && node.parent.ntype.is_single_pair ())) yaml_indent (ref yaml, node, indent);
-        if (node.parent != null && node.parent.ntype.is_sequence ()) yaml.append (!SHOW_COLORS ? "- " : of.c (ECHO.DATE).s ("- "));
+        if (node.parent != null && node.parent.ntype.is_sequence ()) yaml.append (!SHOW_COLOR ? "- " : of.c (ECHO.DATE).s ("- "));
         yaml_tag (ref yaml, node, show_tags);
         yaml.append ("%s\n".printf (
-            !SHOW_COLORS ? node.data : of.c (ECHO.OPTION_SEP).s (node.data)
+            !SHOW_COLOR ? node.data : of.c (ECHO.OPTION_SEP).s (node.data)
         ));
     }
 }
