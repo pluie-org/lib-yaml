@@ -53,6 +53,11 @@ public class Pluie.Yaml.Processor
     bool                              beginFlowSeq;
 
     /**
+     *
+     */
+    int                               indexEvt;
+
+    /**
      * current anchor id
      */
     string?                           idAnchor;
@@ -142,9 +147,10 @@ public class Pluie.Yaml.Processor
     public void read ()
     {
         of.action ("Reading events");
+        var i = 0;
         foreach (Yaml.Event event in this.events) {
             int len = 24 - event.evtype.infos ().length;
-            stdout.printf ("    [ %s"+@" %$(len)s "+", %d, %s", event.evtype.infos (), " ", event.line, event.style != null ? event.style.to_string () : "0");
+            stdout.printf ("  %03d  [ %s"+@" %$(len)s "+", %d, %s", i++, event.evtype.infos (), " ", event.line, event.style != null ? event.style.to_string () : "0");
             if (event.data != null && event.data.size > 0) {
                 stdout.printf (", {");
                 var it = event.data.map_iterator ();
@@ -168,8 +174,8 @@ public class Pluie.Yaml.Processor
         Yaml.dbg_action ("Processing events");
         this.reset ();
         for (var has_next = this.iterator.next (); has_next; has_next = this.iterator.next ()) {
-            this.event = this.iterator.get ();
-            Yaml.dbg ("Processing event %s".printf (this.event.evtype.infos ()));
+            this.event = this.iterator.get ();            
+            Yaml.dbg ("    0>>>>> [EVENT event [%d] %s <<<<< %s".printf (this.indexEvt++, this.event.evtype.infos (), Log.METHOD));
             if (this.event.evtype.is_tag_directive ()) {
                 this.on_tag_directive ();
             }
@@ -227,6 +233,7 @@ public class Pluie.Yaml.Processor
         this.valueTag     = null;
         this.beginFlowSeq = false;
         this.nextValueEvt = null;
+        this.indexEvt     = 0;
     }
 
     /**
@@ -237,6 +244,7 @@ public class Pluie.Yaml.Processor
         Yaml.Event? evt = null;
         if (this.iterator.has_next () && this.iterator.next ()) {
             evt = this.iterator.get ();
+            Yaml.dbg ("    1>>>>> [EVENT event [%d] %s <<<<< %s".printf (this.indexEvt++, evt.evtype.infos (), Log.METHOD));
         }
         return evt;
     }
@@ -266,6 +274,32 @@ public class Pluie.Yaml.Processor
             this.nextValueEvt = evt;
             of.echo ("next value event is %s".printf (evt.evtype.infos ()));
         }
+        return evt;
+    }
+
+    /**
+     * retriew the next Yaml Value Event
+     */
+    private Yaml.Event? get_next_value_event ()
+    {
+        Yaml.Event? evt = null;
+        of.echo("    :::: current event %s - index %d".printf (this.event.evtype.infos (), this.indexEvt));
+        var i      = this.indexEvt+1;
+        of.echo("    :::: i = %d".printf (i));
+        var search = true;
+        while (search) {
+            if (i < this.events.size) {
+                var e = this.events.get (i++);
+                of.echo("    :::: i = %d => event : %s".printf (i-1, e.evtype.infos ()));
+                if (e != null && e.evtype.is_value ()) {
+                    of.echo("    :::: IS VALUE RETURN NEXT EVENTi = %d => event : %s".printf (i, e.evtype.infos ()));
+                    evt = this.events.get (i);
+                    break;
+                }
+            }
+            else search = false;
+        }
+
         return evt;
     }
 
@@ -323,9 +357,15 @@ public class Pluie.Yaml.Processor
      */
     private void on_entry ()
     {
+        of.echo ("  >>> on_ENTRY : current event is %s".printf (this.event.evtype.infos ()));
         this.event = this.next_event();
-        of.echo ("  >>> ON ENTRY : next value event is %s".printf (this.nextValueEvt.evtype.infos ()));
-        if (this.event.evtype.is_mapping_start () && this.nextValueEvt.evtype.is_mapping_start ()) {
+        of.echo ("  >>> on_ENTRY : ENTRY TYPE %s".printf (this.event.evtype.infos ()));
+        Yaml.Event? e = null;
+        e = get_next_value_event ();
+        if (e != null) {
+            of.echo ("  >>> on_ENTRY : NEXT value event is %s".printf (e.evtype.infos ()));
+        }
+        if (this.event.evtype.is_mapping_start () && (e!= null && !e.evtype.is_mapping_start ())) {
             of.echo ("  THE mapping start");
             this.on_mapping_start (true);
         }
@@ -370,6 +410,7 @@ public class Pluie.Yaml.Processor
      */
     private void on_value ()
     {
+        of.echo ("  >>> ON VALUE : next value event is %s".printf (this.nextValueEvt.evtype.infos ()));
         this.on_tag (false);
         if (this.event.evtype.is_scalar ()) {
             this.on_scalar ();

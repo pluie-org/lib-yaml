@@ -110,9 +110,17 @@ public abstract class Pluie.Yaml.AbstractNode : GLib.Object
         int indent         = Yaml.Dumper.DEFAULT_INDENT, 
         bool show_doc      = Yaml.Dumper.SHOW_DOC, 
         bool show_tags     = Yaml.Dumper.SHOW_TAGS,
-        bool show_fullkeys = Yaml.Dumper.SHOW_FULL_KEYS
+        bool show_fullkeys = Yaml.Dumper.SHOW_FULL_KEYS,
+        bool show_colors   = Yaml.Dumper.SHOW_COLORS
     )
     {
-        return Yaml.Dumper.dump ((Yaml.Node) this, indent, show_doc, show_tags);
+        return Yaml.Dumper.dump (
+            (Yaml.Node) this, 
+            indent, 
+            show_doc, 
+            show_tags, 
+            show_fullkeys, 
+            show_colors
+        );
     }
 }

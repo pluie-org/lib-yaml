@@ -49,7 +49,6 @@ int main (string[] args)
         
         of.action("Yaml.Node", "to_yaml_string");
         string yaml = root.to_yaml_string ();
-        print (yaml);
         try {
             // an output file in the current working directory
             var file = File.new_for_path ( "./tag-generated.yml");
@@ -64,6 +63,7 @@ int main (string[] args)
                 // sum of the bytes of 'text' that already have been written to the stream
                 written += dos.write (data[written:data.length]);
             }
+            Yaml.Dumper.show_yaml_string (root, true, true, true);
         } catch (Error e) {
             stderr.printf ("%s\n", e.message);
             return 1;
