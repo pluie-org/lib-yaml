@@ -195,7 +195,7 @@ public class Pluie.Yaml.Dumper
         }
         if (node.parent != null && node.parent.ntype.is_sequence ()) yaml.append (!SHOW_COLORS ? "- " : of.c (ECHO.DATE).s ("- "));
         if (wrapseq) {
-            of.warn ("node %s wrapseq ? %s".printf (node.name, wrapseq.to_string ()));
+            if (Yaml.DEBUG) of.warn ("node %s wrapseq ? %s".printf (node.name, wrapseq.to_string ()));
         }
         yaml_tag (ref yaml, node, show_tags);
         if (!wrapseq) {

@@ -272,7 +272,6 @@ public class Pluie.Yaml.Processor
         if (e != null && e.evtype.is_value ()) {
             evt = this.next_event ();
             this.nextValueEvt = evt;
-            of.echo ("next value event is %s".printf (evt.evtype.infos ()));
         }
         return evt;
     }
@@ -283,16 +282,12 @@ public class Pluie.Yaml.Processor
     private Yaml.Event? get_next_value_event ()
     {
         Yaml.Event? evt = null;
-        of.echo("    :::: current event %s - index %d".printf (this.event.evtype.infos (), this.indexEvt));
         var i      = this.indexEvt+1;
-        of.echo("    :::: i = %d".printf (i));
         var search = true;
         while (search) {
             if (i < this.events.size) {
                 var e = this.events.get (i++);
-                of.echo("    :::: i = %d => event : %s".printf (i-1, e.evtype.infos ()));
                 if (e != null && e.evtype.is_value ()) {
-                    of.echo("    :::: IS VALUE RETURN NEXT EVENTi = %d => event : %s".printf (i, e.evtype.infos ()));
                     evt = this.events.get (i);
                     break;
                 }
@@ -325,17 +320,11 @@ public class Pluie.Yaml.Processor
      */
     private void on_block_end ()
     {
-        of.echo ("    > [ ON BLOCK END ]");
         if (!this.prev_node.ntype.is_collection ()) {
-            of.echo ("     *** prev not a collection deal with parent");
             this.prev_node = this.prev_node.parent;
         }
-        of.echo ("         PREV   WAS %s (%s)".printf (this.prev_node.ntype.infos (), this.prev_node.name));
-        of.echo ("         PARENT WAS %s (%s)".printf (this.parent_node.ntype.infos (), this.parent_node.name));
         bool isSequenceWithBlock = this.prev_node.ntype.is_sequence () && !this.prev_node.empty() && this.prev_node.first ().ntype.is_collection ();
-        of.echo ("      !! isSequenceWithBlock ? %s".printf (isSequenceWithBlock.to_string ()));
         if (!isSequenceWithBlock || (isSequenceWithBlock && (this.prev_node as Yaml.Sequence).close_block)) {
-            of.echo ("      PREV IS NOT A SEQUENCE OR !! isSequenceWithBlock ? %s".printf (isSequenceWithBlock.to_string ()));
             this.parent_node = this.prev_node.parent != null && this.prev_node.parent != this.root 
             ? this.prev_node.parent
             : this.root;
@@ -347,9 +336,6 @@ public class Pluie.Yaml.Processor
                 seq.close_block = true;
             }
         }
-        of.echo ("         PREV   IS  %s (%s)".printf (this.prev_node.ntype.infos (), this.prev_node.name));
-        of.echo ("         PARENT IS  %s (%s)".printf (this.parent_node.ntype.infos (), this.parent_node.name));
-        of.echo ("    < [ ON BLOCK END ]");
     }
 
     /**
@@ -357,16 +343,10 @@ public class Pluie.Yaml.Processor
      */
     private void on_entry ()
     {
-        of.echo ("  >>> on_ENTRY : current event is %s".printf (this.event.evtype.infos ()));
         this.event = this.next_event();
-        of.echo ("  >>> on_ENTRY : ENTRY TYPE %s".printf (this.event.evtype.infos ()));
         Yaml.Event? e = null;
         e = get_next_value_event ();
-        if (e != null) {
-            of.echo ("  >>> on_ENTRY : NEXT value event is %s".printf (e.evtype.infos ()));
-        }
         if (this.event.evtype.is_mapping_start () && (e!= null && !e.evtype.is_mapping_start ())) {
-            of.echo ("  THE mapping start");
             this.on_mapping_start (true);
         }
         else if (this.event.evtype.is_scalar ()) {
@@ -410,7 +390,6 @@ public class Pluie.Yaml.Processor
      */
     private void on_value ()
     {
-        of.echo ("  >>> ON VALUE : next value event is %s".printf (this.nextValueEvt.evtype.infos ()));
         this.on_tag (false);
         if (this.event.evtype.is_scalar ()) {
             this.on_scalar ();
@@ -493,7 +472,6 @@ public class Pluie.Yaml.Processor
         if (entry) {
             this.ckey = "_%d".printf(this.parent_node.count());
         }
-        of.echo ("ckey : %s".printf (this.ckey));
         this.node   = new Yaml.Mapping (this.parent_node, this.ckey);
         this.change = true;
     }
@@ -538,15 +516,11 @@ public class Pluie.Yaml.Processor
                 }
             }
             if (this.node.ntype.is_collection () && (this.node.empty() || (!this.node.first().ntype.is_scalar ()))) {
-                of.echo ("   => SET *** **parent %s (%s) TO node %s (%s) ****".printf (this.parent_node.ntype.infos (), this.parent_node.name, this.node.ntype.infos (), this.node.name));
-                of.echo ("   => CURNODE %s (%s) has parent : %s (%s) ****".printf (this.node.ntype.infos (), this.node.name, this.node.parent.ntype.infos (), this.node.parent.name));
                 this.parent_node = this.node;
             }
             else {
-                of.echo ("   => SET parent %s (%s) TO node %s (%s) ====".printf (this.parent_node.ntype.infos (), this.parent_node.name, this.node.parent.ntype.infos (), this.node.parent.name));
                 this.parent_node = this.node.parent;
             }
-            of.echo ("   => SET prev_node %s (%s) TO node %s (%s) ====".printf (this.prev_node.ntype.infos (), this.prev_node.name, this.node.ntype.infos (), this.node.name));
             this.prev_node = this.node;
             this.tagHandle = null;
             this.keyTag    = null;

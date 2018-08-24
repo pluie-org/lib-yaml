@@ -40,7 +40,7 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.DEBUG = true;
+    Pluie.Yaml.DEBUG = false;
     var config = new Yaml.Config (path, true);
     var root   = config.root_node () as Yaml.Root;
     if ((done = root != null)) {
@@ -50,8 +50,9 @@ int main (string[] args)
         of.action("Yaml.Node", "to_yaml_string");
         string yaml = root.to_yaml_string ();
         try {
+            string genpath = "./tag-generated.yml";
             // an output file in the current working directory
-            var file = File.new_for_path ( "./tag-generated.yml");
+            var file = File.new_for_path (genpath);
             // delete if file already exists
             if (file.query_exists ()) {
                 file.delete ();
@@ -63,6 +64,7 @@ int main (string[] args)
                 // sum of the bytes of 'text' that already have been written to the stream
                 written += dos.write (data[written:data.length]);
             }
+            of.echo ("write %lld bytes in `%s`".printf ((long) written, genpath));
             Yaml.Dumper.show_yaml_string (root, true, true, true);
         } catch (Error e) {
             stderr.printf ("%s\n", e.message);

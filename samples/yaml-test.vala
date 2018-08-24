@@ -32,18 +32,6 @@ using GLib;
 using Gee;
 using Pluie;
 
-class Foo {
-    public signal void sig (int x);
-}
-
-class Bar {
-    private int data = 42;
-
-    public void handler (int x) {
-        stdout.printf ("%d Data via instance: %d\n", x, this.data);
-    }
-}
-
 int main (string[] args)
 {
     Echo.init(false);
@@ -91,19 +79,6 @@ int main (string[] args)
 
     of.rs (done);
     of.echo ();
-
-    var foo = new Foo ();
-
-    int data = 52;
-    foo.sig.connect ((x) => {        // 'user_data' in C code = variables from outer context
-        stdout.printf ("%d Data via closure: %d\n", x, data);
-    });
-
-    var bar = new Bar ();
-    foo.sig.connect (bar.handler);  // 'user_data' in C code = 'bar'
-
-    // Emit signal
-    foo.sig (73);
 
     return (int) done;
 
