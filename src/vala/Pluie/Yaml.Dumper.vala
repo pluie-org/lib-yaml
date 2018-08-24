@@ -179,11 +179,11 @@ public class Pluie.Yaml.Dumper
         yaml.append(! SHOW_LINE ? "" : of.c (ECHO.NUM).s ("%03d %s".printf (line++, of.c (ECHO.FILE).s ("|"))));
         yaml.append("%YAML %s\n".printf (Yaml.YAML_VERSION));
         foreach (var entry in node.tag_directives.entries) {
-            yaml.append(! SHOW_LINE ? "" : of.c (ECHO.NUM).s ("%03d %s".printf (line, of.c (ECHO.FILE).s ("|"))));
+            yaml.append(! SHOW_LINE ? "" : of.c (ECHO.NUM).s ("%03d %s".printf (line++, of.c (ECHO.FILE).s ("|"))));
             yaml.append ("%TAG %s %s\n".printf (entry.key, entry.value));
         }
         if (show_doc) {
-            yaml.append(! SHOW_LINE ? "" : of.c (ECHO.NUM).s ("%03d %s".printf (line, of.c (ECHO.FILE).s ("|"))));
+            yaml.append(! SHOW_LINE ? "" : of.c (ECHO.NUM).s ("%03d %s".printf (line++, of.c (ECHO.FILE).s ("|"))));
             yaml.append ("---\n");
         }
     }
