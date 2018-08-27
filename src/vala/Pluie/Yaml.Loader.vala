@@ -61,20 +61,22 @@ public class Pluie.Yaml.Loader
     public Loader (string path, bool display_file = false, bool displayNode = false )
     {
         this.reader  = new Io.Reader (path);
-        this.scanner = new Yaml.Scanner (path);
-        if (display_file) this.display_file ();
+        if (this.reader.readable) {
+            this.scanner = new Yaml.Scanner (path);
+            if (display_file) this.display_file ();
 
-        if ((this.done = this.scanner.run())) {
-            if (displayNode) {
-                var n = this.get_nodes ();
-                if (n != null) n.display_childs ();
-                of.state(n != null);
+            if ((this.done = this.scanner.run())) {
+                if (displayNode) {
+                    var n = this.get_nodes ();
+                    if (n != null) n.display_childs ();
+                    of.state(n != null);
+                }
             }
-        }
-        else {
-            var evt = this.scanner.get_error_event ();
-            of.error ("line %d (%s)".printf (evt.line, evt.data["error"]));
-            this.display_file (evt.line);
+            else {
+                var evt = this.scanner.get_error_event ();
+                of.error ("line %d (%s)".printf (evt.line, evt.data["error"]));
+                this.display_file (evt.line);
+            }
         }
     }
 

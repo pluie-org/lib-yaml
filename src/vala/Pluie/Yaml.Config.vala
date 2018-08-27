@@ -81,10 +81,12 @@ public class Pluie.Yaml.Config
         this.display_file  = display_file;
         if (this.path != null) {
             this.loader = new Yaml.Loader (this.path, display_file, false);
-            Yaml.Node? root = this.loader.get_nodes ();
-            if (root != null) {
-                this.finder = new Yaml.Finder(root);
-                this.get_imports ();
+            if (this.loader.done) {
+                Yaml.Node? root = this.loader.get_nodes ();
+                if (root != null) {
+                    this.finder = new Yaml.Finder(root);
+                    this.get_imports ();
+                }
             }
         }
     }
@@ -105,9 +107,9 @@ public class Pluie.Yaml.Config
     /**
      * retriew the corresponding Yaml.Root node for loaded yaml file
      */
-    public Yaml.Root root_node ()
+    public Yaml.Root? root_node ()
     {
-        return this.finder.context as Yaml.Root;
+        return this.finder!=null ? this.finder.context as Yaml.Root : null;
     }
 
     /**
