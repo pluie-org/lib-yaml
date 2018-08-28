@@ -1,0 +1,76 @@
+%YAML 1.2
+%TAG !v! tag:pluie.org,2018:vala/
+---
+!v!Pluie.Berel.Meta meta :
+  keys :
+    software    : pluie-yaml; <https://git.pluie.org/pluie/lib-yaml>
+    version     : 0.54
+    type        : library
+    date        : 2018
+    license     : GPLv3.0; <http://www.gnu.org/licenses/>
+    author      : a-Sansara; <[dev]at[pluie]dot[org]>
+    copyright   : pluie.org; <http://www.pluie.org>
+
+  headers :
+    - sh :
+        file        :
+            - build.sh
+            - valadoc.sh
+        startline   : 2 # to embed shebang before header tpl
+        sepline     :
+            motif       : "# "
+            repeat      : 40
+        comment     :
+            start       : "#^#"
+            end         : "#^#"
+            begin       : "#  "
+    - meson :
+        file        :
+            - meson.build
+        startline   : 1
+        sepline     :
+            motif       : "# "
+            repeat      : 40
+        comment     :
+            start       : "#^#"
+            end         : "#^#"
+            begin       : "#  "
+    - vala :
+        dir         :
+            - src
+        extension   : 
+            - .vala
+            - .c
+        file        :
+            - install.vala.in
+        startline   : 1
+        sepline     :
+            motif       : " *"
+            repeat      : 40
+        comment     :
+            start       : "/*^"
+            end         : "^*/"
+            begin       : " *  "
+  tpl : |
+    ^sepline^
+
+    ^keys^
+
+    ^sepline^
+
+    This file is part of ^software.name^.
+
+    ^software.name^ is free software (free as in speech) : you can redistribute it
+    and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    ^software.name^ is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+    more details.
+
+    You should have received a copy of the GNU General Public License
+    along with ^software.name^.  If not, see <http://www.gnu.org/licenses/>.
+
+    ^sepline^
