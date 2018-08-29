@@ -2,7 +2,7 @@
 #^# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #
 #  @software    :    pluie-yaml       <https://git.pluie.org/pluie/lib-yaml>
-#  @version     :    0.54
+#  @version     :    0.55
 #  @type        :    library
 #  @date        :    2018
 #  @license     :    GPLv3.0          <http://www.gnu.org/licenses/>
@@ -24,7 +24,7 @@
 #  more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with pluie-yaml.  If not, see <http://www.gnu.org/licenses/>.
+#  along with pluie-yaml.  If not, see  <http://www.gnu.org/licenses/>.
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #^#
 

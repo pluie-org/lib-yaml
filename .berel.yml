@@ -4,7 +4,7 @@
 !v!Pluie.Berel.Meta meta :
   keys :
     software    : pluie-yaml; <https://git.pluie.org/pluie/lib-yaml>
-    version     : 0.54
+    version     : 0.55
     type        : library
     date        : 2018
     license     : GPLv3.0; <http://www.gnu.org/licenses/>
@@ -27,6 +27,7 @@
     - meson :
         file        :
             - meson.build
+            - src/meson.build
         sepline     :
             motif       : "# "
             repeat      : 40
@@ -40,8 +41,6 @@
         extension   : 
             - .vala
             - .c
-        file        :
-            - install.vala.in
         sepline     :
             motif       : " *"
             repeat      : 40
