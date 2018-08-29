@@ -28,7 +28,7 @@ GNU GPL v3
 
 ## Prerequisites
 
-`valac meson ninja libyaml glib gobject gmodule gee pluie-echo`
+`valac meson ninja libyaml glib gobject gmodule gio gee pluie-echo`
 
 see https://git.pluie.org/pluie/libpluie-echo in order to install pluie-echo-0.2 pkg
 
@@ -280,7 +280,7 @@ on yaml side, proceed like that :
 %YAML 1.2
 %TAG !v! tag:pluie.org,2018:vala/
 ---
-!v!Pluie.Yaml.Example test1 :
+!v!Pluie.Samples.YamlObject test1 :
     myname      : test1object
     type_int    : !v!int 3306
     type_bool   : !v!bool false
@@ -291,12 +291,12 @@ on yaml side, proceed like that :
     type_float  : !v!float 42.36
     type_double : !v!double 95542123.4579512128
     type_enum   : !v!Pluie.Yaml.NODE_TYPE scalar # or int
-    !v!Pluie.Yaml.ExampleChild type_object : 
+    !v!Pluie.Samples.YamlChild type_object : 
         toto : totovalue1
         tata : tatavalue1
         titi : 123
         tutu : 1
-    !v!Pluie.Yaml.ExampleStruct type_struct : 
+    !v!Pluie.Samples.YamlStruct type_struct : 
         red   : !v!uint8 214
         green : !v!uint8 78
         blue  : 153
@@ -311,16 +311,18 @@ on yaml side, proceed like that :
 **note :** 
 only the first level of yaml node matching a vala object need a tag.
 **pluie-yaml** has mechanisms to retriew properties types of a Yaml.Object.
-So basic vala types tag, enum tag, struct tag and derived Yaml.Object (here ExampleChild) 
-or GLib.Object vala tags are not necessary inside a Yaml.Object.
+So basic vala types tag, enum tag, struct tag and derived Yaml.Object (here Samples.YamlObject & Samples.YamlChild) 
+or GLib.Object.  
+vala tags are not necessary inside a Yaml.Object.
 
 on vala side :
 
 ```vala
+    using pluie;
     ...
-    var obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+    var obj = (Samples.YamlObject) Yaml.Builder.from_node (root.first ());
     of.echo("obj.type_int : %d".printf (obj.type_int));
-    // calling ExampleChild method
+    // calling Samples.YamlChild method
     obj.type_object.method_a ()
 ```
 
@@ -337,13 +339,15 @@ We cannot do introspection on Structure's properties, so you need to implement a
 First at all, in the static construct of your class, you need to register (properties) types that need some glue for instanciation.
 
 ```vala
-public class Yaml.Example : Yaml.Object
+using Pluie;
+
+public class Pluie.Samples.YamlObject : Yaml.Object
 {
     static construct
     {
         Yaml.Register.add_type (
-            typeof (Yaml.Example),       // owned type
-            typeof (Yaml.ExampleStruct), // property type
+            typeof (Samples.YamlObject), // owner type
+            typeof (Samples.YamlStruct), // property type
             typeof (Gee.ArrayList)       // property type
         );
     }
@@ -353,13 +357,13 @@ public class Yaml.Example : Yaml.Object
 Secondly you must override the `public void populate_from_node (Glib.Type, Yaml.Node node)` Yaml.Object original method.  
 `populate_from_node` is automatically called by the Yaml.Builder if the type property is prealably registered.
 
-Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
+Example of implementation from `src/vala/Pluie/Samples.YamlObject.vala` :
 
 ```vala
     public override void populate_from_node(GLib.Type type, Yaml.Node node)
     {
-        if (type == typeof (Yaml.ExampleStruct)) {
-            this.type_struct = ExampleStruct.from_yaml_node (node);
+        if (type == typeof (Samples.YamlStruct)) {
+            this.type_struct = Samples.YamlStruct.from_yaml_node (node);
         }
         else if (type == typeof (Gee.ArrayList)) {
             this.type_gee_al = new Gee.ArrayList<string> ();
@@ -399,7 +403,7 @@ reverse build mechanism is also possible but have the same limitation.
     root.display_childs ();
 
     of.action ("Yaml.Builder.from_node", root.first ().name);
-    var obj    = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+    var obj    = (Samples.YamlObject) Yaml.Builder.from_node (root.first ());
     obj.type_object.method_a ();
 
     of.action ("Yaml.Builder.to_node", obj.get_type ().name ());
@@ -412,7 +416,7 @@ reverse build mechanism is also possible but have the same limitation.
 you need to override the `public Yaml.Node? populate_to_node(GLib.Type type, string name)` Yaml.Object original method  
 `populate_to_node` is also automatically called by the Yaml.Builder if the type property is prealably registered.
 
-Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
+Example of implementation from `src/vala/Pluie/Samples.YamlObject.vala` :
 
 ```vala
     public override Yaml.Node?  populate_to_node(GLib.Type type, string name)
@@ -420,7 +424,7 @@ Example of implementation from `src/vala/Pluie/Yaml.Example.vala` :
         Yaml.Node? node = base.populate_to_node (type, name);
         // non Yaml.Object type & registered type
         if (node == null) {
-            if (type == typeof (Yaml.ExampleStruct)) {
+            if (type == typeof (Samples.YamlStruct)) {
                 node = this.type_struct.to_yaml_node (name);
             }
             else if (type == typeof (Gee.ArrayList)) {
