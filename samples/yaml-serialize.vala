@@ -32,7 +32,7 @@ using GLib;
 using Gee;
 using Pluie;
 
-public void test_object(Yaml.Example obj)
+public void test_object(Samples.YamlObject obj)
 {
     of.action ("Test Object", obj.yaml_name);
     obj.type_object.method_a ();
@@ -86,8 +86,7 @@ int main (string[] args)
         root.display_childs ();
 
         of.action ("Yaml build first child", root.first ().name);
-        Yaml.Example obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
-        obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+        var obj = (Samples.YamlObject) Yaml.Builder.from_node (root.first ());
         test_object (obj);
 
         of.action ("Serialize",  obj.yaml_name);
@@ -100,7 +99,7 @@ int main (string[] args)
         root = Yaml.deserialize (zdata);
         root.display_childs ();
         of.action ("Yaml build first child", obj.yaml_name);
-        obj  = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+        obj  = (Samples.YamlObject) Yaml.Builder.from_node (root.first ());
         test_object (obj);
 
     }

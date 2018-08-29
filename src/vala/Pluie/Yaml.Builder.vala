@@ -91,19 +91,39 @@ public class Pluie.Yaml.Builder
     }
 
     /**
+     *
+     */
+    private static string resolve_c_subname (string name) throws GLib.RegexError
+    {
+        MatchInfo?  mi = null;
+        bool    update = false;
+        var        reg = new Regex ("([A-Z]{1}[a-z]+)");
+        string?    str = null;
+        var         sb = new StringBuilder();
+        for (reg.match (name, 0, out mi) ; mi.matches () ; mi.next ()) {
+            if ((str = mi.fetch (1)) != null && str.length > 0) {
+                sb.append ("%s%s%s".printf (update ? "_" : "", str[0].tolower ().to_string (), str.substring(1)));
+                if (!update) update = true;
+            }
+        }
+        return update ? sb.str : name;
+    }
+
+    /**
      * retriew corresponding c name related to specified vala name
      * @param name a valid vala identifier name
      */
     public static string resolve_c_name (string name)
     {
-        string?      str = null;
-        MatchInfo?    mi = null;
+        string?      str  = null;
+        MatchInfo?    mi  = null;
         StringBuilder sb = new StringBuilder ();
         bool begin       = true;
         try {
             var reg = new Regex ("([^.]*).?");
             for (reg.match (name, 0, out mi) ; mi.matches () ; mi.next ()) {
-                if ((str = mi.fetch (1)) != null && str.length > 0) {
+                str = Yaml.Builder.resolve_c_subname(mi.fetch (1));
+                if (str != null && str.length > 0) {
                     if (!begin) sb.append_unichar ('_');
                     else begin = false;
                     sb.append_unichar (str[0].tolower ());
@@ -128,47 +148,42 @@ public class Pluie.Yaml.Builder
     public static GLib.Object? from_node (Yaml.Node node, Type otype = GLib.Type.INVALID)
     {
         GLib.Object? obj  = null;
-        try {
-            Type type = node.tag != null ? type_from_tag (node.tag.value) : otype;
-            if (type != Type.INVALID) {
-                Yaml.dbg_action ("vala type founded", "%s (%s)".printf (type.name (), type.to_string ()));
-                if (type.is_object ()) {
-                    obj = GLib.Object.new (type);
-                    if (type.is_a (typeof (Yaml.Object))) {
-                        (obj as Yaml.Object).set ("yaml_name", node.name);
-                        (obj as Yaml.Object).yaml_construct ();
-                    }
-                    if (node!= null && !node.empty ()) {
-                        GLib.ParamSpec?  def = null;
-                        Yaml.Node?    scalar = null;
-                        foreach (var child in node) {
-                            if ((def = obj.get_class ().find_property (child.name)) != null) {
-                                Yaml.dbg ("== prop [%s] type is : %s".printf (child.name, def.value_type.name ()));
-                                if (child.ntype.is_single_pair () && (scalar = child.first ()) != null) {
-                                    set_from_scalar (ref obj, def.name, def.value_type, scalar.data);
-                                }
-                                else if (child.ntype.is_collection ()) {
-                                    set_from_collection (ref obj, type, child, def.value_type);
-                                }
+        Type type = node.tag != null ? type_from_tag (node.tag.value) : otype;
+        if (type != Type.INVALID) {
+            Yaml.dbg_action ("vala type founded", "%s (%s)".printf (type.name (), type.to_string ()));
+            if (type.is_object ()) {
+                obj = GLib.Object.new (type);
+                if (type.is_a (typeof (Yaml.Object))) {
+                    (obj as Yaml.Object).set ("yaml_name", node.name);
+                    (obj as Yaml.Object).yaml_construct ();
+                }
+                if (node!= null && !node.empty ()) {
+                    GLib.ParamSpec?  def = null;
+                    Yaml.Node?    scalar = null;
+                    foreach (var child in node) {
+                        if ((def = obj.get_class ().find_property (child.name)) != null) {
+                            Yaml.dbg ("== prop [%s] type is : %s".printf (child.name, def.value_type.name ()));
+                            if (child.ntype.is_single_pair () && (scalar = child.first ()) != null) {
+                                set_from_scalar (ref obj, def.name, def.value_type, scalar.data);
                             }
-                            else {
-                                of.warn ("property %s not found".printf (child.name));
+                            else if (child.ntype.is_collection ()) {
+                                set_from_collection (ref obj, type, child, def.value_type);
                             }
+                        }
+                        else {
+                            of.warn ("property %s not found".printf (child.name));
                         }
                     }
                 }
             }
-            if (obj == null) {
-                of.warn ("searched type not found : %s".printf (type.name ()));
-            }
-            else {
-                if (type.is_a (typeof (Yaml.Object))) {
-                    (obj as Yaml.Object).yaml_init ();
-                }
-            }
         }
-        catch (GLib.Error e) {
-            of.warn (e.message);
+        if (obj == null) {
+            of.warn ("searched type not found : %s".printf (type.name ()));
+        }
+        else {
+            if (type.is_a (typeof (Yaml.Object))) {
+                (obj as Yaml.Object).yaml_init ();
+            }
         }
         return obj;
     }

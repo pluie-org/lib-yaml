@@ -27,12 +27,58 @@
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *^*/
 
-namespace Pluie
-{  
-    namespace Yaml
+/**
+ *
+ */
+public struct Pluie.Samples.YamlStruct
+{
+    /**
+     *
+     */
+    public uint red;
+    /**
+     *
+     */
+    public uint green;
+    /**
+     *
+     */
+    public uint blue;
+
+    /**
+     *
+     */
+    public static YamlStruct from_yaml_node (Yaml.Node node)
     {
-        protected const string INSTALL_PATH = "@INSTALL_PATH@";
-        public    const string DATA_PATH    = "@DATA_PATH@";
-        public    const string VERSION      = "@VERSION@";
+        YamlStruct s = {};
+        foreach (var child in node) {
+            var v = child.val (typeof (uint));
+            switch (child.name) {
+                case "red"   : s.red   = v.get_uint (); break;
+                case "green" : s.green = v.get_uint (); break;
+                case "blue"  : s.blue  = v.get_uint (); break;
+            }
+        }
+        return s;
+    }
+
+    /**
+     *
+     */
+    public Yaml.Node to_yaml_node (string name)
+    {
+        var node = new Yaml.Mapping (null, name);
+        new Yaml.Mapping.with_scalar (node, "red"  , this.red.to_string ());
+        new Yaml.Mapping.with_scalar (node, "green", this.green.to_string ());
+        new Yaml.Mapping.with_scalar (node, "blue" , this.blue.to_string ());
+        return node;
+    }
+
+    /**
+     *
+     */
+    public string to_string ()
+    {
+        return "%s(red:%u,green:%u,blue:%u)".printf ((typeof (YamlStruct)).name (), this.red, this.green, this.blue);
     }
 }

@@ -29,14 +29,17 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #^#
 
 # --------------------------------------------------------
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-lib="pluie-yaml-0.5"
- c1="\033[1;38;5;215m"
- c2="\033[1;38;5;97m"
-cok="\033[1;38;5;37m"
-cko="\033[1;38;5;204m"
-off="\033[m"
-resume=
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    lib="pluie-yaml-0.5"
+samples=" src/vala/Pluie/Samples.YamlObject.vala \
+src/vala/Pluie/Samples.YamlChild.vala \
+src/vala/Pluie/Samples.YamlStruct.vala "
+     c1="\033[1;38;5;215m"
+     c2="\033[1;38;5;97m"
+    cok="\033[1;38;5;37m"
+    cko="\033[1;38;5;204m"
+    off="\033[m"
+ resume=
 # --------------------------------------------------------
 function build.title()
 {
@@ -94,9 +97,9 @@ function build.sample()
     local     f="$(basename $1)"
     local    fx="${f:0:-5}"
     local state="FAILED"
-    local   cmd="valac -v --pkg gee-0.8 --pkg gio-2.0 --pkg pluie-echo-0.2 --pkg $lib $1 -o ./bin/$fx"
+    local   cmd="valac -v -X -Wno-discarded-qualifiers -X -Wno-deprecated-declarations --pkg gee-0.8 --pkg gio-2.0 --pkg pluie-echo-0.2 --pkg $lib $samples $1 -o ./bin/$fx"
     build.title "$f SAMPLE BUILD"
-    echo -e "\n$cmd"
+    echo
     $cmd
     local done=$?
     resume="$resume$done$f "

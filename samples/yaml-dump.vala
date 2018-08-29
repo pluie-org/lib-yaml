@@ -46,21 +46,13 @@ int main (string[] args)
     if ((done = root != null)) {
         root.display_childs ();
 
-        
         of.action("Yaml.Node", "to_yaml_string");
-        string yaml = root.to_yaml_string ();
         string genpath = "./tag-generated.yml";
-        try {
-            var writter = new Io.Writter (genpath, true);
-            long written = 0;
-            writter.write (yaml.data, out written);
-            of.echo ("write %ld bytes in `%s`".printf ((long) written, genpath));
-            Yaml.Dumper.show_yaml_string (root, true, true, true);
-        }
-        catch (Error e) {
-            stderr.printf ("%s\n", e.message);
-            return 1;
-        }
+        var writter    = new Io.Writter (genpath, true);
+        long written   = 0;
+        writter.write (root.to_yaml_string ().data, out written);
+        of.echo ("write %ld bytes in `%s`".printf ((long) written, genpath));
+        Yaml.Dumper.show_yaml_string (root, true, true, true);
 
     }
 

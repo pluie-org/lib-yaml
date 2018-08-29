@@ -60,11 +60,12 @@ int main (string[] args)
             node = node.next_sibling ();
         }
     }
+
     // hard code
-    Yaml.Example? o = null;
+    Samples.YamlObject? o = null;
     foreach (var entry in list.entries) {
-        if ((o =  (Yaml.Example) entry.value)!=null) {
-            of.action ("Getting Hard coded values for Yaml.Object %s".printf (of.c (ECHO.MICROTIME).s (o.get_type().name ())), entry.key);
+        if ((o =  (Samples.YamlObject) entry.value)!=null) {
+            of.action ("Getting Hard coded values for Samples.YamlObject %s".printf (of.c (ECHO.MICROTIME).s (o.get_type().name ())), entry.key);
             of.keyval("yaml_name"    , "%s" .printf(o.yaml_name));
             of.keyval("type_int"     , "%d" .printf(o.type_int));
             of.keyval("type_bool"    , "%s" .printf(o.type_bool.to_string ()));

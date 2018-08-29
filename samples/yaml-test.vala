@@ -46,7 +46,7 @@ int main (string[] args)
     root.first ().display_childs ();
 
     of.action ("with signal Yaml.Builder.from_node", root.first ().name);
-    Yaml.Example obj = (Yaml.Example) Yaml.Builder.from_node (root.first ());
+    Samples.YamlObject obj = (Samples.YamlObject) Yaml.Builder.from_node (root.first ());
     obj.type_object.method_a ();
     if (obj.type_gee_al != null) {
         of.keyval("type_gee_al", "(%s<%s>)" .printf(obj.type_gee_al.get_type ().name (), obj.type_gee_al.element_type.name ()));

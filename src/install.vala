@@ -27,18 +27,12 @@
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *^*/
 
-/**
- * a test class to implements yamlize
- */
-public class Pluie.Yaml.ExampleChild : Yaml.Object
+namespace Pluie
 {
-    public string   toto   { get; set; }
-    public string   tata   { get; set; }
-    public int      titi   { get; set; }
-    public bool     tutu   { get; set; }
-
-    public void method_a ()
+    namespace Yaml
     {
-        of.echo ("          called method from object %s builded via yaml".printf (this.get_type().name ()));
+        protected const string INSTALL_PATH = "@INSTALL_PATH@";
+        public    const string DATA_PATH    = "@DATA_PATH@";
+        public    const string VERSION      = "@VERSION@";
     }
 }

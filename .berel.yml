@@ -27,7 +27,6 @@
     - meson :
         file        :
             - meson.build
-        startline   : 1
         sepline     :
             motif       : "# "
             repeat      : 40
@@ -43,7 +42,6 @@
             - .c
         file        :
             - install.vala.in
-        startline   : 1
         sepline     :
             motif       : " *"
             repeat      : 40
@@ -71,6 +69,6 @@
     more details.
 
     You should have received a copy of the GNU General Public License
-    along with ^software.name^.  If not, see <http://www.gnu.org/licenses/>.
+    along with ^software.name^.  If not, see ^license.address^.
 
     ^sepline^
