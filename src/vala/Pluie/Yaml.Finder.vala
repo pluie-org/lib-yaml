@@ -33,6 +33,19 @@ using Pluie;
 
 /**
  * Finder class used to easily retriew Yaml.Node
+ * 
+ * Path definition has two mode :
+ * default mode is ''Yaml.FIND_MODE.DOT''
+ * 
+ *  * child mapping node are separated by dot :
+ *  *  sequence entry must be enclosed in curly brace
+ *  ex : ``grandfather.father.son{2}.age``
+ * 
+ * other mode is ''Yaml.FIND_MODE.SQUARE_BRACKETS''.
+ * 
+ *  * node's key name must be enclosed in square brackets
+ *  * sequence entry must be enclosed in curly brace
+ *  ex : ``[grandfather][father][son]{2}[age]``
  */
 public class Pluie.Yaml.Finder : GLib.Object
 {
@@ -52,17 +65,7 @@ public class Pluie.Yaml.Finder : GLib.Object
     }
 
     /**
-     * find a specific child Yaml.Node corresponding to path definition
-     * path definition has two mode.
-     * default mode is Yaml.FIND_MODE.DOT
-     * - child mapping node are separated by dot :
-     * - sequence entry must be enclosed in curly brace
-     * ex : grandfather.father.son{2}.age
-     * 
-     * other mode is Yaml.FIND_MODE.DOTSQUARE_BRACKETS
-     * - node's key name must be enclosed in square brackets
-     * - sequence entry must be enclosed in curly brace
-     * ex : [grandfather][father][son]{2}[age]
+     * Find a specific child Yaml.Node corresponding to path definition.
      *
      * @param path the definition to retriew the child node
      * @param context the Yaml.Node context to operate

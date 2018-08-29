@@ -28,7 +28,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *^*/
 
 /**
- *
+ * YamlStruct test structure
  */
 public struct Pluie.Samples.YamlStruct
 {
@@ -46,7 +46,8 @@ public struct Pluie.Samples.YamlStruct
     public uint blue;
 
     /**
-     *
+     * get a new YamlStruct populated by specified node
+     * @param node the source Yaml.Node
      */
     public static YamlStruct from_yaml_node (Yaml.Node node)
     {

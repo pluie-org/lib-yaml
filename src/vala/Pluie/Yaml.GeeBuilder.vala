@@ -38,7 +38,6 @@ public class Pluie.Yaml.GeeBuilder
 {
     /**
      * transform a Gee.Collection with fundamental type to a Yaml.Node
-     * @param Gee.ArrayList* a pointer to the list
      * @param property_name name of related property
      * @param parent parent Yaml.Node of the list
      * @param is_char flag indicating data with char representation

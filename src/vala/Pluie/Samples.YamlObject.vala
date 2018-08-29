@@ -32,7 +32,7 @@ using Gee;
 using Pluie;
 
 /**
- * a test class to implements yamlize
+ * a YamlObject test class
  */
 public class Pluie.Samples.YamlObject : Yaml.Object
 {

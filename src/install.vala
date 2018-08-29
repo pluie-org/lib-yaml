@@ -27,8 +27,38 @@
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *^*/
 
+/**
+ * root namespace of various Pluie lib
+ */
 namespace Pluie
 {
+    /**
+     * Pluie.Io is dedicated to various input/ouput operations
+     */
+    namespace Io
+    {
+        
+    }
+
+    /**
+     * Samples namespace  to illustrate or test functionnalities
+     */
+    namespace Samples
+    {
+        
+    }
+
+    /**
+     * Pluie.Yaml provides various tools to deal with yaml files and yaml nodes :
+     *
+     * Use {@link Yaml.Config} to load a .yml file and build a {@link Yaml.Root} node<<BR>>
+     * Use {@link Yaml.Config.get} to retriew a particular {@link Yaml.Node}<<BR>>
+     * Use {@link Yaml.Builder} to convert a {@link Yaml.Node} into a {@link Yaml.Object}<<BR>>
+     * Use {@link Yaml.Dumper} to dump a {@link Yaml.Object} or {@link Yaml.Node} into a yaml string<<BR>>
+     * Use {@link Yaml.serialize} to serialize a {@link Yaml.Object} or {@link Yaml.Node} into a string<<BR>>
+     * Use {@link Yaml.deserialize} to deserialize a serialized string into a {@link Yaml.Node}<<BR>>
+     * Use {@link Yaml.Collection} and {@link Yaml.AbstractChild} methods for Node traversing
+     */
     namespace Yaml
     {
         protected const string INSTALL_PATH = "@INSTALL_PATH@";

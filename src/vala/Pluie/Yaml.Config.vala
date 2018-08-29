@@ -28,7 +28,44 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *^*/
 
 /**
- * Yaml.Config class to manage Yaml configuration files
+ * Yaml.Config class to manage Yaml configuration files and provide a Yaml.Root node.
+ * 
+ * Yaml.Config use a Yaml.Finder to easily retriew a particular node. <<BR>>
+ * The Yaml.Config.get method is bind to the Yaml.Finder.find method with <<BR>>
+ * the root node as context. (more details on {@link Yaml.Finder})
+ * 
+ * {{{
+ *  var config = new Yaml.Config (path);
+ *  var node   = config.get ("ship-to.address.city{0}");
+ *  if (node != null) {
+ *      of.echo (node.data)
+ *  }
+ * }}}
+ * 
+ * You can use a special import clause to embed a set of yaml files into your current document.
+ *
+ * {{{
+ * # |  use special key word '^imports' to import other yaml config files in 
+ * # |  current yaml document
+ * # |  '^imports' must be uniq and a direct child of root node
+ * # |  imported files are injected as mapping nodes at top document level
+ * # |  so you cannot use keys that already exists in the document
+ * ^imports :
+ *    # you can redefine default import path with the special key '^path'
+ *    # if you do not use it, the default path value will be the current directory
+ *    # redefined path values are relative to the current directory (if a relative path 
+ *    # is provided)
+ *    ^path : ./config
+ *    # you can also define any other var by prefixing key with ^
+ *    ^dir  : subdir
+ *    # and use it enclosed by ^
+ *    # here final test path will be "./config/subdir/test.yml"
+ *    test  : ^dir^/test.yml 
+ *    # here final db path will be "./config/db.yml"
+ *    db    : db.yml
+ * }}}
+ * 
+ * {{doc/img/pluie-yaml-imports2.png}}
  */
 public class Pluie.Yaml.Config
 {

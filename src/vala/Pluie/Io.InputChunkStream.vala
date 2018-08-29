@@ -34,10 +34,25 @@ using GLib;
  */
 class Pluie.Io.InputChunkStream : Object
 {
+    /**
+     *
+     */
     protected ulong      chunk_index;
+    /**
+     *
+     */
     protected uint8      chunk_size;
+    /**
+     *
+     */
     protected uint8      buffer_size;
+    /**
+     *
+     */
     protected uint8[]    buffer;
+    /**
+     *
+     */
     protected FileStream fs;
 
     /**

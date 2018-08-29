@@ -28,7 +28,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *^*/
 
 /**
- * a test class to implements yamlize
+ * a YamlCHild test class
  */
 public class Pluie.Samples.YamlChild : Yaml.Object
 {
