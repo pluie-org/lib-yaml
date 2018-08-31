@@ -1,7 +1,7 @@
 /*^* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *
  *  @software    :    pluie-yaml       <https://git.pluie.org/pluie/lib-yaml>
- *  @version     :    0.55
+ *  @version     :    0.56
  *  @type        :    library
  *  @date        :    2018
  *  @license     :    GPLv3.0          <http://www.gnu.org/licenses/>
