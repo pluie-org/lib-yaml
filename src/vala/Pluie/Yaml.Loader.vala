@@ -37,19 +37,22 @@ using Pluie;
 public class Pluie.Yaml.Loader
 {
     /**
+     * Flag PACK_NESTED_ENTRIES
+     */
+    public static bool  PACK_NESTED_ENTRIES { public get; public set; default = false; }
+    /**
      * Yaml.Scanner used to retriew yaml events
      */
-    Yaml.Scanner    scanner     { public get; internal set; }
-
+    Yaml.Scanner        scanner            { public get; internal set; }
     /**
      * indicate if file has been sucessfully loaded
      */
-    public bool     done        { get; internal set; }
+    public bool         done               { get; internal set; }
 
     /**
      * Reader used to load content yaml file
      */
-    Io.Reader       reader;
+    Io.Reader           reader;
 
     /**
      * default constructor of Yaml.Loader
@@ -84,7 +87,33 @@ public class Pluie.Yaml.Loader
      */
     public Yaml.Node? get_nodes ()
     {
-        return this.scanner.get_nodes ();
+        Yaml.Node? n = this.scanner.get_nodes ();
+        if (PACK_NESTED_ENTRIES) {
+            this.pack_entries (n);
+        }
+        return n;
+    }
+
+    /**
+     *
+     */
+    private void pack_entries (Yaml.Node? node = null)
+    {
+        bool restart = false;
+        if (node != null) {
+            if (node.ntype.is_sequence ()) {
+                foreach (var child in node) {
+                    if (child.ntype.is_mapping () && child.name[0] == '_' && child.count () == 1) {
+                        var sub = child.first ().clone_node ();
+                        node.replace_node (child, sub);
+                        restart = true;
+                        break;
+                    }
+                }
+                if (restart) pack_entries (node);
+            }
+            else foreach (var child in node) this.pack_entries (child);
+        }
     }
 
     /**

@@ -49,6 +49,7 @@ configure_file(
 install_data([
         'resources/main.yml',
         'resources/tag.yml',
+        'resources/bug.yml',
         'resources/test.yml',
         'resources/test.json'
     ],

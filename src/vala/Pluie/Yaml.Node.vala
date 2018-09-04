@@ -76,6 +76,8 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
         }
         catch (Yaml.AddNodeError e) {
             of.warn (e.message);
+            Yaml.dbg (this.to_string ());
+            this.display_childs ();
         }
         return done;
     }
@@ -259,6 +261,21 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
             Yaml.Builder.set_basic_type_value (ref v, type, this.first ().data);
         }
         return v;
+    }
+
+    /**
+     *
+     */
+    public void replace_node (Yaml.Node child, Yaml.Node new_child)
+    {
+        int index = this.list.index_of (child);
+        if (index > -1) {
+            new_child.level = this.level + 1;
+            new_child.parent = this;
+            new_child.update_level ();
+            this.list.remove_at (index);
+            this.list.insert (index, new_child);
+        }
     }
 
     /**

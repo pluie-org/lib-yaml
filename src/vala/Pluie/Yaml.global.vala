@@ -319,6 +319,14 @@ namespace Pluie.Yaml
             return this == EVT.NONE;
         }
 
+        /**
+          * @return event is document start event
+          */
+        public bool is_document_start ()
+        {
+            return this == EVT.DOCUMENT_START;
+        }
+
     }
 
     /**

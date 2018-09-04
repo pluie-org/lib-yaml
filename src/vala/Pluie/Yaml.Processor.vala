@@ -47,6 +47,21 @@ public class Pluie.Yaml.Processor
     bool                              change;
 
     /**
+     * indicates if document start begin
+     */
+    bool                              begin;
+
+    /**
+     * indicates if new node is a sequence entry
+     */
+    bool                              isEntry;
+
+    /**
+     * indicates if new node is a sequence entry mapping
+     */
+    bool                              isEntryMapping;
+
+    /**
      * indicates if begon a flow sequence
      */
     bool                              beginFlowSeq;
@@ -174,7 +189,7 @@ public class Pluie.Yaml.Processor
         this.reset ();
         for (var has_next = this.iterator.next (); has_next; has_next = this.iterator.next ()) {
             this.event = this.iterator.get ();
-            Yaml.dbg ("    0>>>>> [EVENT event [%d] %s <<<<< %s".printf (this.indexEvt++, this.event.evtype.infos (), Log.METHOD));
+            Yaml.dbg ("    [[[ EVENT %d %s ]]]".printf (this.indexEvt++, this.event.evtype.infos ()));
             if (this.event.evtype.is_tag_directive ()) {
                 this.on_tag_directive ();
             }
@@ -182,28 +197,48 @@ public class Pluie.Yaml.Processor
                 this.on_error ();
                 break;
             }
-            if (this.event.evtype.is_mapping_end () || this.event.evtype.is_sequence_end ()) {
-                this.on_block_end ();
-                continue;
-            }
-            if (this.event.evtype.is_entry ()) {
-                this.on_entry ();
-            }
-            if (this.beginFlowSeq && this.event.evtype.is_scalar ()) {
-                if (!this.change) {
-                    this.on_scalar (true);
+            if (!this.begin) {
+                if (this.event.evtype.is_document_start ()) {
+                    this.begin = true;
+                    // to do
+                    this.next_event ();
+                    continue;
                 }
-                this.beginFlowSeq = false;
             }
-            if (this.event.evtype.is_key () && (this.event = this.get_value_key_event ()) != null) {
-                this.on_key ();
-            }
-            if (this.event.evtype.is_value () && (this.event = this.get_value_event ()) != null) {
-                this.on_value ();
+            else {
+                if (this.event.evtype.is_mapping_end () || this.event.evtype.is_sequence_end ()) {
+                    this.on_block_end ();
+                    continue;
+                }
+                if (this.event.evtype.is_key () && (this.event = this.get_value_key_event ()) != null) {
+                    this.on_key ();
+                }
+                if (this.event.evtype.is_anchor ()) {
+                    this.event = this.next_event ();
+                    this.on_anchor ();
+                }
+                if (this.event.evtype.is_alias ()) {
+                    this.event = this.next_event ();
+                    this.on_alias ();
+                }
+                else if (this.event.evtype.is_entry ()) {
+                    this.on_entry ();
+                }
+                else if (this.event.evtype.is_mapping_start ()) {
+                    this.create_mapping (this.isEntry);
+                }
+                else if (this.event.evtype.is_sequence_start ()) {
+                    this.on_sequence_start ();
+                }
+                else if (this.event.evtype.is_value ()) {
+                    continue;
+                }
+                else if (this.event.evtype.is_scalar ()) {
+                    this.on_scalar ();
+                }
                 this.add_anchor_if_needed ();
-                this.ckey = null;
+                this.on_update ();
             }
-            this.on_update ();
         }
         this.done = error_event == null && this.root != null;
         return done;
@@ -227,6 +262,9 @@ public class Pluie.Yaml.Processor
         this.beginFlowSeq  = false;
         this.nextValueEvt  = null;
         this.indexEvt      = 0;
+        this.isEntry       = false;
+        this.begin         = false;
+        this.isEntryMapping = false;
     }
 
     /**
@@ -238,6 +276,19 @@ public class Pluie.Yaml.Processor
         if (this.iterator.has_next () && this.iterator.next ()) {
             evt = this.iterator.get ();
             Yaml.dbg ("    1>>>>> [EVENT event [%d] %s <<<<< %s".printf (this.indexEvt++, evt.evtype.infos (), Log.METHOD));
+        }
+        return evt;
+    }
+
+    /**
+     * retriew the next Yaml Event without use of iterator
+     */
+    private Yaml.Event? get_next_event ()
+    {
+        Yaml.Event? evt = null;
+        var i = this.indexEvt;
+        if (i < this.events.size) {
+            evt = this.events.get (i);
         }
         return evt;
     }
@@ -275,13 +326,15 @@ public class Pluie.Yaml.Processor
     private Yaml.Event? get_next_value_event ()
     {
         Yaml.Event? evt = null;
-        var i      = this.indexEvt+1;
+        var i      = this.indexEvt;
+        Yaml.dbg (" >>> %s from %d".printf (Log.METHOD, i));
         var search = true;
         while (search) {
             if (i < this.events.size) {
                 var e = this.events.get (i++);
                 if (e != null && e.evtype.is_value ()) {
                     evt = this.events.get (i);
+                    Yaml.dbg (" >>> %s > %d : %s".printf (Log.METHOD, i, evt.evtype.infos ()));
                     break;
                 }
             }
@@ -321,17 +374,19 @@ public class Pluie.Yaml.Processor
      */
     private void on_block_end ()
     {
-        Yaml.dbg (" ===== ON BLOCK END ===== ");
+        Yaml.dbg (" ===== >> ON BLOCK END ===== ");
         Yaml.dbg ("    - parent_node : %s (%s)".printf (this.parent_node.name, this.parent_node.ntype.infos ()));
         Yaml.dbg ("    - prev_node : %s (%s - collection ? %s)".printf (this.prev_node.name, this.prev_node.ntype.infos (), this.prev_node.ntype.is_collection ().to_string ()));
         bool suite = true;
         if (this.prev_node.ntype.is_mapping () && this.prev_node.parent != null && this.prev_node.parent.ntype.is_sequence ()) {
             if (!(this.prev_node.parent as Yaml.Sequence).close_block) {
                 (this.prev_node.parent as Yaml.Sequence).close_block = true;
-                suite = false;
+                Yaml.dbg ("    SET FALSE SUITE");
+//~                 suite = false;
             }
         }
         if (suite) {
+            Yaml.dbg ("    SUITE");
             if (this.prev_node.ntype.is_scalar () || (this.prev_node.ntype.is_single_pair () && this.prev_node.parent != null && this.prev_node.parent.ntype.is_mapping ())) {
                 this.prev_node = this.prev_node.parent;
             }
@@ -340,6 +395,10 @@ public class Pluie.Yaml.Processor
                 : this.root;
             this.prev_node   = this.parent_node;
         }
+        Yaml.dbg ("    - parent_node : %s (%s)".printf (this.parent_node.name, this.parent_node.ntype.infos ()));
+        Yaml.dbg ("    - prev_node : %s (%s - collection ? %s)".printf (this.prev_node.name, this.prev_node.ntype.infos (), this.prev_node.ntype.is_collection ().to_string ()));
+        Yaml.dbg (this.prev_node.to_string ());
+        Yaml.dbg (" ===== << ON BLOCK END ====================== ");
     }
 
     /**
@@ -347,15 +406,13 @@ public class Pluie.Yaml.Processor
      */
     private void on_entry ()
     {
-        this.event = this.next_event();
-        Yaml.Event? e = null;
-        // look up for sequence enrty nested block
-        e = get_next_value_event ();
-        if (this.event.evtype.is_mapping_start () && (e!= null && !e.evtype.is_mapping_start () && !e.evtype.is_scalar ())) {
-            this.on_mapping_start (!e.evtype.is_scalar ());
-        }
-        else if (this.event.evtype.is_scalar ()) {
-            this.on_scalar (true);
+        this.isEntry = true;
+        this.ckey = null;
+        var e = this.get_next_event ();
+        if (e!= null && e.evtype.is_mapping_start ()) {
+            this.isEntryMapping = true;
+            this.create_mapping (true);
+            this.next_event ();
         }
     }
 
@@ -387,7 +444,10 @@ public class Pluie.Yaml.Processor
     private void on_key ()
     {
         this.on_tag (true);
-        this.ckey = this.event.data["data"];
+        if (this.event.evtype.is_scalar ()) {
+            this.ckey = this.event.data["data"];
+            Yaml.dbg (" >> node name : %s".printf (this.ckey));
+        }
     }
 
     /**
@@ -395,21 +455,20 @@ public class Pluie.Yaml.Processor
      */
     private void on_value ()
     {
-        this.on_tag (false);
-        if (this.event.evtype.is_scalar ()) {
-            this.on_scalar ();
+        var e = this.get_next_event();
+        if (e.evtype.is_scalar ()) {
+            this.event = this.next_event ();
+            this.on_tag (false);
+            this.node = new Yaml.Scalar (this.parent_node, this.event.data["data"]);
+            this.change = true;
         }
-        else if (this.event.evtype.is_anchor ()) {
+        else if (e.evtype.is_anchor ()) {
+            this.event = this.next_event ();
             this.on_anchor ();
         }
-        else if (this.event.evtype.is_alias ()) {
+        else if (e.evtype.is_alias ()) {
+            this.event = this.next_event ();
             this.on_alias ();
-        }
-        if (this.event.evtype.is_mapping_start ()) {
-            this.on_mapping_start ();
-        }
-        else if (this.event.evtype.is_sequence_start ()) {
-            this.on_sequence_start ();
         }
     }
 
@@ -418,16 +477,13 @@ public class Pluie.Yaml.Processor
      */
     private void on_scalar (bool entry = false)
     {
-        if (!entry) {
-            if (this.ckey != null) {
-                this.node   = new Yaml.Mapping.with_scalar (this.parent_node, this.ckey, this.event.data["data"]);
-                this.change = true;
-            }
+        if (this.ckey != null && this.parent_node.ntype.is_mapping ()) {
+            this.node = new Yaml.Mapping.with_scalar (this.parent_node, this.ckey, this.event.data["data"]);
         }
         else {
-            this.node   = new Yaml.Scalar (this.parent_node, this.event.data["data"]);
-            this.change = true;
+            this.node = new Yaml.Scalar (this.parent_node, this.event.data["data"]);
         }
+        this.change = true;
     }
 
     /**
@@ -436,7 +492,6 @@ public class Pluie.Yaml.Processor
     private void on_anchor ()
     {
         this.idAnchor = this.event.data["id"];
-        this.event    = this.next_event ();
     }
 
     /**
@@ -460,7 +515,7 @@ public class Pluie.Yaml.Processor
     {
         this.node         = new Yaml.Sequence (this.parent_node, this.ckey);
         this.change       = true;
-        this.beginFlowSeq = true;
+//~         this.beginFlowSeq = true;
     }
 
     /**
@@ -468,11 +523,26 @@ public class Pluie.Yaml.Processor
      */
     private void on_mapping_start (bool entry = false)
     {
-        if (entry) {
-            this.create_mapping (entry);
-            this.ckey   = null;
+        this.ckey  = null;
+        this.event = this.next_event ();
+        if (this.event.evtype.is_key ()) {
+            this.event = this.next_event ();
+            this.on_tag (true);
+            if (this.event.evtype.is_scalar ()) {
+                this.ckey = this.event.data["data"];
+                Yaml.dbg (" >> node name : %s".printf (this.ckey));
+            }
+            var e = this.get_next_value_event();
+//~             Yaml.dbg (e.evtype.infos ());
+            if (e!=null) {
+                if ( e.evtype.is_sequence_start ()) {
+                    this.on_sequence_start ();
+                }
+                else {
+                    this.create_mapping (this.isEntry);
+                }
+            }
         }
-        else this.create_mapping ();
     }
 
     /**
@@ -480,7 +550,7 @@ public class Pluie.Yaml.Processor
      */
     private void create_mapping (bool entry = false)
     {
-        if (entry) {
+        if (entry && this.ckey == null) {
             this.ckey = "_%d".printf(this.parent_node.count());
         }
         this.node   = new Yaml.Mapping (this.parent_node, this.ckey);
@@ -506,7 +576,9 @@ public class Pluie.Yaml.Processor
     private void on_update ()
     {
         if (this.node != null) {
+            Yaml.dbg (Log.METHOD);
             Yaml.dbg (this.node.name);
+            Yaml.dbg (this.node.ntype.infos ());
         }
         if (this.change) {
             if (this.node.parent.ntype.is_sequence ()) {
@@ -537,7 +609,9 @@ public class Pluie.Yaml.Processor
             this.keyTag    = null;
             this.valueTag  = null;
             this.node      = null;
+            this.isEntryMapping = false;
             this.change    = false;
+            this.isEntry   = false;
         }
     }
 
