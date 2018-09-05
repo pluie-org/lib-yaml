@@ -36,6 +36,13 @@ if [ $? -eq 0 ]; then
     rm doc/*.png
     cp resources/doc-scripts.js ./doc/scripts.js
     cp resources/doc-style.css ./doc/style.css
-    #~ rm $lib.tar.gz
-    #~ tar -czvf $lib.tar.gz doc/
+    if [ -f "./docfix" ]; then
+        docfix
+        if [ $? -eq 0 ]; then
+            rm $lib.tar.gz
+            tar -czvf $lib.tar.gz doc/
+            scp $lib.tar.gz pluie@pluie.org:/home/pluie/
+            ssh pluie@pluie.org "./updatedoc.sh $lib.tar.gz"
+        fi
+    fi
 fi
