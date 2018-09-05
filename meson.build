@@ -1,7 +1,7 @@
 #^# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #
 #  @software    :    pluie-yaml       <https://git.pluie.org/pluie/lib-yaml>
-#  @version     :    0.56
+#  @version     :    0.60
 #  @type        :    library
 #  @date        :    2018
 #  @license     :    GPLv3.0          <http://www.gnu.org/licenses/>
@@ -27,7 +27,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #^#
 
-project('pluie-yaml', ['vala', 'c'], version:'0.5')
+project('pluie-yaml', ['vala', 'c'], version:'0.6')
 
 cc            = meson.get_compiler('c')
 version       = meson.project_version()

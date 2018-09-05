@@ -2,7 +2,7 @@
 #^# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #
 #  @software    :    pluie-yaml       <https://git.pluie.org/pluie/lib-yaml>
-#  @version     :    0.56
+#  @version     :    0.60
 #  @type        :    library
 #  @date        :    2018
 #  @license     :    GPLv3.0          <http://www.gnu.org/licenses/>
@@ -29,15 +29,15 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #^#
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-lib="pluie-yaml-0.5"
+lib="pluie-yaml-0.6"
 cd $DIR
-valadoc --package-name=$lib --verbose --force --deps -o ./doc --pkg gee-0.8 --pkg gio-2.0 --pkg gobject-2.0 --pkg gmodule-2.0 --pkg glib-2.0 --pkg pluie-echo-0.2 ./src/vala/Pluie/*.vala ./src/install.vala
+valadoc --package-name=$lib --verbose --force --deps -o ./doc --pkg gee-0.8 --pkg gio-2.0 --pkg gobject-2.0 --pkg gmodule-2.0 --pkg glib-2.0 --pkg pluie-echo-0.2 ./src/vala/Pluie/*.vala ./build/install.vala
 if [ $? -eq 0 ]; then
     rm doc/*.png
     cp resources/doc-scripts.js ./doc/scripts.js
     cp resources/doc-style.css ./doc/style.css
     if [ -f "./docfix" ]; then
-        docfix
+        ./docfix
         if [ $? -eq 0 ]; then
             rm $lib.tar.gz
             tar -czvf $lib.tar.gz doc/

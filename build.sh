@@ -2,7 +2,7 @@
 #^# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 #
 #  @software    :    pluie-yaml       <https://git.pluie.org/pluie/lib-yaml>
-#  @version     :    0.56
+#  @version     :    0.60
 #  @type        :    library
 #  @date        :    2018
 #  @license     :    GPLv3.0          <http://www.gnu.org/licenses/>
@@ -30,7 +30,7 @@
 
 # --------------------------------------------------------
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    lib="pluie-yaml-0.5"
+    lib="pluie-yaml-0.6"
 samples=" src/vala/Pluie/Samples.YamlObject.vala \
 src/vala/Pluie/Samples.YamlChild.vala \
 src/vala/Pluie/Samples.YamlStruct.vala "
