@@ -45,11 +45,28 @@ sudo ninja install -C build
 ## Compilation
 
 ```
-valac  --pkg pluie-echo-0.2 --pkg pluie-yaml-0.4 main.vala
+valac --pkg glib-2.0 \
+--pkg gobject-2.0 \
+--pkg gmodule-2.0 \
+--pkg gio-2.0 \
+--pkg gee-0.8 \
+--pkg pluie-echo-0.2 \
+--pkg pluie-yaml-0.4 \
+main.vala
 ```
 
 You can use `./build.sh` to rebuild/install the **pluie-yaml** lib and compile samples files
 
+```
+# rebuild lib + build all samples
+./build.sh
+# rebuild lib + build only single sample (give sample file name without extension)
+./build.sh yaml-serialize
+# rebuild lib in local mode 
+# local mode avoid to rebuild when modifying yaml files in resources dir
+# must be in the root directory
+./build.sh yaml-serialize 1
+```
 
 ## Api / Documentation
 
@@ -379,9 +396,9 @@ Once your class has this glue, you can deal with complex object and populate the
 directly from yaml files.
 
 for more details see :
-* `src/vala/Pluie/Yaml.Example.vala`
-* `src/vala/Pluie/Yaml.ExampleChild.vala`
-* `src/vala/Pluie/Yaml.ExampleStruct.vala`
+* `src/vala/Pluie/Samples.YamlObject.vala`
+* `src/vala/Pluie/Samples.YamlChild.vala`
+* `src/vala/Pluie/Samples.YamlStruct.vala`
 * `samples/yaml-tag.vala`
 
 code from samples/yaml-tag.vala :

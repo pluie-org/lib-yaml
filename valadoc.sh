@@ -42,7 +42,7 @@ if [ $? -eq 0 ]; then
             rm $lib.tar.gz
             tar -czvf $lib.tar.gz doc/
             scp $lib.tar.gz pluie@pluie.org:/home/pluie/
-            ssh pluie@pluie.org "./updatedoc.sh $lib.tar.gz"
+            ssh pluie@pluie.org "./updatedoc.sh $lib"
         fi
     fi
 fi
