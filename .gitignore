@@ -2,3 +2,7 @@ build/
 bin/
 doc/
 pluie-yaml-*.tar.gz
+.geany
+docfix*
+docsvg.tar.gz
+tag-generated.yml
