@@ -29,6 +29,7 @@
 
 src_files = [
     'src/c/yaml.c',
+    'build/install.vala',
     'src/vala/Pluie/Io.Reader.vala',
     'src/vala/Pluie/Io.InputChunkStream.vala',
     'src/vala/Pluie/Io.StreamLineMark.vala',

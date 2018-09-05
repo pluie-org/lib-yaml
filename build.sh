@@ -65,6 +65,11 @@ function build.lib()
     cd "$DIR"
     build.title "$lib LIB BUILD"
     meson --prefix=/usr ./ build
+    if [ "$1" -eq 1 ]; then
+        meson configure -DLOCAL=true build
+    else 
+        meson configure -DLOCAL=false build
+    fi
     if [ "$UID" != "0" ]; then
         sudo ninja -v install -C build
     else
@@ -112,10 +117,10 @@ function build.main()
     if [ ! -z "$1" ]; then
         onefile="./samples/$1.vala"
     fi
-    build.lib
+    build.lib "$2"
     if [ $? -eq 0 ]; then
         build.samples $onefile
     fi
 }
 
-build.main "$1"
+build.main "$1" "${2:-0}"

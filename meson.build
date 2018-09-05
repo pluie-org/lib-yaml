@@ -38,10 +38,14 @@ incdir        = join_paths(get_option('prefix'), get_option('includedir'), 'plui
 conf          = configuration_data()
 conf.set('VERSION'     , version)
 conf.set('INSTALL_PATH', bindir)
-conf.set('DATA_PATH'   , datadir)
+if get_option('LOCAL')
+    conf.set('DATA_PATH'   , './resources')
+else
+    conf.set('DATA_PATH'   , datadir)
+endif
 
 configure_file(
-  input: 'src/install.vala',
+  input: 'src/vala/install.vala.in',
   output: 'install.vala',
   configuration: conf
 )
@@ -60,9 +64,12 @@ install_data('resources/config/subdir/test.yml', install_dir : join_paths(datadi
 
 subdir('src')
 
+add_global_arguments('-D DEBUG', language : 'valac')
+
+
 libpluie_yaml = library(
     'pluie-yaml-' + version, 
-    src_files + [ 'build/install.vala' ],
+    src_files,
     vala_header  : 'pluie_yaml.h',
     vala_vapi    : 'pluie-yaml-' +version+'.vapi',
     dependencies : [
