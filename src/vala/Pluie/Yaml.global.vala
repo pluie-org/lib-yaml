@@ -327,6 +327,14 @@ namespace Pluie.Yaml
             return this == EVT.DOCUMENT_START;
         }
 
+        /**
+          * @return event is stream start event
+          */
+        public bool is_stream_start ()
+        {
+            return this == EVT.STREAM_START;
+        }
+
     }
 
     /**

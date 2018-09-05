@@ -343,7 +343,7 @@ public class Pluie.Yaml.Node : Yaml.AbstractChild, Pluie.Yaml.Collection
                 )
                 : "",
             of.c (ECHO.OPTION).s ("]"),
-            withTag && this.ntype.is_root () ? (this as Yaml.Root).get_display_tag_directives () : ""
+            withTag && this.ntype.is_root () && (this as Yaml.Root) !=null ? (this as Yaml.Root).get_display_tag_directives () : ""
         );
     }
 }

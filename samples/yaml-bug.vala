@@ -42,6 +42,7 @@ int main (string[] args)
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
     Pluie.Yaml.DEBUG = false;
+    Yaml.Loader.PACK_NESTED_ENTRIES = true;
     var loader = new Yaml.Loader (path, true, true);
     if ((done = loader.done)) {
         var root = loader.get_nodes ();

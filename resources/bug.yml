@@ -73,10 +73,10 @@
 
   product:
     - sku         : BL394D
-      quantity    : 4
+      quantity    : 5
       description : Basketball
       price       : 450.00
     - sku         : BL394D
-      quantity    : 4
+      quantity    : 5
       description : Basketball
       price       : 450.00

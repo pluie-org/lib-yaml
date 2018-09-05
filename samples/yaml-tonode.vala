@@ -106,6 +106,7 @@ int main (string[] args)
     Pluie.Yaml.DEBUG = false;
     var config = new Yaml.Config (path, true);
     var root   = config.root_node ();
+    root.display_childs ();
     root.first ().display_childs ();
 
     of.action ("Yaml.Builder.from_node", root.first ().name);

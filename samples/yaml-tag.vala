@@ -41,7 +41,7 @@ int main (string[] args)
     var done     = false;
 
     of.title ("Pluie Yaml Library", Pluie.Yaml.VERSION, "a-sansara");
-    Pluie.Yaml.DEBUG = true;
+    Pluie.Yaml.DEBUG = false;
     Yaml.Object? obj = null;
     var config = new Yaml.Config (path, true);
     var root   = config.root_node ();
