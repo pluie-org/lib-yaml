@@ -100,7 +100,9 @@ namespace Pluie.Yaml
     }
 
     /**
-     *
+     * serialize an object as a yaml compressed document data
+     * @param obj the object to serialize
+     * @param dest path destination if you want to write to a file
      */
     public static uint8[] serialize (GLib.Object? obj, string? dest = null)
     {
@@ -137,7 +139,8 @@ namespace Pluie.Yaml
     }
 
     /**
-     *
+     * deserialize yaml compressed document data to a Yaml.Object
+     * @param zdata the data to deserialized
      */
     public static Yaml.Root deserialize (uint8[] zdata)
     {
@@ -436,7 +439,7 @@ namespace Pluie.Yaml
     }
 
     /**
-     *@return universal infos related to NODE_TYPE
+     *@return a universal unique identifier (type 4)
      */
     public string uuid ()
     {

@@ -129,6 +129,31 @@ int main (string[] args)
                     child.method_a ();
                 }
             }
+            if (o.type_gee_hmap != null) {
+                of.keyval("type_gee_hmap", "(%s<%s, %s>)" .printf(o.type_gee_hmap.get_type ().name (), o.type_gee_hmap.key_type.name (), o.type_gee_hmap.value_type.name ()));
+                foreach (var child in o.type_gee_hmap.entries) {
+                    of.echo("        == entry (%s) ==".printf(child.key));
+                    of.keyval("    toto"     , "%s (string)" .printf(child.value.toto));
+                    of.keyval("    tapa"     , "%s (string)" .printf(child.value.tata));
+                    of.keyval("    titi"     , "%d (int)"    .printf(child.value.titi));
+                    of.keyval("    tutu"     , "%s (bool)"   .printf(child.value.tutu.to_string ()));
+                }
+            }
+            if (o.type_gee_hmap2 != null) {
+                of.keyval("type_gee_hmap", "(%s<%s, %s>)" .printf(o.type_gee_hmap2.get_type ().name (), o.type_gee_hmap2.key_type.name (), o.type_gee_hmap2.value_type.name ()));
+                foreach (var child in o.type_gee_hmap2.entries) {
+                    of.echo("        == key ==");
+                    of.keyval("    obj :"    , "%s" .printf(child.key.to_string ()));
+                    of.echo("        == val (%s) ==".printf(child.value.get_type ( ).name ()));
+                    of.keyval("    toto"     , "%s (string)" .printf(child.value.toto));
+                    of.keyval("    tapa"     , "%s (string)" .printf(child.value.tata));
+                    of.keyval("    titi"     , "%d (int)"    .printf(child.value.titi));
+                    of.keyval("    tutu"     , "%s (bool)"   .printf(child.value.tutu.to_string ()));
+                }
+            }
+            else {
+                of.echo ("hmap2 null");
+            }
         }
     }
 

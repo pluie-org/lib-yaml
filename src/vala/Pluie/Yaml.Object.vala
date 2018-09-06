@@ -127,18 +127,53 @@ public abstract class Pluie.Yaml.Object : GLib.Object
      */
     public static Yaml.Node? objects_collection_to_node (Gee.Collection list, string name, Yaml.Node? parent = null)
     {
-        of.echo (Log.METHOD);
         var node = new Yaml.Sequence (parent, name);
         node.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(list.get_type ()), "v");
         var it = list.iterator ();
         var i  = 0;
         while (it.next ()) {
-            Yaml.Builder.to_node (
-                (GLib.Object) it.get (),
-                node, 
-                false,
-                i++
-            );
+            Yaml.Builder.to_node ((GLib.Object) it.get (), node, false, i++);
+        }
+        return node;
+    }
+
+    /**
+     * build an object Gee.HashMap<string, Yaml.Object> to a Yaml.Node
+     * @param map the gee hashmap to transform
+     * @param name name of map sequence node
+     * @param parent parent node of the map
+     * @return the resulting Yaml.Node
+     */
+    public static Yaml.Node? objects_mapkstr_to_node (Gee.HashMap map, string name, Yaml.Node? parent = null)
+    {
+        var node = new Yaml.Sequence (parent, name);
+        node.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(map.get_type ()), "v");
+        var i  = 0;
+        foreach (var child in map.entries) {
+            var entryNode = new Yaml.Mapping (node, "_%d".printf (i++));
+            new Yaml.Mapping.with_scalar (entryNode, "key", (string) child.key);
+            Yaml.Builder.to_node ((GLib.Object) child.value, entryNode, false, null, "val");
+        }
+        return node;
+    }
+
+
+    /**
+     * build an object Gee.HashMap<string, Yaml.Object> to a Yaml.Node
+     * @param map the gee hashmap to transform
+     * @param name name of map sequence node
+     * @param parent parent node of the map
+     * @return the resulting Yaml.Node
+     */
+    public static Yaml.Node? objects_mapobjects_to_node (Gee.HashMap map, string name, Yaml.Node? parent = null)
+    {
+        var node = new Yaml.Sequence (parent, name);
+        node.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(map.get_type ()), "v");
+        var i  = 0;
+        foreach (var child in map.entries) {
+            var entryNode = new Yaml.Mapping (node, "_%d".printf (i++));
+            Yaml.Builder.to_node ((GLib.Object) child.key, entryNode, false, null, "key");
+            Yaml.Builder.to_node ((GLib.Object) child.value, entryNode, false, null, "val");
         }
         return node;
     }

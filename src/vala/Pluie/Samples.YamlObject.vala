@@ -36,35 +36,37 @@ using Pluie;
  */
 public class Pluie.Samples.YamlObject : Yaml.Object
 {
-    public string                           myname        { get; set; }
-    public string                           type_string   { get; set; }
-    public int                              type_int      { get; set; }
-    public uint                             type_uint     { get; set; }
-    public float                            type_float    { get; set; }
-    public double                           type_double   { get; set; }
-    public char                             type_char     { get; set; }
-    public uchar                            type_uchar    { get; set; }
-    public unichar                          type_unichar  { get; set; }
-    public short                            type_short    { get; set; }
-    public ushort                           type_ushort   { get; set; }
-    public long                             type_long     { get; set; }
-    public ulong                            type_ulong    { get; set; }
-    public size_t                           type_size_t   { get; set; }
-    public ssize_t                          type_ssize_t  { get; set; }
-    public int8                             type_int8     { get; set; }
-    public uint8                            type_uint8    { get; set; }
-    public int16                            type_int16    { get; set; }
-    public uint16                           type_uint16   { get; set; }
-    public int32                            type_int32    { get; set; }
-    public uint32                           type_uint32   { get; set; }
-    public int64                            type_int64    { get; set; }
-    public uint64                           type_uint64   { get; set; }
-    public bool                             type_bool     { get; set; }
-    public Samples.YamlChild                type_object   { get; set; }
-    public Yaml.NODE_TYPE                   type_enum     { get; set; }
-    public Samples.YamlStruct               type_struct   { get; set; }
-    public Gee.ArrayList<double?>           type_gee_al   { get; set; }
-    public Gee.ArrayList<Samples.YamlChild> type_gee_alobject   { get; set; }
+    public string                                 myname              { get; set; }
+    public string                                 type_string         { get; set; }
+    public int                                    type_int            { get; set; }
+    public uint                                   type_uint           { get; set; }
+    public float                                  type_float          { get; set; }
+    public double                                 type_double         { get; set; }
+    public char                                   type_char           { get; set; }
+    public uchar                                  type_uchar          { get; set; }
+    public unichar                                type_unichar        { get; set; }
+    public short                                  type_short          { get; set; }
+    public ushort                                 type_ushort         { get; set; }
+    public long                                   type_long           { get; set; }
+    public ulong                                  type_ulong          { get; set; }
+    public size_t                                 type_size_t         { get; set; }
+    public ssize_t                                type_ssize_t        { get; set; }
+    public int8                                   type_int8           { get; set; }
+    public uint8                                  type_uint8          { get; set; }
+    public int16                                  type_int16          { get; set; }
+    public uint16                                 type_uint16         { get; set; }
+    public int32                                  type_int32          { get; set; }
+    public uint32                                 type_uint32         { get; set; }
+    public int64                                  type_int64          { get; set; }
+    public uint64                                 type_uint64         { get; set; }
+    public bool                                   type_bool           { get; set; }
+    public Samples.YamlChild                      type_object         { get; set; }
+    public Yaml.NODE_TYPE                         type_enum           { get; set; }
+    public Samples.YamlStruct                     type_struct         { get; set; }
+    public Gee.ArrayList<double?>                 type_gee_al         { get; set; }
+    public Gee.ArrayList<Samples.YamlChild>       type_gee_alobject   { get; set; }
+    public Gee.HashMap<string, Samples.YamlChild> type_gee_hmap       { get; set; }
+    public Gee.HashMap<YamlStruct?, Samples.YamlChild> type_gee_hmap2  { get; set; }
 
     /**
      *
@@ -75,7 +77,8 @@ public class Pluie.Samples.YamlObject : Yaml.Object
             typeof (Samples.YamlObject),
             typeof (Samples.YamlChild),
             typeof (Samples.YamlStruct),
-            typeof (Gee.ArrayList)
+            typeof (Gee.ArrayList),
+            typeof (Gee.HashMap)
         );
     }
 
@@ -86,6 +89,8 @@ public class Pluie.Samples.YamlObject : Yaml.Object
     {
         this.type_gee_al       = new Gee.ArrayList<double?> ();
         this.type_gee_alobject = new Gee.ArrayList<Samples.YamlChild> ();
+        this.type_gee_hmap     = new Gee.HashMap<string, Samples.YamlChild> ();
+        this.type_gee_hmap2    = new Gee.HashMap<Samples.YamlStruct?, Samples.YamlChild> ();
         Yaml.Register.add_namespace("Gee", "Pluie.Samples");
         Dbg.msg ("%s (%s) instantiated".printf (this.yaml_name, this.get_type().name ()), Log.LINE, Log.FILE);
     }
@@ -113,6 +118,24 @@ public class Pluie.Samples.YamlObject : Yaml.Object
                         break;
                     case "type_gee_alobject":
                         this.type_gee_alobject.add((Samples.YamlChild) Yaml.Builder.from_node (child, typeof (Samples.YamlChild)));
+                        break;
+                }
+            }
+        }
+        else if (type == typeof (Gee.HashMap)) {
+            Yaml.Mapping? c;
+            foreach (var child in node) {
+                c = child as Yaml.Mapping;
+                switch (name) {
+                    case "type_gee_hmap":
+                        Value key = c.item ("key").val (typeof (string));
+                        var entry = (Samples.YamlChild) Yaml.Builder.from_node (c.item ("val"), typeof (Samples.YamlChild));
+                        this.type_gee_hmap.set((string) key, entry);
+                        break;
+                    case "type_gee_hmap2":
+                        var key   = Samples.YamlStruct.from_yaml_node (c.item ("key"));
+                        var entry = (Samples.YamlChild) Yaml.Builder.from_node (c.item ("val"), typeof (Samples.YamlChild));
+                        this.type_gee_hmap2.set(key, entry);
                         break;
                 }
             }
@@ -147,9 +170,35 @@ public class Pluie.Samples.YamlObject : Yaml.Object
                 break;
             }
         }
+        else if (type == typeof (Gee.HashMap)) {
+            switch (name) {
+                case "type_gee_hmap" :
+                    Yaml.Object.objects_mapkstr_to_node (this.type_gee_hmap, name, parent);
+                break;
+                case "type_gee_hmap2" :
+                    this.hmap2_to_node (name, parent);
+                break;
+            }
+        }
         else {
             base.populate_to_node (name, type, parent);
         }
         return node;
+    }
+
+    /**
+     *
+     */
+    public void hmap2_to_node (string name, Yaml.Node? parent = null)
+    {
+        of.echo (Log.METHOD);
+        var node = new Yaml.Sequence (parent, name);
+        node.tag = new Yaml.Tag (Yaml.Register.resolve_namespace_type(this.type_gee_hmap2.get_type ()), "v");
+        var i  = 0;
+        foreach (var child in this.type_gee_hmap2.entries) {
+            var entryNode = new Yaml.Mapping (node, "_%d".printf (i));
+            entryNode.add (child.key.to_yaml_node ("key"));
+            Yaml.Builder.to_node ((GLib.Object) child.value, entryNode, false, null, "val");
+        }
     }
 }

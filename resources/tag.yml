@@ -43,3 +43,35 @@
           tata : tatavalue4
           titi : 44
           tutu : 0
+    !v!Gee.HashMap type_gee_hmap :
+        - key : key1
+          !v!Pluie.Samples.YamlChild val :
+            toto : key1toto
+            tata : kay1tata
+            titi : 5
+            tutu : 0
+        - key : key2
+          val :
+            toto : key2toto
+            tata : kay2tata
+            titi : 46
+            tutu : 1
+    !v!Gee.HashMap type_gee_hmap2 :
+        - !v!Pluie.Samples.YamlStruct key :
+            red   : !v!uint8 214
+            green : !v!uint8 78
+            blue  : 153
+          !v!Pluie.Samples.YamlChild val :
+            toto : key1toto
+            tata : kay1tata
+            titi : 5
+            tutu : 0
+        - key :
+            red   : !v!uint8 82
+            green : !v!uint8 109
+            blue  : 35
+          val :
+            toto : key2toto
+            tata : kay2tata
+            titi : 46
+            tutu : 1
